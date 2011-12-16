@@ -20,8 +20,8 @@
 package org.ijsberg.iglu.server.http.module;
 
 
-import org.ijsberg.iglu.ConfigurationException;
-import org.ijsberg.iglu.runtime.Startable;
+import org.ijsberg.iglu.configuration.ConfigurationException;
+import org.ijsberg.iglu.configuration.Startable;
 import org.ijsberg.iglu.util.misc.StringSupport;
 import org.ijsberg.iglu.util.properties.PropertiesSupport;
 import org.ijsberg.iglu.util.reflection.ReflectionSupport;
@@ -40,7 +40,6 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletContextListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -52,7 +51,6 @@ import java.util.Properties;
 public class SimpleJettyServletContext implements Startable {
 
 	private Server server;
-//	private Properties section;
 
 	private String contextPath = "/";
 	private String documentRoot = "www";
@@ -62,15 +60,6 @@ public class SimpleJettyServletContext implements Startable {
 	private int port = 17680;
 
 	private Properties section;
-
-//	private boolean sessionRequired;
-//	private boolean loginRequired;
-
-//	private boolean syncUserPrefs;
-//	private int userPrefsMaxAge = -1;
-
-	//preferred realm (for servlets)
-//	private String realmId;
 
 
 	public String getReport() {
@@ -101,9 +90,8 @@ public class SimpleJettyServletContext implements Startable {
 		catch (Exception e) {
 			if (e instanceof MultiException) {
 				MultiException me = (MultiException) e;
-				Iterator i = me.getThrowables().iterator();
-				while (i.hasNext()) {
-					log(i.next());
+				for(Object t : me.getThrowables()) {
+					log((Throwable)t);
 				}
 				throw new ConfigurationException("cannot start webserver at port " + port, me);
 			}
@@ -202,7 +190,7 @@ public class SimpleJettyServletContext implements Startable {
 
 				Properties subSection = servletParameters.get(servletName);
 				//String servletName = subSection.getId();
-				List urlPatterns = StringSupport.split(subSection.getProperty("url_pattern"), ",");
+				List<String> urlPatterns = StringSupport.split(subSection.getProperty("url_pattern"), ",");
 
 				String servletClassName = subSection.getProperty("class");
 
@@ -220,10 +208,9 @@ public class SimpleJettyServletContext implements Startable {
 						addInitParameters(servletHolder, subSection);
 						servletHolder.setInitOrder(initOrder++);
 
-						Iterator j = urlPatterns.iterator();
-						while (j.hasNext()) {
+						for (String urlPattern : urlPatterns) {
 							//add servlet for each alias
-							ctx.addServlet(servletHolder, (String) j.next());
+							ctx.addServlet(servletHolder, urlPattern);
 						}
 					}
 					catch (InstantiationException e) {
@@ -239,13 +226,10 @@ public class SimpleJettyServletContext implements Startable {
 		Map<String, Properties> filterParameters = PropertiesSupport.getSubsections(section, "filter");
 
 		if (filterParameters != null) {
-			//read servlets
-
-			int initOrder = 0;
 			for (String filterName : filterParameters.keySet()) {
 				Properties subSection = filterParameters.get(filterName);
 				//String filterName = subSection.getId();
-				List urlPatterns = StringSupport.split(subSection.getProperty("url_pattern"));
+				List<String> urlPatterns = StringSupport.split(subSection.getProperty("url_pattern"));
 				String filterClassName = subSection.getProperty("class");
 
 				log("Loading : " + filterName);
@@ -259,10 +243,9 @@ public class SimpleJettyServletContext implements Startable {
 						filterHolder.setName(filterName);
 						addInitParameters(filterHolder, subSection);
 
-						Iterator j = urlPatterns.iterator();
-						while (j.hasNext()) {
-							//add servlet for each alias
-							ctx.addFilter(filterHolder, (String) j.next(), Handler.DEFAULT);
+						for (String urlPattern : urlPatterns) {
+							//add filter for each alias
+							ctx.addFilter(filterHolder, urlPattern, Handler.DEFAULT);
 						}
 					}
 /*					catch (ClassNotFoundException t)
@@ -286,8 +269,7 @@ public class SimpleJettyServletContext implements Startable {
 
 		if (listenerParameters != null) {
 			//read servlets
-			//Iterator i = listenerParameters.iterator();
-			int initOrder = 0;
+			//int initOrder = 0;
 			for (String listenerName : listenerParameters.keySet()) {
 				Properties subSection = listenerParameters.get(listenerName);
 				//String listenerName = subSection.getId();
@@ -307,7 +289,7 @@ public class SimpleJettyServletContext implements Startable {
 		}
 	}
 
-	public static void addInitParameters(Map params, Properties subSection) {
+	public static void addInitParameters(Map<Object, String> params, Properties subSection) {
 		Properties properties = PropertiesSupport.getSubsection(subSection, "initparam");
 		for (Object key : properties.keySet()) {
 			params.put(key, subSection.getProperty(key.toString()));

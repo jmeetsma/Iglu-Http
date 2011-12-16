@@ -47,8 +47,8 @@ public class SnoopServlet extends HttpServlet {
 	public void init(ServletConfig conf) throws ServletException {
 		super.init(conf);
 
-		HashMap params = new HashMap();
-		Enumeration e = conf.getInitParameterNames();
+		HashMap<Object, String> params = new HashMap<Object, String>();
+		Enumeration<?> e = conf.getInitParameterNames();
 		while (e.hasMoreElements()) {
 			Object o = e.nextElement();
 			params.put(o, conf.getInitParameter((String) o));
