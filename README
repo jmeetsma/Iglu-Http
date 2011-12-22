@@ -3,7 +3,7 @@ on the configuration of an application in terms of components, clusters, facades
 It helps developers organize high-level separation of concerns and adhere to application design.
 
 Iglu Http contains utilities and components that allow developers to build
-a runtime servlet environment with Iglu Configuration.
+a runtime servlet environment.
 
 Iglu is developed and maintained by Jeroen Meetsma, partner at IJsberg.
 E-mail: info@ijsberg.nl
