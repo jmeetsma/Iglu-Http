@@ -68,7 +68,7 @@ public class SimpleJettyServletContext implements Startable {
 			return "nr of threads: " + server.getThreadPool().getThreads() + "\n" +
 					"nr active: " + (server.getThreadPool().getThreads() - server.getThreadPool().getIdleThreads());
 		} else {
-			return "webserver not available";
+			return "server not available";
 		}
 	}
 
@@ -248,14 +248,6 @@ public class SimpleJettyServletContext implements Startable {
 							ctx.addFilter(filterHolder, urlPattern, Handler.DEFAULT);
 						}
 					}
-/*					catch (ClassNotFoundException t)
-					{
-						throw new ConfigurationException("filter " + filterName + " can not be added to servlet context", t);
-					}
-					catch (IllegalAccessException t)
-					{
-						throw new ConfigurationException("filter " + filterName + " can not be added to servlet context", t);
-					}*/
 					catch (InstantiationException e) {
 						throw new ConfigurationException("filter " + filterName + " can not be added to servlet context", e);
 					}
