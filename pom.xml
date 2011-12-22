@@ -28,7 +28,7 @@
     <groupId>org.ijsberg</groupId>
     <artifactId>iglu-http</artifactId>
     <packaging>jar</packaging>
-    <version>0.9.2</version>
+    <version>0.9.3-SNAPSHOT</version>
     <name>Iglu-Http</name>
     <description>
         Iglu Http contains utilities and components that allows developers to build
