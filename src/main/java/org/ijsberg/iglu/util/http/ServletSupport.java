@@ -9,12 +9,18 @@
 package org.ijsberg.iglu.util.http;
 
 //import org.ijsberg.iglu.server.http.servlet.ServletRequestAbortedException;
+import org.ijsberg.iglu.access.AuthenticationException;
+import org.ijsberg.iglu.access.Base64EncodedCredentials;
+import org.ijsberg.iglu.access.Request;
+import org.ijsberg.iglu.access.User;
 import org.ijsberg.iglu.exception.ResourceException;
 import org.ijsberg.iglu.logging.LogEntry;
 //import org.ijsberg.iglu.server.http.servlet.ServletRequestAlreadyRedirectedException;
+import org.ijsberg.iglu.server.http.servlet.ServletRequestAlreadyRedirectedException;
 import org.ijsberg.iglu.util.io.FileData;
 import org.ijsberg.iglu.util.io.StreamSupport;
 import org.ijsberg.iglu.util.mail.MimeTypeSupport;
+import org.ijsberg.iglu.util.misc.EncodingSupport;
 import org.ijsberg.iglu.util.misc.StringSupport;
 
 import javax.servlet.RequestDispatcher;
@@ -395,16 +401,15 @@ public class ServletSupport
 	 * followed by throwing a ServletRequestAlreadyRedirectedException</li>
 	 * </ul>
 	 *
-	 * @param application
 	 *@param request
 	 * @param response
 	 * @param realmDescription @return logged in user if found @throws java.io.IOException
 	 * @throws ServletRequestAlreadyRedirectedException in case the http-request must be aborted at this stage
 	 */
-/*	public static User getUserByBasicAuthentication(Application application, HttpServletRequest request, HttpServletResponse response, String realmDescription) throws IOException, ServletRequestAlreadyRedirectedException
+	public static User getUserByBasicAuthentication(Request applicationRequest, HttpServletRequest request, HttpServletResponse response, String realmDescription) throws IOException, ServletRequestAlreadyRedirectedException
 	{
-		Request applicationRequest = application.getCurrentRequest();
-		String realmId = applicationRequest.getRealm().getId();
+//		Request applicationRequest = application.getCurrentRequest();
+//		String realmId = applicationRequest.getRealm().getId();
 		if (applicationRequest == null)
 		{
 			throw new IllegalStateException("application request is missing; is entry point configured?");
@@ -416,30 +421,31 @@ public class ServletSupport
 
 			if (header == null)
 			{
-				response.addHeader("WWW-Authenticate", "Basic realm=\"" + (realmDescription != null ? realmDescription : "access to realm " + realmId) + '\"');
+				response.addHeader("WWW-Authenticate", "Basic realm=\"" + (realmDescription != null ? realmDescription : "access to realm IGLU") + '\"');
 				response.sendError(401);
 				throw new ServletRequestAlreadyRedirectedException("user must be authenticated first");
 			}
 			else
 			{
 				String credentials = header.substring(6);
-				System.out.println(new LogEntry("about to login");
+				System.out.println(new LogEntry("about to login"));
 				try
 				{
-					user = application.getCurrentRequest().login(new Base64EncodedCredentials(credentials));
+					user = applicationRequest.login(new Base64EncodedCredentials(credentials));
 				}
 				catch(AuthenticationException ae)
 				{
-					application.log(ae.getMessage());
-					response.addHeader("WWW-Authenticate", "Basic realm=\"" + (realmDescription != null ? realmDescription : "access to realm " + realmId) + '\"');
+					System.out.println(new LogEntry(ae.getMessage()));
+					response.addHeader("WWW-Authenticate", "Basic realm=\"" + (realmDescription != null ? realmDescription : "access to realm IGLU") + '\"');
 					response.sendError(401);
 					throw new ServletRequestAlreadyRedirectedException("user must be authenticated first");
 				}
-				System.out.println(new LogEntry("logged in:" + user.getId());
+				System.out.println(new LogEntry("logged in:" + user.getId()));
 			}
 		}
 		return user;
 	}
+
 
 	public static void rethrow(Throwable t) throws ServletException, IOException
 	{
@@ -493,7 +499,7 @@ public class ServletSupport
 		out.println("</pre>");
 
 	}
-*/
+
 	/**
 	 * Dispatches http-request to url
 	 *

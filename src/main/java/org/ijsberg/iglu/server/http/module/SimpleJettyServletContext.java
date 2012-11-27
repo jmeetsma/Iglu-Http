@@ -61,6 +61,7 @@ public class SimpleJettyServletContext implements Startable {
 	private int port = 17680;
 	
 	private List<Servlet> servlets = new ArrayList<Servlet>();
+	private List<Filter> filters = new ArrayList<Filter>();
 
 	private Properties section;
 
@@ -244,6 +245,7 @@ public class SimpleJettyServletContext implements Startable {
 					log("Loading filter " + filterName + " (" + filterClassName + ')');
 					try {
 						Filter filter = (Filter) ReflectionSupport.instantiateClass(filterClassName);
+						filters.add(filter);
 						FilterHolder filterHolder = new FilterHolder(filter);
 						filterHolder.setName(filterName);
 						addInitParameters(filterHolder, subSection);
@@ -306,4 +308,10 @@ public class SimpleJettyServletContext implements Startable {
 		return servlets;
 	}
 
+	//not having to configure what must be coded anyway
+	//minimize the number of steps
+
+	public List<Filter> getFilters() {
+		return filters;
+	}
 }
