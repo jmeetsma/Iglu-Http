@@ -40,6 +40,7 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletContextListener;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -58,6 +59,8 @@ public class SimpleJettyServletContext implements Startable {
 	private int maximumThreads = 50;
 	private int sessionTimeout = 1800;
 	private int port = 17680;
+	
+	private List<Servlet> servlets = new ArrayList<Servlet>();
 
 	private Properties section;
 
@@ -118,6 +121,7 @@ public class SimpleJettyServletContext implements Startable {
 		return server.isStarted();
 	}
 
+	private Context ctx;
 
 	/**
 	 * @throws ConfigurationException
@@ -161,7 +165,7 @@ public class SimpleJettyServletContext implements Startable {
 			pool.setMaxThreads(maximumThreads);
 			server.setThreadPool(pool);
 
-			Context ctx = new Context(server, contextPath, Context.SESSIONS);
+			ctx = new Context(server, contextPath, Context.SESSIONS);
 
 			ctx.getSessionHandler().getSessionManager().setMaxInactiveInterval(sessionTimeout);
 			//set root directory
@@ -202,6 +206,7 @@ public class SimpleJettyServletContext implements Startable {
 					try {
 						Servlet servlet = null;
 						servlet = (Servlet) ReflectionSupport.instantiateClass(servletClassName);
+						servlets.add(servlet);
 
 						ServletHolder servletHolder = new ServletHolder(servlet);
 						servletHolder.setName(servletName);
@@ -296,5 +301,9 @@ public class SimpleJettyServletContext implements Startable {
 		}
 	}
 
+	
+	public List<Servlet> getServlets() {
+		return servlets;
+	}
 
 }
