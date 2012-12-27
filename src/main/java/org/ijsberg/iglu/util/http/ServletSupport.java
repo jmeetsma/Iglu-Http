@@ -277,14 +277,14 @@ public class ServletSupport
 		return postDataSize;
 	}
 
-/*	public static GenericPropertyBundle readURLEncodedPostData(ServletRequest request) throws IOException
+	public static Properties readURLEncodedPostData(ServletRequest request) throws IOException
 	{
 		ServletInputStream input = request.getInputStream();
 		//the next variable stores all post data and is useful for debug purposes
 
 		String data = new String(StreamSupport.absorbInputStream(input));
 
-		GenericPropertyBundle retval = new GenericPropertyBundle("http-request-parameters");
+		Properties retval = new Properties(/*"http-request-parameters"*/);
 
 		StringTokenizer tokenizer = new StringTokenizer(data, "&", false);
 		while (tokenizer.hasMoreElements())
@@ -297,11 +297,11 @@ public class ServletSupport
 				String value = URLDecoder.decode(nameValuePair.substring(separator + 1), "UTF-8");
 				retval.setProperty(name, value);
 
-				System.out.println(new LogEntry("request parameter found: [" + name + '=' + value + ']');
+				System.out.println(new LogEntry("request parameter found: [" + name + '=' + value + ']'));
 			}
 		}
 		return retval;
-	}*/
+	}
 
 	/**
 	 * Encodes a String in format suitable for use in URL's
@@ -558,6 +558,14 @@ public class ServletSupport
 				redirectUrl += separator + name + '=' + value;
 				separator = '&';
 			}
+			e = req.getAttributeNames();
+	/*		while (e.hasMoreElements())
+			{
+				String name = (String) e.nextElement();
+				String value = req.getParameter(name);
+				redirectUrl += separator + name + '=' + value;
+				separator = '&';
+			}  */
 		}
 		System.out.println(new LogEntry("about to redirect to " + redirectUrl));
 		try
