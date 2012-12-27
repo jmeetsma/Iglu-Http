@@ -38,11 +38,11 @@ import org.mortbay.xml.XmlConfiguration;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * This component acts as a wrapper for the Jetty webserver / servlet runner
@@ -60,6 +60,7 @@ public class SimpleJettyServletContext implements Startable {
 	private int port = 17680;
 
 	private Properties section;
+    private Set<Servlet> servlets = new HashSet<Servlet>();
 
 
 	public String getReport() {
@@ -119,6 +120,8 @@ public class SimpleJettyServletContext implements Startable {
 	}
 
 
+    private Context ctx;
+
 	/**
 	 * @throws ConfigurationException
 	 */
@@ -161,7 +164,7 @@ public class SimpleJettyServletContext implements Startable {
 			pool.setMaxThreads(maximumThreads);
 			server.setThreadPool(pool);
 
-			Context ctx = new Context(server, contextPath, Context.SESSIONS);
+			ctx = new Context(server, contextPath, Context.SESSIONS);
 
 			ctx.getSessionHandler().getSessionManager().setMaxInactiveInterval(sessionTimeout);
 			//set root directory
@@ -171,7 +174,8 @@ public class SimpleJettyServletContext implements Startable {
 			addServlets(ctx, section);
 			addFilters(ctx, section);
 			addListeners(ctx, section);
-		}
+
+ 		}
 	}
 
 	public void log(Object message) {
@@ -185,7 +189,7 @@ public class SimpleJettyServletContext implements Startable {
 		if (servletParameters != null) {
 			//read servlets
 
-			int initOrder = 0;
+//			int initOrder = 0;
 			for (String servletName : servletParameters.keySet()) {
 
 				Properties subSection = servletParameters.get(servletName);
@@ -206,12 +210,13 @@ public class SimpleJettyServletContext implements Startable {
 						ServletHolder servletHolder = new ServletHolder(servlet);
 						servletHolder.setName(servletName);
 						addInitParameters(servletHolder, subSection);
-						servletHolder.setInitOrder(initOrder++);
+//						servletHolder.setInitOrder(initOrder++);
 
 						for (String urlPattern : urlPatterns) {
 							//add servlet for each alias
 							ctx.addServlet(servletHolder, urlPattern);
 						}
+                        servlets.add(servlet);
 					}
 					catch (InstantiationException e) {
 						throw new ConfigurationException("servlet " + servletName + " can not be added to servlet context", e);
@@ -280,14 +285,14 @@ public class SimpleJettyServletContext implements Startable {
 			}
 		}
 	}
-
+/*
 	public static void addInitParameters(Map<Object, String> params, Properties subSection) {
 		Properties properties = PropertiesSupport.getSubsection(subSection, "initparam");
 		for (Object key : properties.keySet()) {
 			params.put(key, subSection.getProperty(key.toString()));
 		}
 	}
-
+*/
 
 	public static void addInitParameters(Holder holder, Properties subSection) {
 		Properties properties = PropertiesSupport.getSubsection(subSection, "initparam");
@@ -295,6 +300,16 @@ public class SimpleJettyServletContext implements Startable {
 			holder.setInitParameter((String) key, subSection.getProperty(key.toString()));
 		}
 	}
+
+    public <T extends HttpServlet> List<T> getServletsByType(Class<T> type) {
+        List<T> retval = new ArrayList<T>();
+        for(Servlet servlet : servlets) {
+            if(type.isAssignableFrom(servlet.getClass())) {
+                retval.add((T)servlet);
+            }
+        }
+        return retval;
+    }
 
 
 }
