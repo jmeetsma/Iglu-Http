@@ -38,11 +38,12 @@ import org.mortbay.xml.XmlConfiguration;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * This component acts as a wrapper for the Jetty webserver / servlet runner
@@ -58,9 +59,11 @@ public class SimpleJettyServletContext implements Startable {
 	private int maximumThreads = 50;
 	private int sessionTimeout = 1800;
 	private int port = 17680;
+	
+	private List<Servlet> servlets = new ArrayList<Servlet>();
+	private List<Filter> filters = new ArrayList<Filter>();
 
 	private Properties section;
-    private Set<Servlet> servlets = new HashSet<Servlet>();
 
 
 	public String getReport() {
@@ -119,8 +122,7 @@ public class SimpleJettyServletContext implements Startable {
 		return server.isStarted();
 	}
 
-
-    private Context ctx;
+	private Context ctx;
 
 	/**
 	 * @throws ConfigurationException
@@ -174,8 +176,7 @@ public class SimpleJettyServletContext implements Startable {
 			addServlets(ctx, section);
 			addFilters(ctx, section);
 			addListeners(ctx, section);
-
- 		}
+		}
 	}
 
 	public void log(Object message) {
@@ -189,7 +190,7 @@ public class SimpleJettyServletContext implements Startable {
 		if (servletParameters != null) {
 			//read servlets
 
-//			int initOrder = 0;
+			int initOrder = 0;
 			for (String servletName : servletParameters.keySet()) {
 
 				Properties subSection = servletParameters.get(servletName);
@@ -206,17 +207,17 @@ public class SimpleJettyServletContext implements Startable {
 					try {
 						Servlet servlet = null;
 						servlet = (Servlet) ReflectionSupport.instantiateClass(servletClassName);
+						servlets.add(servlet);
 
 						ServletHolder servletHolder = new ServletHolder(servlet);
 						servletHolder.setName(servletName);
 						addInitParameters(servletHolder, subSection);
-//						servletHolder.setInitOrder(initOrder++);
+						servletHolder.setInitOrder(initOrder++);
 
 						for (String urlPattern : urlPatterns) {
 							//add servlet for each alias
 							ctx.addServlet(servletHolder, urlPattern);
 						}
-                        servlets.add(servlet);
 					}
 					catch (InstantiationException e) {
 						throw new ConfigurationException("servlet " + servletName + " can not be added to servlet context", e);
@@ -244,6 +245,7 @@ public class SimpleJettyServletContext implements Startable {
 					log("Loading filter " + filterName + " (" + filterClassName + ')');
 					try {
 						Filter filter = (Filter) ReflectionSupport.instantiateClass(filterClassName);
+						filters.add(filter);
 						FilterHolder filterHolder = new FilterHolder(filter);
 						filterHolder.setName(filterName);
 						addInitParameters(filterHolder, subSection);
@@ -285,14 +287,14 @@ public class SimpleJettyServletContext implements Startable {
 			}
 		}
 	}
-/*
+
 	public static void addInitParameters(Map<Object, String> params, Properties subSection) {
 		Properties properties = PropertiesSupport.getSubsection(subSection, "initparam");
 		for (Object key : properties.keySet()) {
 			params.put(key, subSection.getProperty(key.toString()));
 		}
 	}
-*/
+
 
 	public static void addInitParameters(Holder holder, Properties subSection) {
 		Properties properties = PropertiesSupport.getSubsection(subSection, "initparam");
@@ -301,15 +303,15 @@ public class SimpleJettyServletContext implements Startable {
 		}
 	}
 
-    public <T extends HttpServlet> List<T> getServletsByType(Class<T> type) {
-        List<T> retval = new ArrayList<T>();
-        for(Servlet servlet : servlets) {
-            if(type.isAssignableFrom(servlet.getClass())) {
-                retval.add((T)servlet);
-            }
-        }
-        return retval;
-    }
+	
+	public List<Servlet> getServlets() {
+		return servlets;
+	}
 
+	//not having to configure what must be coded anyway
+	//minimize the number of steps
 
+	public List<Filter> getFilters() {
+		return filters;
+	}
 }
