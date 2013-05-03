@@ -200,6 +200,8 @@ public class WebAppEntryPoint implements Filter, EntryPoint
 	 */
 	public final void init(FilterConfig conf) throws ServletException
 	{
+//		System.out.println(conf.getInitParameter("sync_user_prefs"));
+
 		filterName = conf.getFilterName();
 	/*	Request request = null;
 
@@ -225,28 +227,14 @@ public class WebAppEntryPoint implements Filter, EntryPoint
 				application.releaseRequest();
 			}* /
 		}      */
-	}
 
-/*	private void obtainApplicationReference(FilterConfig conf)
-	{
-		application = (Application)conf.getServletContext().getAttribute("application");
-
-		if (application == null)
-		{
-			throw new ConfigurationException("application could not obtained from servlet context:" +
-					" make sure the Iglu application is loaded before filter '"
-					+ filterName + "' is initialized");
-		}
-	} */
-
-	private void initializeSettings(FilterConfig conf)
-			throws ServletException
-	{
 		String syncUserPrefsStr = conf.getInitParameter("sync_user_prefs");
-		syncUserPrefs = syncUserPrefsStr != null ? Boolean.valueOf(syncUserPrefs) : false;
+		syncUserPrefs = (syncUserPrefsStr != null ? Boolean.valueOf(syncUserPrefsStr) : false);
+
+	//	System.out.println("syncUserPrefs=" + syncUserPrefs);
 
 		String userPrefsMaxAgeStr = conf.getInitParameter("user_prefs_max_age");
-		userPrefsMaxAge = userPrefsMaxAgeStr != null ? Integer.valueOf(userPrefsMaxAge) : 0;
+		userPrefsMaxAge = userPrefsMaxAgeStr != null ? Integer.valueOf(userPrefsMaxAgeStr) : userPrefsMaxAge;
 
 /*		String loggingEnabledStr = conf.getInitParameter("logging_enabled");
 		loggingEnabled = new GenericValue(loggingEnabledStr).toBoolean(loggingEnabled).booleanValue();
@@ -363,15 +351,11 @@ public class WebAppEntryPoint implements Filter, EntryPoint
 			{
 				userId = null;
 			}
-  //FIXME
-//			appRequest = application.bindRequest(this);
-
-			if(accessManager != null) {
+ 			if(accessManager != null) {
 				appRequest = accessManager.bindRequest(this);
 //				System.out.println("request bound!! " + appRequest);
 				Session session = appRequest.resolveSession(sessionToken, userId);
 			}
-
 
 			if (this.syncUserPrefs &&  appRequest.getTimesEntered() == 0)
 			{
@@ -490,30 +474,7 @@ public class WebAppEntryPoint implements Filter, EntryPoint
 			return;
 		}
 
-  /*
-		ArrayList testClasses = ReflectionSupport.getAllSuperclassesFromClass(cause.getClass());
-		testClasses.add(0, cause.getClass());
-		Iterator i = testClasses.iterator();
-		while(i.hasNext())
-		{
-			Class exceptionClass = (Class)i.next();
-			if(exceptionPages.containsKey(exceptionClass))
-			{
-				ExceptionHandlingSettings settings = (ExceptionHandlingSettings)exceptionPages.get(exceptionClass);
-				if(settings != null)
-				{
-					if(settings.loglevel > Application.UNDEFINED)
-					{
-						Environment.log(new ExtendedMessage(settings.loglevel, "exception handled in http-filter " + filterName + "\n" + CollectionSupport.format(messageStack, "\n"), cause));
-					}
-					ServletSupport.redirect(settings.redirectPage, request, response);
-					return;
-				}
-			}
-		}
-		System.out.println(new LogEntry(Level.CRITICAL, "unable to handle exception in http-filter " + filterName + "\n" + CollectionSupport.format(messageStack, "\n"), cause));
-    */
-		//print error to screen
+ 		//print error to screen
 		if(this.printUnhandledExceptions)
 		{
 			if(!response.isCommitted())
@@ -522,10 +483,11 @@ public class WebAppEntryPoint implements Filter, EntryPoint
 						"Make sure you do so if your application is in a production environment.\n" +
 						"(in section [" + exceptionPagesSectionId + "])" +
 						"\n\n" + CollectionSupport.format(messageStack, "\n"), cause);
+				System.out.println(new LogEntry(Level.CRITICAL, "exception handled in http-filter " + filterName, cause));
 			}
 			else
 			{
-				System.out.println(new LogEntry(Level.CRITICAL, "exception handled in http-filter " + filterName + " can not be printed: response already committed"));
+				System.out.println(new LogEntry(Level.CRITICAL, "exception handled in http-filter " + filterName + " can not be printed: response already committed", cause));
 			}
 		}
 	}

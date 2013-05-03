@@ -9,7 +9,7 @@
 package org.ijsberg.iglu.mvc.servlet;
 
 import org.ijsberg.iglu.access.Request;
-import org.ijsberg.iglu.access.component.RequestKeeper;
+import org.ijsberg.iglu.access.component.RequestRegistry;
 import org.ijsberg.iglu.configuration.Assembly;
 import org.ijsberg.iglu.configuration.Component;
 import org.ijsberg.iglu.configuration.ConfigurationException;
@@ -18,6 +18,7 @@ import org.ijsberg.iglu.logging.LogEntry;
 import org.ijsberg.iglu.mvc.RequestDispatcher;
 import org.ijsberg.iglu.mvc.RequestMapper;
 import org.ijsberg.iglu.server.connection.invocation.CommandLine;
+import org.ijsberg.iglu.util.collection.ArraySupport;
 import org.ijsberg.iglu.util.collection.CollectionSupport;
 import org.ijsberg.iglu.util.http.ServletSupport;
 
@@ -66,7 +67,7 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 	//public static final String PAGE_DISPATCHING = "page dispatching";
 
 	protected Assembly assembly;
-	protected RequestKeeper requestKeeper;
+	protected RequestRegistry requestRegistry;
 
 
     //meant for injection
@@ -76,13 +77,22 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 
 
     //meant for injection
+	//TODO should a request dispatcher have access to the whole assembly?
+	//ideally it should be service cluster only
 	public void register(Assembly assembly) {
 		this.assembly = assembly;
 	}
 
-    //meant for injection
-	public void register(RequestKeeper requestKeeper) {
-		this.requestKeeper = requestKeeper;
+/*
+	public void setServiceCluster(Cluster cluster) {
+	public void register(Cluster cluster) {
+	//TODO
+		this.assembly = assembly;
+	}
+  */
+	//meant for injection
+	public void register(RequestRegistry requestRegistry) {
+		this.requestRegistry = requestRegistry;
 	}
 
 	//TODO document features
@@ -99,10 +109,14 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 		}
 		dispatchMode = Arrays.asList(DISPATCH_MODE_STR).indexOf(conf.getInitParameter("dispatch_mode"));
 		if(dispatchMode == -1) dispatchMode = INCLUDE;
-		delegateRequestResponse = Boolean.valueOf(conf.getInitParameter("delegate_request_response"));
+		delegateRequestResponse = Boolean.valueOf(conf.getInitParameter("forward_http_params"));
 		strict = Boolean.valueOf(getInitParameter("strict"));
 		System.out.println(new LogEntry("DispatcherServlet checks " + (strict ? "strictly" : "lenient") + " on availability of resources"));
 		docRoot = conf.getServletContext().getRealPath("/");
+
+
+
+		//TODO mapper may not have been started yet
 		loadSucceeded = mapper.isLoaded();
         //TODO response type
 		sanityCheckPassed = sanityCheckPassed = mapper.checkSanity(this);
@@ -154,22 +168,7 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 				Properties properties = new Properties();
 				requestProperties.set(properties);
 
-				if (req.getContentType() != null && req.getContentType().startsWith("multipart/form-data"))
-				{
-					//context is the container for all submitted data
-					//read the multipart uploadstream
-					//data and files are set as attributes
-					ServletSupport.readMultipartUpload(req);
-					Enumeration e = req.getAttributeNames();
-					while (e.hasMoreElements())
-					{
-						String name = (String) e.nextElement();
-						Object attr = req.getAttribute(name);
-						//context.setProperty(new Property(name, new Value(attr)));
-						properties.put(name, attr);
-					}
-				}
-				else if (req.getContentType() != null && req.getContentType().startsWith("application/iglu-ajax-urlencoded"))
+				if (req.getContentType() != null && req.getContentType().startsWith("application/iglu-ajax-urlencoded"))
 				{
 					//context is the container for all submitted data
 					properties.putAll(ServletSupport.readURLEncodedPostData(req));
@@ -185,26 +184,15 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 				if(delegateRequestResponse)
 				{
 					//add http-request and -response to properties
-					properties.put("request", req);
-					properties.put("response", res);
+					properties.put("servlet_request", req);
+					properties.put("servlet_response", res);
 				}
 
-//				String[] command = getCommand(req);
-//				internalLink.set(command[1]);
-//				System.out.println(new LogEntry("RequestMapper processes command '" + command + '\'');
-
-
 				boolean hasResponded = mapper.processRequest(req.getPathInfo(), properties, this);
-				if (/*!delegateRequestResponse && */!hasResponded)
+				if (!hasResponded)
 				{
 					throw new ServletException("request '" + req.getPathInfo() + "' does not result in a response");
 				}
-
-//			}
-/*			catch (ServiceException fe)
-			{
-				throw new ServletException("MVC processing failed for command " + getCommand(req), fe);
-			}*/
 		}
 	}
 
@@ -338,6 +326,9 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 		System.out.println(new LogEntry("about to invoke " + commandLine + " " + requestProperties));
 
 		Object[] parameters = convertToParameters(commandLine, requestProperties);
+
+		System.out.println(ArraySupport.format(parameters, "\n"));
+
         String[] idSeq = commandLine.getUnitIdentifierSequence();
         if(idSeq.length < 2) {
             throw new ConfigurationException("can't invoke method " + commandLine + " " + requestProperties + ": id sequence must contain at least 2 ids");
@@ -353,13 +344,14 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
                     throw new ConfigurationException("can't locate component '" + idSeq[1] + "' in " + commandLine);
                 }
                 return component.invoke(idSeq[2], parameters);
-		    } else {
-			    Component agent = requestKeeper.getCurrentRequest().getSession(true).getAgent(idSeq[0]);
+		    } else //TODO if assembly == null -> cluster
+
+			{
+			    Component agent = requestRegistry.getCurrentRequest().getSession(true).getAgent(idSeq[0]);
                 if(agent == null) {
                     throw new ConfigurationException("can't locate agent '" + idSeq[0] + "' in " + commandLine);
                 }
 			    return agent.invoke(commandLine.getUnitIdentifierSequence()[1], parameters);
-//        return module.invoke(methodHolder.getLocalId(), parameters);
 		    }
 		}
 		catch (InvocationTargetException ite) {
@@ -393,7 +385,7 @@ java.lang.reflect.InvocationTargetException
         servletResponse.setContentType("text/html; charset=UTF-8");
 
         PrintStream out = new PrintStream(servletResponse.getOutputStream());
-        out.print(responseValue.toString());
+        out.print("" + responseValue);
 
         return true;  //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -447,7 +439,7 @@ FIXME
 				input[i] = argument.substring(1, argument.length() - 1);
 			} else {
 				//TODO value may be missing (a problem in the case of primitives)
-				input[i] = requestProperties.getProperty(argument);
+				input[i] = requestProperties.get(argument);
 				if(input[i] == null && "properties".equals(argument)) {
 					input[i] = requestProperties;
 				}
@@ -475,7 +467,7 @@ FIXME
 		try
 		{
 			//pass set attributes as new servlet parameters (a hack to get rid of)
-			Request request = requestKeeper.getCurrentRequest();
+			Request request = requestRegistry.getCurrentRequest();
 			if(request != null) {
 				for (Object name : request.getAttributeMap().keySet())
 				{

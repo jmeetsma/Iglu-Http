@@ -20,6 +20,8 @@
 package org.ijsberg.iglu.server.http.servlet;
 
 
+import org.ijsberg.iglu.util.http.ServletSupport;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -82,7 +84,7 @@ public class UploadServlet extends HttpServlet
 			try
 			{
 				//FIXME
-				//ServletSupport.readMultipartUpload(req, uploaddir);
+				ServletSupport.readMultipartUpload(req, uploaddir);
 /*				Enumeration e = req.getAttributeNames();
 				while (e.hasMoreElements())
 				{

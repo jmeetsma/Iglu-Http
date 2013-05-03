@@ -41,7 +41,7 @@ import java.util.StringTokenizer;
  */
 public class ServletSupport
 {
-	public static final int BUFFER_SIZE = 1024;//declaration of types of page replacemnt when error handling
+	public static final int BUFFER_SIZE = 1024;
 
 	private ServletSupport()
 	{
@@ -213,6 +213,7 @@ public class ServletSupport
 				nrofMegabytesUploaded = (int) (postDataSize / 1048576);
 				if (nrofMegabytesUploaded > temp)
 				{
+					//TODO agent should know this
 					System.out.println(new LogEntry(String.valueOf(nrofMegabytesUploaded) + " Mb uploaded via upload servlet"));
 				}
 
@@ -379,6 +380,18 @@ public class ServletSupport
 	public static String getRequestURLBase(HttpServletRequest req)
 	{
 		return "http://" + req.getServerName() +
+				(req.getServerPort() != 80 ? ":" + req.getServerPort() : "");
+	}
+
+	/**
+	 * Gets a clean base url without the path from the current request.
+	 *
+	 * @param req
+	 * @return
+	 */
+	public static String getRequestURLBaseWithoutProtocol(HttpServletRequest req)
+	{
+		return req.getServerName() +
 				(req.getServerPort() != 80 ? ":" + req.getServerPort() : "");
 	}
 
@@ -600,6 +613,7 @@ public class ServletSupport
 		{
 			for (int i = 0; i < cookies.length; i++)
 			{
+//				System.out.println("COOKIE:" + cookies[i].getName() + "=" + cookies[i].getValue());
 				properties.setProperty(cookies[i].getName(), cookies[i].getValue());
 			}
 		}

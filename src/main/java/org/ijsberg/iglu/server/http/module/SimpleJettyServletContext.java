@@ -22,11 +22,14 @@ package org.ijsberg.iglu.server.http.module;
 
 import org.ijsberg.iglu.configuration.ConfigurationException;
 import org.ijsberg.iglu.configuration.Startable;
+import org.ijsberg.iglu.util.collection.ArraySupport;
 import org.ijsberg.iglu.util.misc.StringSupport;
 import org.ijsberg.iglu.util.properties.PropertiesSupport;
 import org.ijsberg.iglu.util.reflection.ReflectionSupport;
+import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.Holder;
@@ -166,6 +169,34 @@ public class SimpleJettyServletContext implements Startable {
 			pool.setMaxThreads(maximumThreads);
 			server.setThreadPool(pool);
 
+/*
+			System.out.print(">");
+			ArraySupport.print(server.getConnectors());
+			System.out.println("<");
+
+
+			for(Connector conn : server.getConnectors()) {
+//				conn.setMaxIdleTime(10000000);
+//				conn.setRequestBufferSize(10000000);
+
+				server.removeConnector(conn);
+
+			}
+
+
+			Connector conn2 = new SelectChannelConnector();
+			conn2.setPort(port);
+			conn2.setMaxIdleTime(10000000);
+			conn2.setRequestBufferSize(10000000);
+			conn2.setHeaderBufferSize(10000000);
+			server.addConnector(conn2);
+
+
+
+
+
+			ctx.setMaxFormContentSize(1000000000);               */
+
 			ctx = new Context(server, contextPath, Context.SESSIONS);
 
 			ctx.getSessionHandler().getSessionManager().setMaxInactiveInterval(sessionTimeout);
@@ -209,10 +240,12 @@ public class SimpleJettyServletContext implements Startable {
 						servlet = (Servlet) ReflectionSupport.instantiateClass(servletClassName);
 						servlets.add(servlet);
 
+
 						ServletHolder servletHolder = new ServletHolder(servlet);
 						servletHolder.setName(servletName);
 						addInitParameters(servletHolder, subSection);
 						servletHolder.setInitOrder(initOrder++);
+
 
 						for (String urlPattern : urlPatterns) {
 							//add servlet for each alias
@@ -240,7 +273,7 @@ public class SimpleJettyServletContext implements Startable {
 
 				log("Loading : " + filterName);
 				if ((urlPatterns.isEmpty()) || (filterClassName == null)) {
-					log("ERROR Loading servlet " + filterName + " (" + filterClassName + ") failed");
+					log("ERROR Loading filter " + filterName + " (" + filterClassName + ") failed");
 				} else {
 					log("Loading filter " + filterName + " (" + filterClassName + ')');
 					try {
@@ -287,19 +320,22 @@ public class SimpleJettyServletContext implements Startable {
 			}
 		}
 	}
-
+  /*
 	public static void addInitParameters(Map<Object, String> params, Properties subSection) {
 		Properties properties = PropertiesSupport.getSubsection(subSection, "initparam");
 		for (Object key : properties.keySet()) {
 			params.put(key, subSection.getProperty(key.toString()));
 		}
 	}
-
+    */
 
 	public static void addInitParameters(Holder holder, Properties subSection) {
+		//TODO rename initparam to property
 		Properties properties = PropertiesSupport.getSubsection(subSection, "initparam");
+//		System.out.println("PROPS:" + properties);
 		for (Object key : properties.keySet()) {
-			holder.setInitParameter((String) key, subSection.getProperty(key.toString()));
+//			System.out.println(key + "->" + properties.get(key));
+			holder.setInitParameter(key.toString(), (String)properties.get(key));
 		}
 	}
 
