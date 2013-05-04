@@ -164,7 +164,8 @@ public class MultiPartReader {
 			len2 = bytesReadAsLine;
 			line2 = line;
 			line = new byte[BUFFER_SIZE];
-		}
+
+        }
 	}
 
 	private OutputStream getStorageOutputStream() throws IOException {

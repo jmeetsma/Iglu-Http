@@ -323,7 +323,7 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 
 	public Object handleInvocation(CommandLine commandLine, Properties requestProperties)  throws Throwable {
 
-		System.out.println(new LogEntry("about to invoke " + commandLine + " " + requestProperties));
+		System.out.println(new LogEntry("about to invoke " + commandLine));
 
 		Object[] parameters = convertToParameters(commandLine, requestProperties);
 
