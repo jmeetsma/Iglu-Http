@@ -377,11 +377,11 @@ public class ServletSupport
 	 * @param req
 	 * @return
 	 */
-	public static String getRequestURLBase(HttpServletRequest req)
+/*	public static String getRequestURLBase(HttpServletRequest req)
 	{
 		return "http://" + req.getServerName() +
 				(req.getServerPort() != 80 ? ":" + req.getServerPort() : "");
-	}
+	} */
 
 	/**
 	 * Gets a clean base url without the path from the current request.
