@@ -249,51 +249,11 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 		HttpServletResponse response = httpResponse.get();
 		Properties properties = requestProperties.get();
 
-		boolean switchSecure = false;
-		boolean switchInsecure = false;
 		boolean copyParameters = false;
 
 		if(parameters.length == 1)
 		{
-			//todo name SSL / HTTPS
-			switchSecure = "SWITCH_SECURE".equals(parameters[0]);
-			switchInsecure = "SWITCH_INSECURE".equals(parameters[0]);
 			copyParameters = "COPY_PARAMETERS".equals(parameters[0]);
-		}
-		if(parameters.length > 1)
-		{
-			switchSecure = switchSecure || "SWITCH_SECURE".equals(parameters[1]);
-			switchInsecure = switchInsecure || "SWITCH_INSECURE".equals(parameters[1]);
-			copyParameters = copyParameters || "COPY_PARAMETERS".equals(parameters[1]);
-		}
-		if ((switchSecure || switchInsecure) && !(switchSecure && switchInsecure))
-		{
-			if (switchSecure)
-			{
-				System.out.println(new LogEntry("Switching to HTTPS..."));
-
-				if (redirect.startsWith("http://"))
-				{
-					redirectURL = "https://" + redirect.substring(7);
-				}
-				else if (!redirect.startsWith("https://"))
-				{
-					redirectURL = "https://" + request.getServerName() + (request.getServerPort() != 80 ? ":" + request.getServerPort() : "") + '/' + redirect;
-				}
-			}
-			else
-			{
-				System.out.println(new LogEntry("Switching to HTTP..."));
-
-				if (redirect.startsWith("https://"))
-				{
-					redirectURL = "http://" + redirect.substring(8);
-				}
-				else if (!redirect.startsWith("http://"))
-				{
-					redirectURL = "http://" + request.getServerName() + (request.getServerPort() != 80 ? ":" + request.getServerPort() : "") + '/' + redirect;
-				}
-			}
 		}
 		ServletSupport.redirect(redirectURL, copyParameters, request, response);
 		return true;
@@ -498,10 +458,4 @@ FIXME
 		}
 		return true;
 	}
-
-
-
-
-
-
 }

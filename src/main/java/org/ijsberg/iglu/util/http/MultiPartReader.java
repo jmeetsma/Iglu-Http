@@ -241,4 +241,9 @@ public class MultiPartReader {
 			contentLength = 0;
 		}
 	}
+
+
+	public File getUploadFile() {
+		return uploadFile;
+	}
 }
