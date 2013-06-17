@@ -45,9 +45,6 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 	protected boolean loadSucceeded;
 	protected boolean sanityCheckPassed;
 	protected boolean strict = true;
-	//pass http-request and -response to mapped handlers
-	//  and delegate responding
-	protected boolean delegateRequestResponse;
 
 	//possible dispatch modes
 	public static final int INCLUDE = 0;
@@ -109,7 +106,7 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 		}
 		dispatchMode = Arrays.asList(DISPATCH_MODE_STR).indexOf(conf.getInitParameter("dispatch_mode"));
 		if(dispatchMode == -1) dispatchMode = INCLUDE;
-		delegateRequestResponse = Boolean.valueOf(conf.getInitParameter("forward_http_params"));
+	//	delegateRequestResponse = Boolean.valueOf(conf.getInitParameter("forward_http_params"));
 		strict = Boolean.valueOf(getInitParameter("strict"));
 		System.out.println(new LogEntry("DispatcherServlet checks " + (strict ? "strictly" : "lenient") + " on availability of resources"));
 		docRoot = conf.getServletContext().getRealPath("/");
@@ -179,14 +176,6 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 					properties.putAll(convertRequestParametersToProperties(req));
 				}
 
-//				System.out.println(new LogEntry("dispatcher servlet input: " + properties);
-
-				if(delegateRequestResponse)
-				{
-					//add http-request and -response to properties
-					properties.put("servlet_request", req);
-					properties.put("servlet_response", res);
-				}
 
 				boolean hasResponded = mapper.processRequest(req.getPathInfo(), properties, this);
 				if (!hasResponded)
@@ -402,6 +391,12 @@ FIXME
 				input[i] = requestProperties.get(argument);
 				if(input[i] == null && "properties".equals(argument)) {
 					input[i] = requestProperties;
+				}
+				if(input[i] == null && "request".equals(argument)) {
+					input[i] = httpRequest.get();
+				}
+				if(input[i] == null && "response".equals(argument)) {
+					input[i] = httpResponse.get();
 				}
 			}
 		}

@@ -29,10 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import java.util.*;
 
 //import org.ijsberg.iglu.server.http.servlet.ServletRequestAlreadyRedirectedException;
 
@@ -351,6 +348,8 @@ public class ServletSupport
 	 */
 	public static String getRequestURL(HttpServletRequest req)
 	{
+
+
 		return req.getRequestURL().toString();
 /*
 		return req.getServerPort() == 443 ? "https://" : "http://"+
@@ -606,7 +605,8 @@ public class ServletSupport
 		return null;
 	}
 
-	public static void importCookieValues(ServletRequest request, Properties properties)
+
+	public static Properties importCookieValues(ServletRequest request, Properties properties)
 	{
 		Cookie[] cookies = ((HttpServletRequest) request).getCookies();
 		if (cookies != null)
@@ -617,6 +617,7 @@ public class ServletSupport
 				properties.setProperty(cookies[i].getName(), cookies[i].getValue());
 			}
 		}
+		return properties;
 	}
 
 	public static void exportCookieValues(ServletResponse response, Properties properties, String path, int maxAge)
@@ -625,10 +626,27 @@ public class ServletSupport
 		while (i.hasNext())
 		{
 			String propertyKey = (String)i.next();
-			Cookie cookie = new Cookie(propertyKey, properties.getProperty(propertyKey, ""));
-			cookie.setPath(path);
-			cookie.setMaxAge(maxAge);
-			((HttpServletResponse) response).addCookie(cookie);
+//			if(!skip.contains(propertyKey)) {
+				Cookie cookie = new Cookie(propertyKey, properties.getProperty(propertyKey, ""));
+				cookie.setPath(path);
+				cookie.setMaxAge(maxAge);
+				((HttpServletResponse) response).addCookie(cookie);
+//			}
+		}
+	}
+
+	public static void exportCookieValues(ServletResponse response, Properties properties, String path, int maxAge, Collection skip)
+	{
+		Iterator i = properties.keySet().iterator();
+		while (i.hasNext())
+		{
+			String propertyKey = (String)i.next();
+			if(!skip.contains(propertyKey)) {
+				Cookie cookie = new Cookie(propertyKey, properties.getProperty(propertyKey, ""));
+				cookie.setPath(path);
+				cookie.setMaxAge(maxAge);
+				((HttpServletResponse) response).addCookie(cookie);
+			}
 		}
 	}
 

@@ -361,7 +361,7 @@ public class WebAppEntryPoint implements Filter, EntryPoint
 			{
 				//pass user preferences here
 				ServletSupport.importCookieValues(servletRequest,  appRequest.getUserSettings());
-				ServletSupport.exportCookieValues(servletResponse,  appRequest.getUserSettings(), "/", userPrefsMaxAge);
+				ServletSupport.exportCookieValues(servletResponse,  appRequest.getUserSettings(), "/", userPrefsMaxAge, Arrays.asList(new String[]{SESSION_TOKEN_KEY}));
 			}
 
 			//if a user logged in, the user id must be stored

@@ -169,35 +169,10 @@ public class SimpleJettyServletContext implements Startable {
 			pool.setMaxThreads(maximumThreads);
 			server.setThreadPool(pool);
 
-/*
-			System.out.print(">");
-			ArraySupport.print(server.getConnectors());
-			System.out.println("<");
-
-
-			for(Connector conn : server.getConnectors()) {
-//				conn.setMaxIdleTime(10000000);
-//				conn.setRequestBufferSize(10000000);
-
-				server.removeConnector(conn);
-
-			}
-
-
-			Connector conn2 = new SelectChannelConnector();
-			conn2.setPort(port);
-			conn2.setMaxIdleTime(10000000);
-			conn2.setRequestBufferSize(10000000);
-			conn2.setHeaderBufferSize(10000000);
-			server.addConnector(conn2);
-
-
-
-
-
-			ctx.setMaxFormContentSize(1000000000);               */
 
 			ctx = new Context(server, contextPath, Context.SESSIONS);
+
+			ctx.setInitParams(PropertiesSupport.getSubsection(properties, "initparam"));
 
 			ctx.getSessionHandler().getSessionManager().setMaxInactiveInterval(sessionTimeout);
 			//set root directory
