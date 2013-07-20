@@ -17,7 +17,7 @@ import org.ijsberg.iglu.exception.ResourceException;
 import org.ijsberg.iglu.logging.LogEntry;
 import org.ijsberg.iglu.mvc.RequestDispatcher;
 import org.ijsberg.iglu.mvc.RequestMapper;
-import org.ijsberg.iglu.server.connection.invocation.CommandLine;
+import org.ijsberg.iglu.server.invocation.CommandLine;
 import org.ijsberg.iglu.util.collection.ArraySupport;
 import org.ijsberg.iglu.util.collection.CollectionSupport;
 import org.ijsberg.iglu.util.http.ServletSupport;
@@ -33,7 +33,6 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.Properties;
 
 /**
