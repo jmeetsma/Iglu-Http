@@ -16,6 +16,9 @@ public class JsonObject implements JsonDecorator {
 		this.name = name;
 	}
 
+	public JsonObject() {
+	}
+
 	public void addAttribute(String name, String value) {
 		attributes.put(name, "\"" + value + "\"");
 	}
@@ -30,7 +33,10 @@ public class JsonObject implements JsonDecorator {
 
 	public String toString() {
 		StringBuffer retval = new StringBuffer();
-		retval.append("{ \"" + name + "\" : {\n ");
+		if(name != null) {
+			retval.append("{ \"" + name + "\"");
+		}
+		retval.append("{\n ");
 		for(String attrName : attributes.keySet()) {
 			Object value = attributes.get(attrName);
 			retval.append(" \"" + attrName + "\" : ");
@@ -43,18 +49,22 @@ public class JsonObject implements JsonDecorator {
 		}
 		retval.deleteCharAt(retval.length() - 1);
 
+		if(name != null) {
+			retval.append(" }");
+		}
+		retval.append(" }\n");
 
-		retval.append(" } }\n");
 		return retval.toString();
 	}
 
 
-/*
-	return "{ \"" + identifier + "\" : [\n" + CollectionSupport.format("\t", list, " ,\n") + "\n] }";
+	public Object getAttribute(String id) {
+		Object retval = attributes.get(id);
+		if(retval != null && retval instanceof String) {
+			retval = ((String) retval).substring(1, ((String) retval).length() - 1);
+		}
+		return retval;
+	}
+
 }
 
-	public static String toAttr(String name, String value) {
-		return "\"" + name + "\" : \"" + value + "\"";
-
-*/
-}
