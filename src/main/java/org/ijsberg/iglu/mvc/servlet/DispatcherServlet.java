@@ -14,6 +14,7 @@ import org.ijsberg.iglu.configuration.Assembly;
 import org.ijsberg.iglu.configuration.Component;
 import org.ijsberg.iglu.configuration.ConfigurationException;
 import org.ijsberg.iglu.exception.ResourceException;
+import org.ijsberg.iglu.logging.Level;
 import org.ijsberg.iglu.logging.LogEntry;
 import org.ijsberg.iglu.mvc.RequestDispatcher;
 import org.ijsberg.iglu.mvc.RequestMapper;
@@ -148,7 +149,7 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 				messages.clear();
 				sanityCheckPassed = mapper.checkSanity(this);
 				messages.addAll(mapper.getMessages());
-				System.out.println(new LogEntry("mapping reloaded with following messages", CollectionSupport.format(messages, "\re\n")));
+				System.out.println(new LogEntry(Level.CRITICAL, "mapping reloaded with following messages", CollectionSupport.format(messages, "\re\n")));
 			}
 		}
 
@@ -311,8 +312,6 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 		}
 		
 
-		//TODO process invocationTargetException
-
 	/*
 		DBG 20121129 16:06:25.318 exception occurred in mvc invocation
 java.lang.reflect.InvocationTargetException
@@ -333,46 +332,17 @@ java.lang.reflect.InvocationTargetException
         servletResponse.setContentType("text/html; charset=UTF-8");
 
         PrintStream out = new PrintStream(servletResponse.getOutputStream());
-        out.print("" + responseValue);
+        out.print(responseValue.toString());
 
-        return true;  //To change body of implemented methods use File | Settings | File Templates.
+        return true;
     }
 
 
     private Object[] convertToParameters(CommandLine command, Properties requestProperties)
 	{
-/*		Object[] retval;
-		Object[] arguments = command.getArguments();
-		if(arguments.length > 0) {
-			//TODO document
-			if("properties".equals(arguments[0])) {
-				return new Object[]{requestProperties};
-			}
-//			StandardForm form = obtainFilledOutForm(requestProperties);
-//			return new Object[]{form};
-		} */
 		return determineCustomArguments(command, requestProperties);
 	}
 
-/*
-FIXME
-	private StandardForm obtainFilledOutForm(Properties requestProperties)
-	{
-		StandardForm form = (StandardForm) app.getCurrentRequest().getForm(formId);
-		if (arguments.length > 1)//the first argument is reserved for the form id
-		{
-			for (int i = 1; i < arguments.length; i++)
-			{
-				form.fillOut(arguments[i], requestProperties.getValue(arguments[i]).toString());
-			}
-		}
-		else
-		{
-			form.fillOut(requestProperties);
-		}
-		return form;
-	}
-*/
 
 	private Object[] determineCustomArguments(CommandLine command, Properties requestProperties)
 	{
