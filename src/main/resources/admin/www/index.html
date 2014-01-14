@@ -1,0 +1,49 @@
+<!--
+  ~ Copyright 2011-2013 Jeroen Meetsma - IJsberg
+  ~
+  ~ This file is part of Iglu.
+  ~
+  ~ Iglu is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Iglu is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with Iglu.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<html>
+<head>
+<title>Iglu Administrator Web Console</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" >
+    <link rel="stylesheet" type="text/css" href="console.css">
+    <script type="text/javascript" language="JavaScript" src="console.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/util.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/ajaxRequestManager.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/widgetengine.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/windowwidget.js"></script>
+    <script type="text/javascript" language="JavaScript">
+
+        contextroot = '';
+
+        function init() {
+            //get overview page
+            ajaxRequestManager.doRequest('/process/admin/get_clusters', adminConsole.executeJson);
+        }
+    </script>
+
+</head>
+<body onload="init()">
+
+
+
+</body>
+
+
+</html>

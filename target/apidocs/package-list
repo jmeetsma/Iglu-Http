@@ -1,0 +1,8 @@
+org.ijsberg.iglu.http.json
+org.ijsberg.iglu.mvc.servlet
+org.ijsberg.iglu.server.admin
+org.ijsberg.iglu.server.admin.http
+org.ijsberg.iglu.server.http.filter
+org.ijsberg.iglu.server.http.module
+org.ijsberg.iglu.server.http.servlet
+org.ijsberg.iglu.util.http
