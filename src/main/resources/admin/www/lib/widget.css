@@ -1,3 +1,19 @@
+html, body, form, div, p,
+h1, h2, h3, h4, h5, h6,
+object, embed {
+	padding:0px 0px 0px 0px;
+	margin:0px 0px 0px 0px;
+}
+
+html {
+	height:100%;
+}
+
+body {
+	height:100%;
+	border-collapse: collapse;
+}
+
 
 .title_bar_active, .title_bar_inactive {
 	background: blue; color: white; font: bold 1em Arial;
@@ -38,16 +54,35 @@
 	position : absolute;
 }
 
-.panel {
-	border: 2px solid red;
-	/*float: left;*/
 
+.panel, .second_splitpanel, .first_horizontal_splitpanel, .first_vertical_splitpanel {
 	width: auto;
 	overflow: auto;
+	border-color: black;
+	border-width: 0px;
+		display: table; height: 100%;
+
 }
 
-.splitpanel {
+.panel {
 	border: 1px solid black;
+}
+
+.second_split_panel {
+}
+
+.first_horizontal_splitpanel {
+	border-bottom: 1px solid black;
+}
+
+.first_vertical_splitpanel {
+	border-right: 1px solid black;
+}
+
+
+.splitpanel {
+/*	border: 1px solid black; */
+
 }
 
 .splitpanelcontainer {

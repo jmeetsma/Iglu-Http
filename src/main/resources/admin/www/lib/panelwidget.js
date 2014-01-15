@@ -88,10 +88,14 @@ PanelWidget.prototype.setSizeAndPosition = function() {
 PanelWidget.prototype.writeHTML = function() {
 
 	if(this.element) {
-		var result = '<div id="' + this.id + '_contents">';
-		result += this.content;
-		result += '</div>';
-		this.element.innerHTML = result;
+		if((typeof this.content.writeHTML != 'undefined')) {
+			this.content.writeHTML();
+        } else {
+			var result = '<div id="' + this.id + '_contents">';
+			result += this.content;
+			result += '</div>';
+			this.element.innerHTML = result;
+		}
 	}
 };
 
@@ -110,6 +114,11 @@ PanelWidget.prototype.onDeploy = function() {
     if(this.resizeDirections.length > 0) {
 		widgetengine.registerResizeableWidget(this, this.resizeDirections);
 	}
+
+	if((typeof this.content.writeHTML != 'undefined')) {
+		widgetengine.deployWidgetInContainer(this.element, this.content);
+	}
+
 	//load state
 	this.refresh();
 };

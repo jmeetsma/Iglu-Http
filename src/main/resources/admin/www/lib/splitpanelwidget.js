@@ -60,12 +60,13 @@ SplitPanelWidget.prototype.setSizeAndPosition = function() {
 	this.element.style.left = this.left + 'px';
 	if(typeof this.height != 'undefined') {
 		this.element.style.height = this.height + 'px';
+	} else {
+		this.element.style.height = '100%';
 	}
 	if(typeof this.width != 'undefined') {
 		this.element.style.width = this.width + 'px';
-	}
-	if(this.contentElement != null) {
-		this.contentElement.style.height = (this.height - 33) + 'px';
+	} else {
+		this.element.style.width = '100%';
 	}
 };
 
@@ -89,8 +90,8 @@ SplitPanelWidget.prototype.onDeploy = function() {
 	widgetengine.deployWidgetInContainer(this.container, this.firstPanel);
 	widgetengine.deployWidgetInContainer(this.container, this.secondPanel);
 
-	//load state
-//	this.refresh();
+	this.setPanelClasses();
+
 };
 
 SplitPanelWidget.prototype.refresh = function() {
@@ -126,6 +127,11 @@ function HorizontalSplitPanelWidget(settings, firstPanelSize, firstPanel, second
 
 HorizontalSplitPanelWidget.prototype = new SplitPanelWidget();
 
+HorizontalSplitPanelWidget.prototype.setPanelClasses = function() {
+	this.firstPanel.element.className = 'first_horizontal_splitpanel';
+    this.secondPanel.element.className = 'second_splitpanel';
+}
+
 //////////////////////////
 
 
@@ -136,3 +142,10 @@ function VerticalSplitPanelWidget(settings, firstPanelSize, firstPanel, secondPa
 }
 
 VerticalSplitPanelWidget.prototype = new SplitPanelWidget();
+
+VerticalSplitPanelWidget.prototype.setPanelClasses = function() {
+	this.firstPanel.element.className = 'first_vertical_splitpanel';
+    this.secondPanel.element.className = 'second_splitpanel';
+}
+
+

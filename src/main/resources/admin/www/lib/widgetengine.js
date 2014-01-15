@@ -165,7 +165,9 @@ WidgetManager.prototype.registerResizeableWidget = function(widget, resizeDirect
 	}
 
 	widget.getDOMElement().onmouseover = function(event) {
-		widgetengine.determineResizeAction(widget, event);
+		if(widgetengine.resizingWidget == null) {
+			widgetengine.determineResizeAction(widget, event);
+		}
 	}
 
 	widget.getDOMElement().onmousemove = function(event) {
@@ -195,16 +197,16 @@ WidgetManager.prototype.determineResizeAction = function(widget, event)
 
 		var direction = '';
 
-		if(this.currentWidget == widget && widget.allowsResize('n') && this.mouseOffset.y < 5) {
+		if(/*this.currentWidget == widget &&*/ widget.allowsResize('n') && this.mouseOffset.y < 5) {
 			direction = 'n';
          }
-		if(this.currentWidget == widget && widget.allowsResize('s') && this.mouseOffset.y > widget.height - 5) {
+		if(/*this.currentWidget == widget &&*/ widget.allowsResize('s') && this.mouseOffset.y > widget.height - 5) {
 			direction = 's';
         }
-		if(this.currentWidget == widget && widget.allowsResize('w') && this.mouseOffset.x < 5) {
+		if(/*this.currentWidget == widget &&*/ widget.allowsResize('w') && this.mouseOffset.x < 5) {
 			direction += 'w';
         }
-		if(this.currentWidget == widget && widget.allowsResize('e') && this.mouseOffset.x > widget.width - 5) {
+		if(/*this.currentWidget == widget &&*/ widget.allowsResize('e') && this.mouseOffset.x > widget.width - 5) {
 			direction += 'e';
          }
          if(direction != '') {
@@ -238,10 +240,6 @@ WidgetManager.prototype.activateCurrentWidget = function(currentWidget)
 	}
 	currentWidget.onFocus();
 }
-
-
-
-
 
 
 
@@ -360,11 +358,11 @@ WidgetManager.prototype.containsWidget = function(id)
 function Widget()
 {
 	this.id = 'Widget';
-	this.height = 0;
+/*	this.height = 0;
 	this.width = 0;
 	this.top = 0;
 	this.left = 0;
-	//element that must be clicked to drag the widget
+*/	//element that must be clicked to drag the widget
 	this.dragActivationElement = null;
 	this.ignoresPageScroll = false;
 
