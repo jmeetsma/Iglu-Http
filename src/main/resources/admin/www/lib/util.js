@@ -20,6 +20,14 @@ function copyMembers(classA, classB)
 	}
 }
 
+function log(message) {
+	var element = document.getElementById('debug');
+	if(element != null) {
+		element.innerHTML = message;
+	}
+}
+
+
 
 function subclass(baseclass, subclass)
 {

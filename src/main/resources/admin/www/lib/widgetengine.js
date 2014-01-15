@@ -1,17 +1,38 @@
+/*
+STATE
+-draggable widget selected
+-resizeable widget ready to be resized
+
+current state handles all events
+-widget registers itself as event source
+
+
+
+
+*/
+
+
 
 /*
- * Is able to manage lots of different kinds of widgets.
+ * Keeps track of lots of different kinds of widgets.
  * It keeps order, facilitates focus, dragging, ignoring scrolling etc.
  *
  */
-function WidgetManager()
-{
+function WidgetManager() {
+	this.resizeDirection = null;
+	this.resizingWidget = null;
+
 	this.draggedWidget = null;
 	this.mouseOffset = null;
-	//todo floatingWidgets
+
 	this.draggableWidgets = new Array();
+	this.resizeableWidgets = new Array();
+
 	this.currentZIndex = 100;
 	this.widgets = new Array();
+	this.initFunctions = new Array();
+
+	this.currentWidget = null;
 
 	this.lastX = 0;
 	this.lastY = 0;
@@ -19,6 +40,51 @@ function WidgetManager()
 
 
 
+WidgetManager.prototype.registerInitFunction = function(initFunction) {
+	this.initFunctions[this.initFunctions.length] = initFunction;
+}
+
+
+WidgetManager.prototype.init = function() {
+
+	document.onmouseup = dropWidget;
+	document.onmousemove = dragWidget;
+	window.onscroll = scroll;
+
+	for(i = 0; i < this.initFunctions.length; i++) {
+		this.initFunctions[i]();
+	}
+}
+
+function dropWidget(event) {
+	widgetengine.draggedWidget = null;
+	widgetengine.resizingWidget = null;
+	document.body.style.cursor = 'auto';
+}
+
+
+function dragWidget(event) {
+
+	event = event || window.event;
+	if(widgetengine.resizingWidget != null && widgetengine.resizeDirection != null) {
+		var mousePos = getMousePositionInWindow(event);
+		if(widgetengine.resizeDirection.indexOf('n') > -1) {
+			widgetengine.resizingWidget.resizeNorth(-1 * (mousePos.y - widgetengine.mouseOffset.y - widgetengine.resizingWidget.top));
+		}
+		if(widgetengine.resizeDirection.indexOf('s') > -1) {
+			widgetengine.resizingWidget.resizeSouth(mousePos.y - widgetengine.mouseOffset.y - widgetengine.resizingWidget.top);
+		}
+		if(widgetengine.resizeDirection.indexOf('w') > -1) {
+			widgetengine.resizingWidget.resizeWest(-1 * (mousePos.x - widgetengine.mouseOffset.x - widgetengine.resizingWidget.left));
+		}
+		if(widgetengine.resizeDirection.indexOf('e') > -1) {
+			widgetengine.resizingWidget.resizeEast(mousePos.x - widgetengine.mouseOffset.x - widgetengine.resizingWidget.left);
+		}
+	} else if(widgetengine.draggedWidget != null) {
+		var mousePos = getMousePositionInWindow(event);
+		widgetengine.draggedWidget.setPosition(mousePos.x - widgetengine.mouseOffset.x, mousePos.y - widgetengine.mouseOffset.y);
+	}
+}
 
 /**
  *
@@ -33,23 +99,121 @@ WidgetManager.prototype.registerDraggableWidget = function(widget)
 
 	widget.getDragSelectElement().onmousedown = function(event)
 	{
-		var draggableWidget = widgetengine.draggableWidgets[this.id];
-		document.body.style.cursor = 'move';
-		widgetengine.draggedWidget = draggableWidget;
-		//todo rename: is offset from element position
-		widgetengine.mouseOffset = getMouseOffsetFromElementPosition(this, event);
+		if(widgetengine.resizingWidget == null) {
+			var draggableWidget = widgetengine.draggableWidgets[this.id];
+			widgetengine.draggedWidget = draggableWidget;
+			//todo rename: is offset from element position
+			widgetengine.mouseOffset = getMouseOffsetFromElementPosition(this, event);
+		} else {
+
+		}
 	}
+
+	widget.getDragSelectElement().onmouseover = function(event) {
+		if(widgetengine.resizingWidget == null) {
+			document.body.style.cursor = 'move';
+		}
+	}
+
+	widget.getDragSelectElement().onmousemove = function(event) {
+		if(widgetengine.resizingWidget == null) {
+			document.body.style.cursor = 'move';
+		}
+	}
+
+	widget.getDragSelectElement().onmouseout = function(event) {
+		if(widgetengine.resizingWidget == null && widgetengine.draggedWidget == null) {
+			document.body.style.cursor = 'auto';
+		}
+	}
+
 
 	widget.getDOMElement().onmousedown = function(event)
 	{
 		this.style.zIndex = widgetengine.currentZIndex++;
 		var currentWidget = widgetengine.widgets[this.id];
 		widgetengine.activateCurrentWidget(currentWidget);
-//		widgetengine.draggedWidget = currentWidget;
 	}
 
 	this.activateCurrentWidget(widget);
 }
+
+/**
+ *
+ *
+ */
+WidgetManager.prototype.registerResizeableWidget = function(widget) {
+
+	this.resizeableWidgets[widget.id] = widget;
+	widget.getDOMElement().style.zIndex = this.currentZIndex++;
+
+
+	//TODO only an active widget should respond to drag or resize events
+
+	widget.getDOMElement().onmousedown = function(event) {
+		this.style.zIndex = widgetengine.currentZIndex++;
+		var currentWidget = widgetengine.widgets[this.id];
+		widgetengine.activateCurrentWidget(currentWidget);
+		if(widgetengine.resizeDirection != null) {
+			widgetengine.resizingWidget = currentWidget;
+		}
+		log(widgetengine.resizeDirection);
+	}
+
+	widget.getDOMElement().onmouseover = function(event) {
+		widgetengine.determineResizeAction(widget, event);
+	}
+
+	widget.getDOMElement().onmousemove = function(event) {
+		if(widgetengine.resizingWidget == null) {
+			widgetengine.determineResizeAction(widget, event);
+		}
+	}
+
+	widget.getDOMElement().onmouseout = function(event) {
+		if(widgetengine.resizingWidget == null) {
+			document.body.style.cursor = 'auto';
+    	    widgetengine.resizeDirection = null;
+		}
+	}
+
+	this.activateCurrentWidget(widget);
+}
+
+
+WidgetManager.prototype.determineResizeAction = function(widget, event)
+{
+	if(this.draggedWidget == null) {
+		//TODO rename: is offset from element position
+		this.mouseOffset = getMouseOffsetFromElementPosition(widget.getDOMElement(), event);
+
+		var direction = '';
+
+		if(this.currentWidget = widget &&  this.mouseOffset.y < 5) {
+			direction = 'n';
+         }
+		if(this.currentWidget = widget &&  this.mouseOffset.y > widget.height - 5) {
+			direction = 's';
+        }
+		if(this.currentWidget = widget &&  this.mouseOffset.x < 5) {
+			direction += 'w';
+        }
+		if(this.currentWidget = widget &&  this.mouseOffset.x > widget.width - 5) {
+			direction += 'e';
+         }
+         if(direction != '') {
+         	document.body.style.cursor = direction + '-resize';
+         	this.resizeDirection = direction;
+         } else {
+         	if(document.body.style.cursor != 'move' && this.resizingWidget == null) {
+				document.body.style.cursor = 'auto';
+			}
+         	this.resizeDirection = null;
+         }
+
+	}
+}
+
 
 /**
  * Deactivates former focussed (draggable) widget and activates current.
@@ -57,6 +221,7 @@ WidgetManager.prototype.registerDraggableWidget = function(widget)
  */
 WidgetManager.prototype.activateCurrentWidget = function(currentWidget)
 {
+	this.currentWidget = currentWidget;
 	for(var draggableId in this.draggableWidgets)
 	{
 		var widget = this.draggableWidgets[draggableId];
@@ -109,7 +274,6 @@ WidgetManager.prototype.deployWidget = function(newWidget, x, y)
     		if(element == null)
             {
     			element = document.createElement('div');
-
 				//is this necessary?
 				//use prefix 'widget_'
 				element.setAttribute('id', newWidget.getId());
@@ -126,8 +290,6 @@ WidgetManager.prototype.deployWidget = function(newWidget, x, y)
 		}
 		newWidget.draw(x, y);
     	newWidget.onDeploy();
-
-
 	}
 	else
 	{
@@ -266,6 +428,61 @@ Widget.prototype.getWidth = function()
 	return this.width;
 };
 
+Widget.prototype.resizeNorth = function(offset)
+{
+	//TODO use constants
+	var newHeight = offset + this.height;
+	if(newHeight < 20) {
+		newHeight = 20;
+	}
+	this.top = this.top + this.height - newHeight;
+	this.height = newHeight;
+	//widgetengine.mouseOffset.y -= offset;
+
+	this.setSizeAndPosition();
+};
+
+Widget.prototype.resizeWest = function(offset)
+{
+	//TODO use constants
+	var newWidth = offset + this.width;
+	if(newWidth < 100) {
+		newWidth = 100;
+	}
+	this.left = this.left + this.width - newWidth;
+	this.width = newWidth;
+
+	this.setSizeAndPosition();
+};
+
+Widget.prototype.resizeSouth = function(offset)
+{
+	//TODO use constants
+	var newHeight = offset + this.height;
+	if(newHeight < 20) {
+		newHeight = 20;
+	}
+//	this.top = this.top + this.height - newHeight;
+	this.height = newHeight;
+	widgetengine.mouseOffset.y += offset;
+
+	this.setSizeAndPosition();
+};
+
+Widget.prototype.resizeEast = function(offset)
+{
+	//TODO use constants
+	var newWidth = offset + this.width;
+	if(newWidth < 100) {
+		newWidth = 100;
+	}
+//	this.top = this.top + this.height - newHeight;
+	this.width = newWidth;
+	widgetengine.mouseOffset.x += offset;
+
+	this.setSizeAndPosition();
+};
+
 Widget.prototype.draw = function(left, top)// + mode
 {
 	//todo provide a nice sample implementation
@@ -283,6 +500,10 @@ Widget.prototype.onDeploy = function()
 
 
 Widget.prototype.refresh = function()
+{
+}
+
+Widget.prototype.setSizeAndPosition = function()
 {
 }
 
@@ -327,35 +548,6 @@ Widget.prototype.saveState = function() //JSON?
 
 
 
-
-///////////////////////
-//                   //
-//  Widget Functions //
-//                   //
-///////////////////////
-
-
-
-
-
-
-function dropWidget(event)
-{
-	widgetengine.draggedWidget = null;
-	document.body.style.cursor = 'auto';
-}
-
-
-function dragWidget(event)
-{
-	event = event || window.event;
-	if(widgetengine.draggedWidget != null)
-	{
-		var mousePos = getMousePositionInWindow(event);
-		widgetengine.draggedWidget.setPosition(mousePos.x - widgetengine.mouseOffset.x, mousePos.y - widgetengine.mouseOffset.y);
-	}
-}
-
 var savedScrollPos = getScrollOffset();
 
 function scroll(event)
@@ -379,12 +571,6 @@ function scroll(event)
 }
 
 
-
-
-
-
-
-
 WidgetManager.prototype.executeJson = function(responseMessage, feedbackMessage) {
 
 //    alert(responseMessage);
@@ -393,63 +579,21 @@ WidgetManager.prototype.executeJson = function(responseMessage, feedbackMessage)
     } catch(e) {
         alert(e.message + ' in:\n' + responseMessage);
     }
-    adminConsole[message.function](message.data, message.dataId);
+
+    eval(message.function + '(message.data, message.dataId)');
+//    adminConsole[message.function](message.data, message.dataId);
 }
-
-
-WidgetManager.prototype.reportMessage = function(parameter) {
-	alert(parameter.message);
-}
-
-
-WidgetManager.prototype.writeReturnValue = function(data, dataId) {
-//	var content =
-  //  ajaxRequestManager.doRequest('/cluster.html', adminConsole.createWindowWidget, [parameter.message, parameter.message, 100, 250, content]);
-	//alert(dataId);
-	document.getElementById("return_" + dataId).innerHTML = data.returnValue;
-}
-
-
-WidgetManager.prototype.createWindowWidget = function(responseMessage, windowSettings) {
-    var element = document.createElement('html');
-    element.innerHTML = '' + responseMessage;
-
-    var nodeNames = '';
-    for(var i = 0; i < element.childNodes.length; i++) {
-        nodeNames += element.childNodes[i].nodeName + '\n';
-    }
-
-	if(!widgetengine.widgetExists(windowSettings.id)) {
-
-	    var windowWidget = new WindowWidget(windowSettings, element.getElementsByTagName('body')[0].innerHTML);
-    	widgetengine.deployWidget(windowWidget);
-
-		if(typeof windowWidget.init != 'undefined') {
-			windowWidget.init(windowSettings.data);
-		}
-	}
-
-}
-
-
-
-
 
 
 
 //todo sort out x,y <-> top,left
 
 
-
-
-
-
-
-
-
-document.onmouseup = dropWidget;
-document.onmousemove = dragWidget;
+//document.onmouseup = dropWidget;
+//document.onmousemove = dragWidget;
 window.onscroll = scroll;
 
 
 var widgetengine = new WidgetManager();
+WidgetManager.instance = widgetengine;
+

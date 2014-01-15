@@ -34,7 +34,7 @@ public class JsonObject implements JsonDecorator {
 	public String toString() {
 		StringBuffer retval = new StringBuffer();
 		if(name != null) {
-			retval.append("{ \"" + name + "\"");
+			retval.append("{ \"" + name + "\": ");
 		}
 		retval.append("{\n ");
 		for(String attrName : attributes.keySet()) {

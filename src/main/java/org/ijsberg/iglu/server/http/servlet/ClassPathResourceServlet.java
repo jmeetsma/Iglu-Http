@@ -62,6 +62,9 @@ public class ClassPathResourceServlet extends HttpServlet {
 		System.out.println(new LogEntry(Level.DEBUG, "obtaining resource: " + resourcePath));
 
 		byte[] resource = FileSupport.getBinaryFromClassLoader(resourcePath);
+
+//		System.out.println(new String(resource));
+
 		out.write(resource);
 	  }catch (Exception e) {
 		  e.printStackTrace();

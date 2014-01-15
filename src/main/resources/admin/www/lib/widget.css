@@ -1,0 +1,39 @@
+
+.title_bar_active, .title_bar_inactive {
+	background: blue; color: white; font: bold 1em Arial;
+	padding: 2px; padding-left: 5px;
+	display: block;
+}
+
+.title_bar_inactive {
+	background: gray;
+}
+
+.title {
+	margin: 0px; padding: 0px; top: 0px; left: 0px; height: 20px;
+	display: inline;
+}
+
+.close_icon {
+	background: url('img/close_window.gif') no-repeat center center;
+	display: inline; float: right;
+    cursor: pointer;
+	height: 16px;
+	width: 16px;
+}
+
+.window_contents {
+	margin: 0px; padding: 5px; top: 0px; left: 0px; background: white;
+	color: black; font: normal 1em Arial; border: 1px solid white;
+	overflow: auto;
+	position: relative;
+}
+
+.window {
+	margin : 0px;
+	padding : 0px;
+	background : white;
+	border : 1px solid #444;
+	vertical-align : top;
+	position : absolute;
+}

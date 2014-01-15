@@ -125,6 +125,12 @@ AjaxRequestManager.prototype.createAjaxRequest = function(handler) {
 	return ajaxRequest;
 }
 
+AjaxRequestManager.prototype.abortRequest = function(requestNr) {
+//TODO test
+	ajaxRequestManager.ajaxRequests[requestNr].abort();
+	removeFromRequestQueue(requestNr);
+}
+
 
 function dispatchResponse(requestNr)
 {
@@ -140,22 +146,26 @@ function dispatchResponse(requestNr)
 		    //calls callback(response, callbackInput[])
 			ajaxRequestManager.callbacks[requestNr](ajaxRequestManager.ajaxRequests[requestNr].responseText, ajaxRequestManager.callbackInputObjects[requestNr]);
 		}
-
-        //clean queue
-		ajaxRequestManager.ajaxRequests[requestNr] = null;
-		ajaxRequestManager.callbacks[requestNr] = null;
-		ajaxRequestManager.callbackInputObjects[requestNr] = null;
-
-		ajaxRequestManager.nrofConcurrentRequests--;
-		if (ajaxRequestManager.nrofConcurrentRequests == 0) {
-			//clean up handler queue
-			ajaxRequestManager.ajaxRequests = new Array();
-			ajaxRequestManager.callbacks = new Array();
-			ajaxRequestManager.callbackInputObjects = new Array();
-			ajaxRequestManager.nrofRequests = 0;
-		}
+        removeFromRequestQueue(requestNr);
 	}
 }
+
+function removeFromRequestQueue(requestNr) {
+	//clean queue
+	ajaxRequestManager.ajaxRequests[requestNr] = null;
+	ajaxRequestManager.callbacks[requestNr] = null;
+	ajaxRequestManager.callbackInputObjects[requestNr] = null;
+
+	ajaxRequestManager.nrofConcurrentRequests--;
+	if (ajaxRequestManager.nrofConcurrentRequests == 0) {
+		//clean up handler queue
+		ajaxRequestManager.ajaxRequests = new Array();
+		ajaxRequestManager.callbacks = new Array();
+		ajaxRequestManager.callbackInputObjects = new Array();
+		ajaxRequestManager.nrofRequests = 0;
+	}
+}
+
 
 
 /**

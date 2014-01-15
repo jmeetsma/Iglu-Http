@@ -22,8 +22,9 @@
 <title>Iglu Administrator Web Console</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" >
-    <link rel="stylesheet" type="text/css" href="console.css">
-    <script type="text/javascript" language="JavaScript" src="console.js"></script>
+	<link rel="stylesheet" type="text/css" href="console.css">
+	<link rel="stylesheet" type="text/css" href="lib/widget.css">
+	<script type="text/javascript" language="JavaScript" src="console.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/util.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/ajaxRequestManager.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/widgetengine.js"></script>
@@ -33,7 +34,8 @@
         contextroot = '';
 
         function init() {
-            //get overview page
+			widgetengine.init();
+			//get overview page
             ajaxRequestManager.doRequest('/process/admin/get_clusters', adminConsole.executeJson);
         }
     </script>
