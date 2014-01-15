@@ -142,11 +142,15 @@ WidgetManager.prototype.registerDraggableWidget = function(widget)
  *
  *
  */
-WidgetManager.prototype.registerResizeableWidget = function(widget) {
+WidgetManager.prototype.registerResizeableWidget = function(widget, resizeDirections) {
 
 	this.resizeableWidgets[widget.id] = widget;
-	widget.getDOMElement().style.zIndex = this.currentZIndex++;
 
+	if(resizeDirections != null) {
+		widget.resizeDirections = resizeDirections;
+	} else {
+		widget.resizeDirections = 'nesw';
+	}
 
 	//TODO only an active widget should respond to drag or resize events
 
@@ -187,18 +191,20 @@ WidgetManager.prototype.determineResizeAction = function(widget, event)
 		//TODO rename: is offset from element position
 		this.mouseOffset = getMouseOffsetFromElementPosition(widget.getDOMElement(), event);
 
+
+
 		var direction = '';
 
-		if(this.currentWidget = widget &&  this.mouseOffset.y < 5) {
+		if(this.currentWidget == widget && widget.allowsResize('n') && this.mouseOffset.y < 5) {
 			direction = 'n';
          }
-		if(this.currentWidget = widget &&  this.mouseOffset.y > widget.height - 5) {
+		if(this.currentWidget == widget && widget.allowsResize('s') && this.mouseOffset.y > widget.height - 5) {
 			direction = 's';
         }
-		if(this.currentWidget = widget &&  this.mouseOffset.x < 5) {
+		if(this.currentWidget == widget && widget.allowsResize('w') && this.mouseOffset.x < 5) {
 			direction += 'w';
         }
-		if(this.currentWidget = widget &&  this.mouseOffset.x > widget.width - 5) {
+		if(this.currentWidget == widget && widget.allowsResize('e') && this.mouseOffset.x > widget.width - 5) {
 			direction += 'e';
          }
          if(direction != '') {
@@ -252,14 +258,16 @@ WidgetManager.prototype.widgetExists = function(widgetId) {
 
 WidgetManager.prototype.deployWidget = function(newWidget, x, y)
 {
+	return this.deployWidgetInContainer(document.body, newWidget, x, y);
+}
+
+WidgetManager.prototype.deployWidgetInContainer = function(container, newWidget, x, y)
+{
 	var widget = this.widgets[newWidget.getId()];
 	if(widget == null)
 	{
 		this.widgets[newWidget.getId()] = newWidget;
 
-    	//LAYOUT: determine position / size
-
-		var canvas = document.body;//getElementById('canvas');
 		if(typeof x == 'undefined' || x == null)
 		{
 			var x = this.lastX += 50;
@@ -268,7 +276,7 @@ WidgetManager.prototype.deployWidget = function(newWidget, x, y)
 		{
 			var y = this.lastY += 50;
 		}
-		if(canvas != null)
+		if(container != null)
     	{
 			var element = document.getElementById(newWidget.getId());
     		if(element == null)
@@ -278,7 +286,7 @@ WidgetManager.prototype.deployWidget = function(newWidget, x, y)
 				//use prefix 'widget_'
 				element.setAttribute('id', newWidget.getId());
 
-				canvas.appendChild(element);
+				container.appendChild(element);
 			}
     		newWidget.setDOMElement(element);
 		}
@@ -297,6 +305,7 @@ WidgetManager.prototype.deployWidget = function(newWidget, x, y)
 	}
 	return newWidget;
 }
+
 
 WidgetManager.prototype.destroyWidget = function(widgetId)
 {
@@ -358,12 +367,20 @@ function Widget()
 	//element that must be clicked to drag the widget
 	this.dragActivationElement = null;
 	this.ignoresPageScroll = false;
+
+	this.resizeDirections = '';
+
 }
 
 
 Widget.prototype.getId = function()
 {
 	return this.id;
+};
+
+Widget.prototype.allowsResize = function(direction)
+{
+	return this.resizeDirections.indexOf(direction) != -1;
 };
 
 //(multiple) inherit members here...
@@ -462,7 +479,6 @@ Widget.prototype.resizeSouth = function(offset)
 	if(newHeight < 20) {
 		newHeight = 20;
 	}
-//	this.top = this.top + this.height - newHeight;
 	this.height = newHeight;
 	widgetengine.mouseOffset.y += offset;
 
@@ -476,7 +492,6 @@ Widget.prototype.resizeEast = function(offset)
 	if(newWidth < 100) {
 		newWidth = 100;
 	}
-//	this.top = this.top + this.height - newHeight;
 	this.width = newWidth;
 	widgetengine.mouseOffset.x += offset;
 

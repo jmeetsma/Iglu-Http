@@ -45,7 +45,7 @@ function WindowWidget(windowSettings, content) {
 	}
 }
 
-subclass(Widget, WindowWidget);
+WindowWidget.prototype = new Widget();
 
 
 WindowWidget.prototype.alertSomething = function(value) {

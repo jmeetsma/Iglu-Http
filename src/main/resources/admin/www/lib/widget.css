@@ -37,3 +37,20 @@
 	vertical-align : top;
 	position : absolute;
 }
+
+.panel {
+	border: 2px solid red;
+	/*float: left;*/
+
+	width: auto;
+	overflow: auto;
+}
+
+.splitpanel {
+	border: 1px solid black;
+}
+
+.splitpanelcontainer {
+	display: table; width: 100%; height: 100%;
+	border-collapse: collapse;
+}
