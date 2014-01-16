@@ -36,6 +36,10 @@ function WidgetManager() {
 
 	this.lastX = 0;
 	this.lastY = 0;
+
+	this.resizeListeners = new Array();
+
+    window.onresize = this.notifyWindowResizeListeners;
 }
 
 
@@ -56,11 +60,26 @@ WidgetManager.prototype.init = function() {
 	}
 }
 
+WidgetManager.prototype.notifyWindowResizeListeners = function(event) {
+
+	for(var i in this.resizeListeners) {
+		this.resizeListeners[i].onWindowResizeEvent(event);
+	}
+
+}
+
+WidgetManager.prototype.registerWindowResizeListener = function(listener) {
+	this.resizeListeners[this.resizeListeners.length] = listener;
+}
+
+
+
 function dropWidget(event) {
 	widgetengine.draggedWidget = null;
 	widgetengine.resizingWidget = null;
 	document.body.style.cursor = 'auto';
 }
+
 
 
 function dragWidget(event) {
@@ -153,6 +172,7 @@ WidgetManager.prototype.registerResizeableWidget = function(widget, resizeDirect
 	}
 
 	//TODO only an active widget should respond to drag or resize events
+	//TODO none-drabbable widgets do not need a z-index
 
 	widget.getDOMElement().onmousedown = function(event) {
 		this.style.zIndex = widgetengine.currentZIndex++;

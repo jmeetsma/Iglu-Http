@@ -1,15 +1,21 @@
 
-function PanelSettings(id, width, height, source) {
+function PanelSettings(id, width, height, stickToWindowHeightMinus, source) {
 	this.id = id;
 	this.width = width;
 	this.height = height;
+	this.stickToWindowHeightMinus;
 	this.source = source;
 }
 
 
-function PanelWidget(settings, content, source) {
+function PanelWidget(settings, content) {
 //	this.element = containerElement;
 	this.id = settings.id;
+
+
+	if(typeof settings.stickToWindowHeightMinus != 'undefined') {
+		this.stickToWindowHeightMinus = settings.stickToWindowHeightMinus;
+	}
 
 	this.resizeDirections = '';
 
@@ -75,11 +81,18 @@ PanelWidget.prototype.setSizeAndPosition = function() {
 		this.element.style.width = this.width + 'px';
 	} else {
 		this.element.style.display = 'table-row';
+//		this.element.style.width = '100%';
+//		this.element.style.maxWidth = '100%';
+		this.element.style.whiteSpace = 'nowrap';
+//		this.element.style.overflow = 'hidden';
      }
 	if(typeof this.height != 'undefined' && this.allowsResize('s')) {
 		this.element.style.height = this.height + 'px';
 	} else {
 		this.element.style.display = 'table-cell';
+//		this.element.style.width = '100%';
+		this.element.style.whiteSpace = 'nowrap';
+//		this.element.style.overflow = 'hidden';
 	}
 	log('width: ' + this.element.style.width + ' height: ' + this.element.style.height);
 };
@@ -87,14 +100,11 @@ PanelWidget.prototype.setSizeAndPosition = function() {
 
 PanelWidget.prototype.writeHTML = function() {
 
-	if(this.element) {
+	if(this.container) {
 		if((typeof this.content.writeHTML != 'undefined')) {
 			this.content.writeHTML();
         } else {
-			var result = '<div id="' + this.id + '_contents">';
-			result += this.content;
-			result += '</div>';
-			this.element.innerHTML = result;
+			this.container.innerHTML = this.content;
 		}
 	}
 };
@@ -111,17 +121,41 @@ PanelWidget.prototype.onDeploy = function() {
 	this.top = getElementPositionInPage(this.element).y;
 	this.left = getElementPositionInPage(this.element).x;
 
+
+
+	this.container = document.createElement('div');
+	this.container.id = this.id + '_contents';
+	this.container.className = 'panelcontents';
+	this.element.appendChild(this.container);
+
+
+
+    if(typeof this.stickToWindowHeightMinus != 'undefined' && this.stickToWindowHeightMinus != null) {
+		this.container.style.maxHeight = (document.documentElement.clientHeight - this.stickToWindowHeightMinus) + 'px';
+		widgetengine.registerWindowResizeListener(this);
+	}
+
     if(this.resizeDirections.length > 0) {
 		widgetengine.registerResizeableWidget(this, this.resizeDirections);
 	}
 
 	if((typeof this.content.writeHTML != 'undefined')) {
-		widgetengine.deployWidgetInContainer(this.element, this.content);
+
+		widgetengine.deployWidgetInContainer(this.container, this.content);
 	}
+
 
 	//load state
 	this.refresh();
 };
+
+PanelWidget.prototype.onWindowResizeEvent = function(event) {
+    if(typeof this.stickToWindowHeightMinus != 'undefined' && this.stickToWindowHeightMinus != null) {
+		this.container.style.maxHeight = (document.documentElement.clientHeight - this.stickToWindowHeightMinus) + 'px';
+	}
+}
+
+
 
 PanelWidget.prototype.refresh = function() {
 	//load state
@@ -144,11 +178,11 @@ PanelWidget.prototype.display = function(content, element)
 	if(element != null)
 	{
 		element.content = content;
-		document.getElementById(element.id + '_contents').innerHTML = content;
+		document.getElementById(element.id).innerHTML = content;
 	}
 	else
 	{
 		this.content = content;
-		document.getElementById(this.id + '_contents').innerHTML = content;
+		document.getElementById(this.id).innerHTML = content;
 	}
 };

@@ -80,7 +80,7 @@ AjaxRequestManager.prototype.doRequest = function(requestURL, callback, callback
 	}
 	catch(e)
 	{
-		alert('unable to send AJAX request ' + requestURL + ' with message "' + e.message + '"');
+		alert('unable to send ' + (postData == null ? 'GET' : 'POST') + ' AJAX request ' + requestURL + ' with message "' + e.message + '"');
 	}
 }
 
