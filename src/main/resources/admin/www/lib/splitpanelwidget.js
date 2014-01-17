@@ -1,4 +1,3 @@
-
 function SplitPanelSettings(id, height, width) {
 	this.id = id;
 	this.height = height;
@@ -89,11 +88,26 @@ SplitPanelWidget.prototype.onDeploy = function() {
 	this.element.appendChild(this.container);
 
 	widgetengine.deployWidgetInContainer(this.container, this.firstPanel);
+	//secondPanel may be a splitPanel
 	widgetengine.deployWidgetInContainer(this.container, this.secondPanel);
+
+	this.firstPanel.positionListener = this;
 
 	this.setPanelClasses();
 
 };
+
+
+SplitPanelWidget.prototype.onPanelPositionChanged = function(panel) {
+	this.secondPanel.setPositionFromPage();
+}
+
+
+SplitPanelWidget.prototype.setPositionFromPage = function() {
+	this.firstPanel.setPositionFromPage();
+	this.secondPanel.setPositionFromPage();
+}
+
 
 SplitPanelWidget.prototype.refresh = function() {
 	//load state
