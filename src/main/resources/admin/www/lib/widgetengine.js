@@ -1,16 +1,3 @@
-/*
-STATE
--draggable widget selected
--resizeable widget ready to be resized
-
-current state handles all events
--widget registers itself as event source
-
-
-
-
-*/
-
 
 
 /*
@@ -111,7 +98,7 @@ function dragWidget(event) {
  */
 WidgetManager.prototype.registerDraggableWidget = function(widget)
 {
-	//administer order
+	//administratevoivod order
 	this.draggableWidgets[widget.getDragSelectElement().id] = widget;
 
 	widget.getDOMElement().style.zIndex = this.currentZIndex++;
@@ -333,7 +320,7 @@ WidgetManager.prototype.destroyWidget = function(widgetId)
 		//call widget destructor
 		widget.onDestroy();
 
-    	var canvas = document.body;//getElementById('canvas');
+    	var canvas = document.body;
     	if(canvas != null)
     	{
 			var element = document.getElementById(widgetId);
@@ -401,7 +388,7 @@ Widget.prototype.allowsResize = function(direction)
 	return this.resizeDirections.indexOf(direction) != -1;
 };
 
-//(multiple) inherit members here...
+
 
 Widget.prototype.setPosition = function(x, y)
 {

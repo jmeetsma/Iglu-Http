@@ -81,18 +81,13 @@ PanelWidget.prototype.setSizeAndPosition = function() {
 		this.element.style.width = this.width + 'px';
 	} else {
 		this.element.style.display = 'table-row';
-//		this.element.style.width = '100%';
-//		this.element.style.maxWidth = '100%';
 		this.element.style.whiteSpace = 'nowrap';
-//		this.element.style.overflow = 'hidden';
      }
 	if(typeof this.height != 'undefined' && this.allowsResize('s')) {
 		this.element.style.height = this.height + 'px';
 	} else {
 		this.element.style.display = 'table-cell';
-//		this.element.style.width = '100%';
 		this.element.style.whiteSpace = 'nowrap';
-//		this.element.style.overflow = 'hidden';
 	}
 	log('width: ' + this.element.style.width + ' height: ' + this.element.style.height);
 };
