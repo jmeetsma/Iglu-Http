@@ -1,4 +1,3 @@
-
 function PanelSettings(id, width, height, stickToWindowHeightMinus, source) {
 	this.id = id;
 	this.width = width;
@@ -11,7 +10,6 @@ function PanelSettings(id, width, height, stickToWindowHeightMinus, source) {
 function PanelWidget(settings, content) {
 //	this.element = containerElement;
 	this.id = settings.id;
-
 
 	if(typeof settings.stickToWindowHeightMinus != 'undefined') {
 		this.stickToWindowHeightMinus = settings.stickToWindowHeightMinus;
@@ -39,6 +37,7 @@ function PanelWidget(settings, content) {
 	} else {
 		this.content = 'loading...';
 	}
+	this.positionListener = null;
 }
 
 PanelWidget.prototype = new Widget();
@@ -81,21 +80,17 @@ PanelWidget.prototype.setSizeAndPosition = function() {
 		this.element.style.width = this.width + 'px';
 	} else {
 		this.element.style.display = 'table-row';
-//		this.element.style.width = '100%';
-//		this.element.style.maxWidth = '100%';
 		this.element.style.whiteSpace = 'nowrap';
-//		this.element.style.overflow = 'hidden';
      }
 	if(typeof this.height != 'undefined' && this.allowsResize('s')) {
 		this.element.style.height = this.height + 'px';
 	} else {
 		this.element.style.display = 'table-cell';
-//		this.element.style.width = '100%';
 		this.element.style.whiteSpace = 'nowrap';
-//		this.element.style.overflow = 'hidden';
 	}
-	log('width: ' + this.element.style.width + ' height: ' + this.element.style.height);
-};
+	if(this.positionListener != null && typeof(this.positionListener.onPanelPositionChanged) == 'function') {
+		this.positionListener.onPanelPositionChanged(this);
+	}};
 
 
 PanelWidget.prototype.writeHTML = function() {
@@ -114,13 +109,18 @@ PanelWidget.prototype.onDestroy = function() {
 	//save state
 };
 
+PanelWidget.prototype.setPositionFromPage = function() {
+
+	this.top = getElementPositionInPage(this.element).y;
+	this.left = getElementPositionInPage(this.element).x;
+}
+
+
 
 PanelWidget.prototype.onDeploy = function() {
 //	widgetengine.registerDraggableWidget(this);
 
-	this.top = getElementPositionInPage(this.element).y;
-	this.left = getElementPositionInPage(this.element).x;
-
+	this.setPositionFromPage();
 
 
 	this.container = document.createElement('div');
