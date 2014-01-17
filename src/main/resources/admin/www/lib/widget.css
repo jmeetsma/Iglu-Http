@@ -62,7 +62,6 @@ body {
 	display: table;
 	height: 100%;
 	table-layout:fixed;
-	overflow: scroll;
 	padding: 5px;
 
 }
@@ -85,7 +84,6 @@ body {
 
 
 .splitpanel {
-/*	border: 1px solid black; */
 	height: 100%;
 
 }

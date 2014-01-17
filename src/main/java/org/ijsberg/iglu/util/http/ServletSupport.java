@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.*;
 
 //import org.ijsberg.iglu.server.http.servlet.ServletRequestAlreadyRedirectedException;
@@ -36,7 +35,7 @@ import java.util.*;
 /**
  *
  */
-public class ServletSupport
+public abstract class ServletSupport extends HttpEncodingSupport
 {
 	public static final int BUFFER_SIZE = 1024;
 
@@ -289,55 +288,6 @@ public class ServletSupport
 			}
 		}
 		return retval;
-	}
-
-	/**
-	 * Encodes a String in format suitable for use in URL's
-	 *
-	 * @param input
-	 * @return
-	 */
-	public static String urlEncode(String input)
-	{
-		if (input == null)
-		{
-			return "";
-		}
-		try
-		{
-			return URLEncoder.encode(input, "UTF-8");
-		}
-		catch (UnsupportedEncodingException uee)
-		{
-			String result = StringSupport.replaceAll(input, "&", "%26");
-			result = StringSupport.replaceAll(result, "<", "%3c");
-			result = StringSupport.replaceAll(result, ">", "%3e");
-			result = StringSupport.replaceAll(result, "\"", "%22");
-			result = StringSupport.replaceAll(result, " ", "+");
-			return result;
-		}
-	}
-
-	/**
-	 * Encodes a String in format suitable for use in HTML form input.
-	 * Disables malicious input used for cross-scripting hacks.
-	 * Converts null to empty string;
-	 *
-	 * @param input
-	 * @return
-	 */
-	public static String htmlEncode(String input)
-	{
-		if (input == null)
-		{
-			return "";
-		}
-		StringBuffer retval = new StringBuffer(input);
-		StringSupport.replaceAll(retval, "&", "&amp;");
-		StringSupport.replaceAll(retval, "<", "&lt;");
-		StringSupport.replaceAll(retval, ">", "&gt;");
-		StringSupport.replaceAll(retval, "\"", "&quot;");
-		return retval.toString();
 	}
 
 	/**

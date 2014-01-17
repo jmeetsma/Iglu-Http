@@ -1,9 +1,11 @@
-function PanelSettings(id, width, height, stickToWindowHeightMinus, source) {
+function PanelSettings(id, width, height, stickToWindowHeightMinus, source, hasHeader, title) {
 	this.id = id;
 	this.width = width;
 	this.height = height;
 	this.stickToWindowHeightMinus;
 	this.source = source;
+	this.hasHeader = hasHeader;
+	this.title = title;
 }
 
 
@@ -31,6 +33,16 @@ function PanelWidget(settings, content) {
 		this.source = settings.source;
 	} else {
 		this.source = null;
+	}
+	if(typeof settings.hasHeader != 'undefined') {
+		this.hasHeader = settings.hasHeader;
+	} else {
+		this.hasHeader = false;
+	}
+	if(typeof settings.title != 'undefined') {
+		this.title = settings.title;
+	} else {
+		this.title = '';
 	}
 	if(typeof content != 'undefined') {
 		this.content = content;
@@ -123,6 +135,15 @@ PanelWidget.prototype.onDeploy = function() {
 	this.setPositionFromPage();
 
 
+	if(this.hasHeader) {
+		this.header = document.createElement('div');
+		this.header.id = this.id + '_header';
+		this.header.className = 'panelheader';
+		this.header.innerHTML = this.title;
+		this.element.appendChild(this.header);
+	}
+
+
 	this.container = document.createElement('div');
 	this.container.id = this.id + '_contents';
 	this.container.className = 'panelcontents';
@@ -151,6 +172,7 @@ PanelWidget.prototype.onDeploy = function() {
 
 PanelWidget.prototype.onWindowResizeEvent = function(event) {
     if(typeof this.stickToWindowHeightMinus != 'undefined' && this.stickToWindowHeightMinus != null) {
+//    alert(this.id + ': ' + this.container.style.height + ' -> ' + (document.documentElement.clientHeight - this.stickToWindowHeightMinus) + 'px');
 		this.container.style.maxHeight = (document.documentElement.clientHeight - this.stickToWindowHeightMinus) + 'px';
 	}
 }

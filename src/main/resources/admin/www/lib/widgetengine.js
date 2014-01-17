@@ -49,8 +49,10 @@ WidgetManager.prototype.init = function() {
 
 WidgetManager.prototype.notifyWindowResizeListeners = function(event) {
 
-	for(var i in this.resizeListeners) {
-		this.resizeListeners[i].onWindowResizeEvent(event);
+	//alert('resize ' + widgetengine.resizeListeners.length);
+
+	for(var i in widgetengine.resizeListeners) {
+		widgetengine.resizeListeners[i].onWindowResizeEvent(event);
 	}
 
 }
