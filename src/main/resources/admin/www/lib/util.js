@@ -29,9 +29,17 @@ function log(message) {
 
 
 
-function subclass(baseclass, subclass)
-{
-	subclass.prototype = baseclass.prototype;
+function subclass(subclass, baseclass) {
+	subclass.prototype = clone(baseclass.prototype);
+//	subclass.prototype.super = baseClass.prototype.constructor;
+	subclass.prototype.constructor = subclass;
+}
+
+
+function clone (obj) {
+  if (!obj) return;
+  clone.prototype = obj;
+  return new clone();
 }
 
 function getElementFromEvent(event)

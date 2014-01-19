@@ -103,6 +103,8 @@ WidgetManager.prototype.registerDraggableWidget = function(widget)
 	//administratevoivod order
 	this.draggableWidgets[widget.getDragSelectElement().id] = widget;
 
+	widget.isDraggable = true;
+
 	widget.getDOMElement().style.zIndex = this.currentZIndex++;
 
 	widget.getDragSelectElement().onmousedown = function(event)
@@ -161,10 +163,12 @@ WidgetManager.prototype.registerResizeableWidget = function(widget, resizeDirect
 	}
 
 	//TODO only an active widget should respond to drag or resize events
-	//TODO none-drabbable widgets do not need a z-index
 
 	widget.getDOMElement().onmousedown = function(event) {
-		this.style.zIndex = widgetengine.currentZIndex++;
+
+		if(this.isDraggable) {
+			this.style.zIndex = widgetengine.currentZIndex++;
+		}
 		var currentWidget = widgetengine.widgets[this.id];
 		widgetengine.activateCurrentWidget(currentWidget);
 		if(widgetengine.resizeDirection != null) {
@@ -177,19 +181,21 @@ WidgetManager.prototype.registerResizeableWidget = function(widget, resizeDirect
 		if(widgetengine.resizingWidget == null) {
 			widgetengine.determineResizeAction(widget, event);
 		}
+//		alert('over');
 	}
 
-	widget.getDOMElement().onmousemove = function(event) {
+	/*widget.getDOMElement().onmousemove = function(event) {
 		if(widgetengine.resizingWidget == null) {
 			widgetengine.determineResizeAction(widget, event);
 		}
-	}
+	} */
 
 	widget.getDOMElement().onmouseout = function(event) {
 		if(widgetengine.resizingWidget == null) {
 			document.body.style.cursor = 'auto';
     	    widgetengine.resizeDirection = null;
 		}
+//		alert('out');
 	}
 
 	this.activateCurrentWidget(widget);
@@ -285,19 +291,21 @@ WidgetManager.prototype.deployWidgetInContainer = function(container, newWidget,
 		}
 		if(container != null)
     	{
-			var element = document.getElementById(newWidget.getId());
-    		if(element == null)
-            {
-    			element = document.createElement('div');
-				//is this necessary?
-				//use prefix 'widget_'
-				element.setAttribute('id', newWidget.getId());
-
-				container.appendChild(element);
+    		var element = container;
+			if(newWidget.getId() != container.id) {
+				var element = document.getElementById(newWidget.getId());
+				if(element == null)
+				{
+					element = document.createElement('div');
+					//is this necessary?
+					//use prefix 'widget_'
+					element.setAttribute('id', newWidget.getId());
+					container.appendChild(element);
+				}
 			}
     		newWidget.setDOMElement(element);
 		}
-		if(newWidget.ignoresPageScroll)
+		if(newWidget.ignoresPageScroll) //TODO display: fixed
 		{
 			var scrollPos = getScrollOffset();
 			x = x + scrollPos.x;
@@ -376,7 +384,16 @@ function Widget()
 	this.ignoresPageScroll = false;
 
 	this.resizeDirections = '';
+	this.source_load_action = 'display';
 
+}
+
+Widget.prototype.set = function(name, value) {
+	if(typeof(this[name]) == 'undefined') {
+		throw('attribute "' + name + '" is not declared in ' + this.constructor.name);
+	} else {
+		this[name] = value;
+	}
 }
 
 
@@ -566,9 +583,27 @@ Widget.prototype.saveState = function() //JSON?
 {
 };
 
+Widget.prototype.display = function(content, element)
+{
+	if(element != null)
+	{
+		element.content = content; /// ???
+		document.getElementById(element.id).innerHTML = content;
+	}
+	else
+	{
+		this.content = content;
+		document.getElementById(this.id).innerHTML = content;
+	}
+};
+
+Widget.prototype.evaluate = function(content, element)
+{
+	eval(content);
+};
 
 
-
+///////////////////////////
 
 var savedScrollPos = getScrollOffset();
 
@@ -605,6 +640,9 @@ WidgetManager.prototype.executeJson = function(responseMessage, feedbackMessage)
     eval(message.function + '(message.data, message.dataId)');
 //    adminConsole[message.function](message.data, message.dataId);
 }
+
+
+
 
 
 

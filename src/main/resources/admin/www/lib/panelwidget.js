@@ -4,6 +4,7 @@ function PanelSettings(id, width, height, stickToWindowHeightMinus, source, hasH
 	this.height = height;
 	this.stickToWindowHeightMinus;
 	this.source = source;
+	this.source_load_action = 'display';
 	this.hasHeader = hasHeader;
 	this.title = title;
 }
@@ -34,6 +35,11 @@ function PanelWidget(settings, content) {
 	} else {
 		this.source = null;
 	}
+	if(typeof settings.source_load_action != 'undefined' && settings.source_load_action != null) {
+		this.source_load_action = settings.source_load_action;
+	} else {
+     	this.source_load_action = 'display';
+     }
 	if(typeof settings.hasHeader != 'undefined') {
 		this.hasHeader = settings.hasHeader;
 	} else {
@@ -50,9 +56,13 @@ function PanelWidget(settings, content) {
 		this.content = 'loading...';
 	}
 	this.positionListener = null;
+
+
+	this.panelContentClass = null;
 }
 
-PanelWidget.prototype = new Widget();
+subclass(PanelWidget, Widget);
+
 
 
 PanelWidget.prototype.allowHorizontalResize = function() {
@@ -146,7 +156,10 @@ PanelWidget.prototype.onDeploy = function() {
 
 	this.container = document.createElement('div');
 	this.container.id = this.id + '_contents';
-	this.container.className = 'panelcontents';
+	this.container.className = 'panelcontents' + (this.panelContentClass != null ? ', ' + this.panelContentClass : '');
+	this.container.onmouseover = new Function('event', 'event.stopPropagation();');
+	this.container.onmouseout = new Function('event', 'event.stopPropagation();');
+	//this.container.onmousemove = new Function('event', 'event.stopPropagation();');
 	this.element.appendChild(this.container);
 
 
@@ -182,7 +195,10 @@ PanelWidget.prototype.onWindowResizeEvent = function(event) {
 PanelWidget.prototype.refresh = function() {
 	//load state
 	if(this.source != null) {
-		ajaxRequestManager.doRequest(this.source, this.display, this);
+
+		ajaxRequestManager.doRequest(this.source, this[this.source_load_action], this);
+	} else if(this.content != null) {
+		this.writeHTML();
 	}
 };
 
@@ -195,16 +211,3 @@ PanelWidget.prototype.onBlur = function() {
 };
 
 
-PanelWidget.prototype.display = function(content, element)
-{
-	if(element != null)
-	{
-		element.content = content;
-		document.getElementById(element.id).innerHTML = content;
-	}
-	else
-	{
-		this.content = content;
-		document.getElementById(this.id).innerHTML = content;
-	}
-};

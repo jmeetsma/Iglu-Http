@@ -19,16 +19,19 @@ public class JsonObject implements JsonDecorator {
 	public JsonObject() {
 	}
 
-	public void addAttribute(String name, String value) {
+	public JsonObject addAttribute(String name, String value) {
 		attributes.put(name, "\"" + value + "\"");
+		return this;
 	}
 
-	public void addAttribute(String name, JsonDecorator value) {
+	public JsonObject addAttribute(String name, JsonDecorator value) {
 		attributes.put(name, value);
+		return this;
 	}
 
-	public void addAttribute(String name, Collection<? extends JsonDecorator> value) {
+	public JsonObject addAttribute(String name, Collection<? extends JsonDecorator> value) {
 		attributes.put(name, value);
+		return this;
 	}
 
 	public String toString() {
