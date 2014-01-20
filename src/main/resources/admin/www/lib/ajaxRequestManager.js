@@ -15,16 +15,13 @@ function AjaxRequestManager()
 	this.is_opera = ((navigator.userAgent.indexOf('Opera 6') != -1) || (navigator.userAgent.indexOf('Opera/6') != -1)) ? 1 : 0;
 	this.is_netscape = (navigator.userAgent.indexOf('Netscape') >= 0) ? 1 : 0;
 
-	this.use_native_xml_http_object = true;
-	try
-	{
-		new XMLHttpRequest();
+	this.use_native_xml_http_object = false;
+	try {
+		new ActiveXObject('Msxml2.XMLHTTP');
 	}
-	catch(e)
-	{
-		this.use_native_xml_http_object = false;
+	catch(e) {
+		this.use_native_xml_http_object = true;
 	}
-
 	this.totalNrofRequests = 0;
 	this.totalNrofResponses = 0;
 
@@ -54,8 +51,7 @@ AjaxRequestManager.prototype.checkAjaxSupport = function()
  */
 AjaxRequestManager.prototype.doRequest = function(requestURL, callback, callbackInput, postData)
 {
-	try
-	{
+	try {
 		this.totalNrofRequests++;
 		this.nrofConcurrentRequests++;
 		var requestNr = this.nrofRequests++;
@@ -78,8 +74,7 @@ AjaxRequestManager.prototype.doRequest = function(requestURL, callback, callback
 		}
 		return requestNr;
 	}
-	catch(e)
-	{
+	catch(e) {
 		alert('unable to send ' + (postData == null ? 'GET' : 'POST') + ' AJAX request ' + requestURL + ' with message "' + e.message + '"');
 	}
 }
@@ -100,7 +95,7 @@ AjaxRequestManager.prototype.sendPOSTRequest = function(ajaxRequest, url, postDa
 
 AjaxRequestManager.prototype.createAjaxRequest = function(handler) {
 	var ajaxRequest = null;
-	if (this.is_ie && !this.use_native_xml_http_object) {
+	if (!this.use_native_xml_http_object) {
 		var strObjName = (this.is_ie5) ? 'Microsoft.XMLHTTP' : 'Msxml2.XMLHTTP';
 		try {
 			ajaxRequest = new ActiveXObject(strObjName);
@@ -109,10 +104,6 @@ AjaxRequestManager.prototype.createAjaxRequest = function(handler) {
 			window.status = 'ERROR: Page cannot be updated. Verify that active scripting and activeX controls are enabled';
 			return;
 		}
-	}
-	else if (!this.use_native_xml_http_object) {
-		window.status = 'ERROR: page cannot not be updated.';
-		return;
 	} else {
 		ajaxRequest = new XMLHttpRequest();
 		if (this.is_ie) {
