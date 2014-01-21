@@ -1,3 +1,21 @@
+/**
+ * Copyright 2011-2014 Jeroen Meetsma - IJsberg
+ *
+ * This file is part of Iglu.
+ *
+ * Iglu is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Iglu is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Iglu.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /////////////////////////////////
 //                             //
@@ -179,4 +197,78 @@ function ignoreResponse() {
 }
 
 var ajaxRequestManager = new AjaxRequestManager();
+
+
+////// UTILITIES
+
+
+function loadPageHtml(contents, callbackInput) {
+	var panelContents = document.getElementById(callbackInput.target + '_contents');
+	panelContents.innerHTML = contents;
+
+	var panelHeader = document.getElementById(callbackInput.target + '_header');
+	panelHeader.innerHTML = callbackInput.title;
+}
+
+function linkToHtml(source, target, title) {
+
+	var callbackInput = new Object();
+	callbackInput.target = target;
+	callbackInput.title = title;
+
+	ajaxRequestManager.doRequest('./' + source, loadPageHtml, callbackInput);
+	return false;
+}
+
+function loadPageJson(contents, callbackInput) {
+	var panelContents = document.getElementById(callbackInput.target + '_contents');
+	panelContents.innerHTML = '';
+
+	var panelHeader = document.getElementById(callbackInput.target + '_header');
+	panelHeader.innerHTML = callbackInput.title;
+
+	eval(contents);
+
+}
+
+function linkToJson(source, target, title) {
+	var callbackInput = new Object();
+	callbackInput.target = target;
+	callbackInput.title = title;
+
+	ajaxRequestManager.doRequest('./' + source, loadPageJson, callbackInput);
+	return false;
+}
+
+
+function createLink(item) {
+/*	return '<a onclick="linkToHtml(\'' + item.link + '\', \'' + item.link_target + '\', \'' + item.label + '\');' + (typeof(item.onclick) != 'undefined' ? item.onclick : '') + ';\">' + item.label + '</a>';
+
+	var retval = '';  */
+
+	var onclick = '';
+	if(typeof(item.link) != 'undefined' && item.link.length > 0) {
+
+		for(var i in item.link) {
+			var link = item.link[i];
+			if(link.url.endsWith('.js')) {
+				onclick += 'linkToJson(\'' + link.url + '\', \'' + link.target + '\', \'' + link.target_label + '\');';
+			} else {
+				onclick += 'linkToHtml(\'' + link.url + '\', \'' + link.target + '\', \'' + link.target_label + '\');';
+			}
+			//alert(onclick);
+		}
+	}
+	if(typeof(item.onclick) != 'undefined') {
+		onclick += item.onclick;
+	}
+	if(onclick.length > 0) {
+		return '<a onclick="' + onclick + '">' + item.label + '</a>';
+	} else {
+		return item.label;
+	}
+}
+
+
+
 
