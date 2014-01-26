@@ -241,10 +241,7 @@ function linkToJson(source, target, title) {
 }
 
 
-function createLink(item) {
-/*	return '<a onclick="linkToHtml(\'' + item.link + '\', \'' + item.link_target + '\', \'' + item.label + '\');' + (typeof(item.onclick) != 'undefined' ? item.onclick : '') + ';\">' + item.label + '</a>';
-
-	var retval = '';  */
+function createLink(item, alternativeLabel) {
 
 	var onclick = '';
 	if(typeof(item.link) != 'undefined' && item.link.length > 0) {
@@ -256,14 +253,13 @@ function createLink(item) {
 			} else {
 				onclick += 'linkToHtml(\'' + link.url + '\', \'' + link.target + '\', \'' + link.target_label + '\');';
 			}
-			//alert(onclick);
 		}
 	}
 	if(typeof(item.onclick) != 'undefined') {
 		onclick += item.onclick;
 	}
 	if(onclick.length > 0) {
-		return '<a onclick="' + onclick + '">' + item.label + '</a>';
+		return '<a onclick="' + onclick + '">' + (typeof alternativeLabel !== 'undefined' ? alternativeLabel : item.label) + '</a>';
 	} else {
 		return item.label;
 	}
