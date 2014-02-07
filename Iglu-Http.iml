@@ -19,6 +19,8 @@
     <orderEntry type="module" module-name="iglu" />
     <orderEntry type="module" module-name="iglu-common" />
     <orderEntry type="module" module-name="iglu-util" />
+    <orderEntry type="module" module-name="Iglu-Util" />
+    <orderEntry type="module" module-name="Iglu" />
   </component>
 </module>
 

@@ -19,8 +19,13 @@ public class JsonObject implements JsonDecorator {
 	public JsonObject() {
 	}
 
-	public JsonObject addAttribute(String name, String value) {
+	public JsonObject addStringAttribute(String name, String value) {
 		attributes.put(name, "\"" + value + "\"");
+		return this;
+	}
+
+	public JsonObject addAttribute(String name, Object value) {
+		attributes.put(name, value);
 		return this;
 	}
 
@@ -63,7 +68,7 @@ public class JsonObject implements JsonDecorator {
 
 	public Object getAttribute(String id) {
 		Object retval = attributes.get(id);
-		if(retval != null && retval instanceof String) {
+		if(retval != null && retval.toString().startsWith("\"")) {
 			retval = ((String) retval).substring(1, ((String) retval).length() - 1);
 		}
 		return retval;
