@@ -113,6 +113,10 @@ WindowWidget.prototype.writeHTML = function() {
 
 WindowWidget.prototype.onDestroy = function() {
 	//save state
+	if(this.content.onDeploy) {
+		WidgetManager.instance.destroyWidget(this.content.id);
+	}
+
 };
 
 

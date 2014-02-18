@@ -16,7 +16,7 @@ body {
 	height:100%;
 	padding:0px 0px 0px 0px;
 	margin:0px 0px 0px 0px;
-	font-family: Corbel, swiss, helvetica, arial;
+	font-family: arial, swiss, helvetica, arial;
 	font-size: 0.85em;
     color:#606060;
 	background: #65757C;
@@ -27,7 +27,7 @@ textarea {
 	padding: 0px;
 	padding-left: 2px;
 	margin: 0px;
-	font-family: Corbel, swiss, helvetica, arial;
+	font-family: arial, swiss, helvetica, arial;
 	font-size: 1.0em;
 	color:#606060;
 }
@@ -51,13 +51,13 @@ a:hover {
 
 h1 {
 	color:#FF3000;
-	font-family: Corbel, swiss, helvetica, arial;
+	font-family: Arial, swiss, helvetica, arial;
 	font-size:43px;
 	padding:0px 0px 0px 0px;
 }
 
 h2,h3,h4 {
-	font-family: Corbel, swiss, helvetica, arial;
+	font-family: Arial, swiss, helvetica, arial;
 	font-weight: normal;
 	margin:0px 0px 5px 0px;
 }
@@ -67,12 +67,12 @@ h2 {
 }
 
 h3 {
-	font-family: Corbel, swiss, helvetica, arial;
+	font-family: Arial, swiss, helvetica, arial;
 	font-size: 1.5em;
 }
 
 h4 {
-	font-family: Corbel, swiss, helvetica, arial;
+	font-family: Arial, swiss, helvetica, arial;
 	font-size: 1.2em;
 }
 
@@ -82,5 +82,24 @@ hr {
 	height:1px;
 	margin:15px 0px 15px 0px;
 }
+
+.logo {
+
+	margin-top: 8px;
+	margin-bottom: 6px;
+	margin-left: 19px;
+	margin-right: 11px;
+	padding: 0px;
+	height: 32px;
+	width: 32px;
+	background: white url('../img/ijsberg.gif');
+	float: left;
+}
+
+
+
+
+
+
 
 

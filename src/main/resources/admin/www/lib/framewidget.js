@@ -27,7 +27,12 @@ function FrameSettings(id, width, height, stickToWindowHeightMinus, source, hasH
 }
 
 
-function FrameWidget(settings, content) {
+function FrameWidget(id, content, settings) {
+	this.id = id;
+	if(typeof settings == 'undefined') {
+		settings = new Object();
+		settings.id = id;
+	}
 	this.constructFrameWidget(settings, content);
 }
 
@@ -62,8 +67,11 @@ FrameWidget.prototype.constructFrameWidget = function(settings, content) {
 	if(typeof settings.source_load_action != 'undefined' && settings.source_load_action != null) {
 		this.source_load_action = settings.source_load_action;
 	} else {
-     	this.source_load_action = 'display';
-     }
+		if(typeof this.source_load_action == 'undefined') {
+			this.source_load_action = 'display';
+		 }
+	}
+	log('source load action of ' + this.id  + ' is ' + this.source_load_action);
 	if(typeof content != 'undefined') {
 		this.content = content;
 	} else {

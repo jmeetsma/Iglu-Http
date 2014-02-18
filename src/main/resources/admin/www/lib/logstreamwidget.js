@@ -17,13 +17,13 @@
  * along with Iglu.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-function PanelSettings(id, width, height, stickToWindowHeightMinus, source, hasHeader, title) {
+function LogStreamSettings(id, width, height, stickToWindowHeightMinus, source, hasHeader, title) {
 	this.id = id;
 	this.width = width;
 	this.height = height;
 	this.stickToWindowHeightMinus;
 	this.source = source;
-	this.source_load_action = 'display';
+	this.source_load_action = 'loadEntries';
 	this.hasHeader = hasHeader;
 	this.title = title;
 }
@@ -33,6 +33,7 @@ function LogStreamWidget(settings, content) {
 	this.bufferSize = 100;
 	this.lines = new Array();
 	this.cssClassName = 'logstream';
+	this.source_load_action = 'loadEntries';
 	this.constructLogStreamWidget(settings, content);
 }
 
@@ -63,3 +64,26 @@ LogStreamWidget.prototype.append = function(line) {
 	}
 	this.writeHTML();
 };
+
+LogStreamWidget.prototype.onTimer = function(line) {
+
+	this.refresh();
+};
+
+LogStreamWidget.prototype.loadEntries = function(entries, logStreamWidget) {
+	var entryStrings = eval(entries);
+	for(var[i] in entryStrings) {
+		logStreamWidget.append(entryStrings[i]);
+	}
+}
+
+
+
+LogStreamWidget.prototype.onDestroy = function() {
+	log('log stream widget destroyed');
+	WidgetManager.instance.unregisterTimerListener(this);
+	//save state
+};
+
+
+

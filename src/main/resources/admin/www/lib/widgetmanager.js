@@ -89,19 +89,32 @@ WidgetManager.prototype.registerTimerListener = function(listener, frameRate) {
 
 	listener.frameRate = frameRate;
 	listener.eventInterval = Math.round(this.FRAME_RATE / frameRate);
+	log('registering timer listener ' + listener.id + ' with event interval ' + listener.eventInterval);
 	listener.eventIntervalCountdown = listener.eventInterval;
+	listener.timerIndex = this.timerListeners.length;
 	this.timerListeners[this.timerListeners.length] = listener;
-
+	log('current number of timer listeners: ' + this.timerListeners.length);
+	if(this.timerListeners.length == 1) {
+		log('starting timer');
+    	setTimeout('WidgetManager.instance.tick();', this.TIMER_INTERVAL);
+	}
 }
 
+WidgetManager.prototype.unregisterTimerListener = function(listener) {
+
+	log('unregistering timer listener ' + listener.id);
+	this.timerListeners.splice(listener.timerIndex,1);
+}
 
 WidgetManager.prototype.tick = function() {
-	if(timerListeners.length > 0) {
-    	setTimeout('WidgetManager.instance.tick();');
-    }
+	if(this.timerListeners.length > 0) {
+    	setTimeout('WidgetManager.instance.tick();', this.TIMER_INTERVAL);
+    } else {
+   		log('stopping timer');
+	}
 	for(var i in this.timerListeners) {
-
-		if(this.timerListeners[i].eventIntervalCountdown <= 0) {
+		 if(this.timerListeners[i].eventIntervalCountdown-- <= 0) {
+//			log('notifying ' + this.timerListeners[i].id);
 			this.timerListeners[i].eventIntervalCountdown = this.timerListeners[i].eventInterval;
 			this.timerListeners[i].onTimer();
 		}
@@ -366,6 +379,7 @@ WidgetManager.prototype.deployWidgetInContainer = function(container, newWidget,
 WidgetManager.prototype.destroyWidget = function(widgetId) {
 	var widget = this.widgets[widgetId];
 	if(widget != null) {
+		log('removing widget "' + widgetId + '"');
 		//call widget destructor
 		widget.onDestroy();
 
@@ -373,7 +387,11 @@ WidgetManager.prototype.destroyWidget = function(widgetId) {
     	if(canvas != null) {
 			var element = document.getElementById(widgetId);
     		if(element != null) {
-				canvas.removeChild(element);
+    			try {
+					canvas.removeChild(element);
+				} catch(e) {
+					log('ERROR when removing child node: ' + e.message);
+				}
 			}
 		}
 		var draggableElement = widget.getDragSelectElement();
@@ -381,6 +399,9 @@ WidgetManager.prototype.destroyWidget = function(widgetId) {
 			this.draggableWidgets[draggableElement.id] = null;
 		}
 		this.widgets[widgetId] = null;
+		log('done');
+	} else {
+		log('NOT removing unregistered widget "' + widgetId + '"');
 	}
 }
 
@@ -392,6 +413,7 @@ WidgetManager.prototype.getWidget = function(id) {
 }
 
 WidgetManager.prototype.containsWidget = function(id) {
+	log('containsWidget(' + id + ')' + this.widgets[id]);
 	return this.widgets[id] != null;
 }
 

@@ -40,26 +40,18 @@ AdminConsole.prototype.openClusterWindow = function(data, dataId) {
 }
 
 AdminConsole.prototype.openComponentWindow = function(data, dataId) {
-//	var content =
-  //  ajaxRequestManager.doRequest('/cluster.html', adminConsole.createWindowWidget, [parameter.message, parameter.message, 100, 250, content]);
 	var  windowSettings = new Object();
 	windowSettings.id = dataId;
 	windowSettings.title = dataId;
-//	windowSettings.height = 500;
-//	windowSettings.width = 400;
 	windowSettings.data = data;
 	windowSettings.initFunction = initComponentWindow;
     ajaxRequestManager.doRequest('/component.html', adminConsole.createWindowWidget, windowSettings, null);
 }
 
 AdminConsole.prototype.openMethodWindow = function(data, dataId) {
-//	var content =
-  //  ajaxRequestManager.doRequest('/cluster.html', adminConsole.createWindowWidget, [parameter.message, parameter.message, 100, 250, content]);
 	var  windowSettings = new Object();
 	windowSettings.id = dataId;
 	windowSettings.title = dataId;
-//	windowSettings.height = 500;
-//	windowSettings.width = 400;
 	windowSettings.data = data;
 	windowSettings.initFunction = initMethodWindow;
     ajaxRequestManager.doRequest('/method.html', adminConsole.createWindowWidget, windowSettings, null);

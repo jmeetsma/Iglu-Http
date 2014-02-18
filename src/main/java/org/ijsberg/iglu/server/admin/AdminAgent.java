@@ -7,4 +7,8 @@ public interface AdminAgent {
     boolean login(String userName, String password);
 
     boolean isLoggedIn();
+
+	String getMenu();
+
+	String getLogEntries();
 }
