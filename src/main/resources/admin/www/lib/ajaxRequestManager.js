@@ -17,11 +17,11 @@
  * along with Iglu.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/////////////////////////////////
-//                             //
-//  Ajax Communication Engine  //
-//                             //
-/////////////////////////////////
+////////////////////////////
+//                        //
+//  AJAX request manager  //
+//                        //
+////////////////////////////
 
 //singleton engine
 //var ajaxRequestManager;

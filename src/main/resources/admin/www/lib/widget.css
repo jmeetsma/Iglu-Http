@@ -58,11 +58,27 @@ body {
 }
 
 .window_contents {
-	margin: 0px; padding: 5px; top: 0px; left: 0px; background: white;
+	margin: 0px;
+	padding: 0px;
+	top: 0px;
+	left: 0px;
+	background: white;
 	color: black; font: normal 1em Arial; border: 1px solid white;
 	overflow: auto;
 	position: relative;
 }
+
+.logstream {
+	top: 0px;
+	left: 0px;
+	margin: 0px;
+	padding: 5px;
+	width: inherit;
+	height: inherit;
+	position: absolute;
+	overflow: auto;
+}
+
 
 .window {
 	margin : 0px;

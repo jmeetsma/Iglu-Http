@@ -17,27 +17,26 @@
  * along with Iglu.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-function PanelSettings(id, width, height, stickToWindowHeightMinus, source, hasHeader, title) {
+function FrameSettings(id, width, height, stickToWindowHeightMinus, source, hasHeader, title) {
 	this.id = id;
 	this.width = width;
 	this.height = height;
-	this.stickToWindowHeightMinus;
+	this.stickToWindowHeightMinus; //height is related to window height and resizes accordingly
 	this.source = source;
 	this.source_load_action = 'display';
-	this.hasHeader = hasHeader;
-	this.title = title;
 }
 
 
-function PanelWidget(settings, content) {
-	this.cssClassName = 'panel';
-	this.constructPanelWidget(settings, content);
-}
-
-subclass(PanelWidget, FrameWidget);
-
-PanelWidget.prototype.constructPanelWidget = function(settings, content) {
+function FrameWidget(settings, content) {
 	this.constructFrameWidget(settings, content);
+}
+
+subclass(FrameWidget, Widget);
+
+FrameWidget.prototype.constructFrameWidget = function(settings, content) {
+	this.constructWidget(settings, content);
+
+	this.id = settings.id;
 
 	if(typeof settings.stickToWindowHeightMinus != 'undefined') {
 		this.stickToWindowHeightMinus = settings.stickToWindowHeightMinus;
@@ -45,33 +44,69 @@ PanelWidget.prototype.constructPanelWidget = function(settings, content) {
 
 	this.resizeDirections = '';
 
-	if(typeof settings.hasHeader != 'undefined') {
-		this.hasHeader = settings.hasHeader;
+	if(typeof settings.height != 'undefined') {
+		this.height = settings.height;
 	} else {
-		this.hasHeader = false;
+		this.height = null;
 	}
-	if(typeof settings.title != 'undefined') {
-		this.title = settings.title;
+	if(typeof settings.width != 'undefined') {
+		this.width = settings.width;
 	} else {
-		this.title = '';
+		this.width = null;
 	}
+	if(typeof settings.source != 'undefined') {
+		this.source = settings.source;
+	} else {
+		this.source = null;
+	}
+	if(typeof settings.source_load_action != 'undefined' && settings.source_load_action != null) {
+		this.source_load_action = settings.source_load_action;
+	} else {
+     	this.source_load_action = 'display';
+     }
+	if(typeof content != 'undefined') {
+		this.content = content;
+	} else {
+		this.content = 'loading...';
+	}
+	this.positionListener = null;
+	this.panelContentClass = null;
 };
 
 
-PanelWidget.prototype.allowHorizontalResize = function() {
+FrameWidget.prototype.allowHorizontalResize = function() {
 	if(this.resizeDirections.indexOf('e') == -1) {
 		this.resizeDirections += 'e';
 	}
 };
 
-PanelWidget.prototype.allowVerticalResize = function() {
+FrameWidget.prototype.allowVerticalResize = function() {
 	if(this.resizeDirections.indexOf('s') == -1) {
 		this.resizeDirections += 's';
 	}
 };
 
 
-PanelWidget.prototype.setSizeAndPosition = function() {
+FrameWidget.prototype.draw = function(left, top) {
+
+	if(typeof left != 'undefined') {
+		this.left = left;
+	}
+	if(typeof top != 'undefined') {
+		this.top = top;
+	}
+
+	if(this.element != null) {
+		this.element.style.visibility = 'hidden';
+		this.element.className = this.cssClassName;
+		this.setSizeAndPosition();
+		this.writeHTML();
+		this.element.style.visibility = 'visible';
+	}
+};
+
+
+FrameWidget.prototype.setSizeAndPosition = function() {
 
 	if(typeof this.width != 'undefined' && this.allowsResize('e')) {
 		this.element.style.width = this.width + 'px';
@@ -90,7 +125,7 @@ PanelWidget.prototype.setSizeAndPosition = function() {
 	}};
 
 
-PanelWidget.prototype.writeHTML = function() {
+FrameWidget.prototype.writeHTML = function() {
 
 	if(this.container) {
 		if((typeof this.content.writeHTML != 'undefined')) {
@@ -102,11 +137,11 @@ PanelWidget.prototype.writeHTML = function() {
 };
 
 
-PanelWidget.prototype.onDestroy = function() {
+FrameWidget.prototype.onDestroy = function() {
 	//save state
 };
 
-PanelWidget.prototype.setPositionFromPage = function() {
+FrameWidget.prototype.setPositionFromPage = function() {
 
 	this.top = getElementPositionInPage(this.element).y;
 	this.left = getElementPositionInPage(this.element).x;
@@ -114,33 +149,17 @@ PanelWidget.prototype.setPositionFromPage = function() {
 
 
 
-PanelWidget.prototype.onDeploy = function() {
+FrameWidget.prototype.onDeploy = function() {
 //	widgetmanager.registerDraggableWidget(this);
 
 	this.setPositionFromPage();
 
-
-	if(this.hasHeader) {
-		this.header = document.createElement('div');
-		this.header.id = this.id + '_header';
-		this.header.className = 'panelheader';
-		this.header.innerHTML = this.title;
-		this.element.appendChild(this.header);
-	}
-
-
-	this.container = document.createElement('div');
-	this.container.id = this.id + '_contents';
-	this.container.className = 'panelcontents' + (this.panelContentClass != null ? ', ' + this.panelContentClass : '');
-	this.container.onmouseover = new Function('event', 'event.stopPropagation();');
-	this.container.onmouseout = new Function('event', 'event.stopPropagation();');
+	this.element.onmouseover = new Function('event', 'event.stopPropagation();');
+	this.element.onmouseout = new Function('event', 'event.stopPropagation();');
 	//this.container.onmousemove = new Function('event', 'event.stopPropagation();');
-	this.element.appendChild(this.container);
-
-
 
     if(typeof this.stickToWindowHeightMinus != 'undefined' && this.stickToWindowHeightMinus != null) {
-		this.container.style.maxHeight = (document.documentElement.clientHeight - this.stickToWindowHeightMinus) + 'px';
+		this.element.style.maxHeight = (document.documentElement.clientHeight - this.stickToWindowHeightMinus) + 'px';
 		widgetmanager.registerWindowResizeListener(this);
 	}
 
@@ -150,7 +169,7 @@ PanelWidget.prototype.onDeploy = function() {
 
 	if((typeof this.content.writeHTML != 'undefined')) {
 
-		widgetmanager.deployWidgetInContainer(this.container, this.content);
+		widgetmanager.deployWidgetInContainer(this.element, this.content);
 	}
 
 
@@ -158,7 +177,7 @@ PanelWidget.prototype.onDeploy = function() {
 	this.refresh();
 };
 
-PanelWidget.prototype.onWindowResizeEvent = function(event) {
+FrameWidget.prototype.onWindowResizeEvent = function(event) {
     if(typeof this.stickToWindowHeightMinus != 'undefined' && this.stickToWindowHeightMinus != null) {
 //    alert(this.id + ': ' + this.container.style.height + ' -> ' + (document.documentElement.clientHeight - this.stickToWindowHeightMinus) + 'px');
 		this.container.style.maxHeight = (document.documentElement.clientHeight - this.stickToWindowHeightMinus) + 'px';
@@ -167,7 +186,7 @@ PanelWidget.prototype.onWindowResizeEvent = function(event) {
 
 
 
-PanelWidget.prototype.refresh = function() {
+FrameWidget.prototype.refresh = function() {
 	//load state
 	if(this.source != null) {
 
@@ -179,10 +198,8 @@ PanelWidget.prototype.refresh = function() {
 
 //todo rename to activate / deactivate
 
-PanelWidget.prototype.onFocus = function() {
+FrameWidget.prototype.onFocus = function() {
 };
 
-PanelWidget.prototype.onBlur = function() {
+FrameWidget.prototype.onBlur = function() {
 };
-
-

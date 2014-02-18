@@ -27,25 +27,36 @@
 	<script type="text/javascript" language="JavaScript" src="console.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/util.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/ajaxRequestManager.js"></script>
-    <script type="text/javascript" language="JavaScript" src="lib/widgetengine.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/widgetmanager.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/framewidget.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/windowwidget.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/panelwidget.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/logstreamwidget.js"></script>
     <script type="text/javascript" language="JavaScript">
 
         contextroot = '';
 
         function init() {
-			widgetengine.init();
+			WidgetManager.instance.init();
 			//get overview page
             ajaxRequestManager.doRequest('/process/admin/get_clusters', adminConsole.executeJson);
+            var settings = new Object();
+            settings.id = 'logstream';
+            var logStream = new LogStreamWidget(settings);
+            settings.id = 'logWindow';
+            var logWindow = new WindowWidget(settings, logStream);
+            logWindow.set('title', 'log output');
+            logWindow.set('width', 600);
+            logWindow.set('height', 300);
+            logWindow.set('top', 100);
+            logWindow.set('left', 700);
+            WidgetManager.instance.deployWidget(logWindow);
         }
     </script>
 
 </head>
 <body onload="init()">
 
-
-
 </body>
-
 
 </html>

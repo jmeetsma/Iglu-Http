@@ -27,79 +27,62 @@ function WindowSettings(widgetId, title, height, width, source, ignorePageScroll
 }
 
 
-function WindowWidget(windowSettings, content) {
-	this.id = windowSettings.id;
-	if(typeof windowSettings.height != 'undefined') {
-		this.height = windowSettings.height;
-	} else {
+function WindowWidget(settings, content) {
+	this.cssClassName = 'window';
+	this.height = null;
+	this.width = null;
+	this.top = null;
+	this.left = null;
+	this.constructWindowWidget(settings, content);
+}
+
+subclass(WindowWidget, FrameWidget);
+
+
+WindowWidget.prototype.constructWindowWidget = function(settings, content) {
+
+	this.constructFrameWidget(settings, content);
+	if(this.height == null) {
 		this.height = 200;
 	}
-	if(typeof windowSettings.width != 'undefined') {
-		this.width = windowSettings.width;
-	} else {
+	if(this.width == null) {
 		this.width = 300;
 	}
-	if(typeof windowSettings.title != 'undefined') {
-		this.title = windowSettings.title;
+	if(typeof settings.title != 'undefined') {
+		this.title = settings.title;
 	} else {
 		this.title = this.id;
 	}
-	if(typeof windowSettings.source != 'undefined') {
-		this.source = windowSettings.source;
-	} else {
-		this.source = null;
+	if(typeof settings.initFunction != 'undefined') {
+		this.init = settings.initFunction;
 	}
-	if(typeof content != 'undefined') {
-		this.content = content;
-	} else {
-		this.content = 'loading...';
-	}
-	if(typeof windowSettings.initFunction != 'undefined') {
-		this.init = windowSettings.initFunction;
-	}
-	if(typeof windowSettings.ignoresPageScroll != 'undefined') {
-		this.ignoresPageScroll = windowSettings.ignoresPageScroll;
+	if(typeof settings.ignoresPageScroll != 'undefined') { //TODO replace with css function
+		this.ignoresPageScroll = settings.ignoresPageScroll;
 	} else {
 		this.ignoresPageScroll = true;
 	}
-}
-
-WindowWidget.prototype = new Widget();
-
-
-WindowWidget.prototype.alertSomething = function(value) {
-	alert(value);
 };
 
-WindowWidget.prototype.process = function(value) {
-	alert(value);
-};
 
-WindowWidget.prototype.draw = function(left, top) {
-	if(top != null) this.top = top;
-	if(left != null) this.left = left;
-	if(this.element != null) {
-		this.element.style.visibility = 'hidden';
-		this.element.className = 'window';
-		this.setSizeAndPosition();
-		this.writeHTML();
-		this.element.style.visibility = 'visible';
-	}
-};
+
+
 
 
 WindowWidget.prototype.setSizeAndPosition = function() {
 
 	this.element.style.top = this.top + 'px';
 	this.element.style.left = this.left + 'px';
-	if(typeof this.height != 'undefined') {
+	if(this.height != null) {
 		this.element.style.height = this.height + 'px';
+		if(this.contentElement != null) {
+			this.contentElement.style.height = (this.height - (this.content.onDeploy ? 32 : 23)) + 'px';
+		}
 	}
-	if(typeof this.width != 'undefined') {
+	if(this.width != null) {
 		this.element.style.width = this.width + 'px';
-	}
-	if(this.contentElement != null) {
-		this.contentElement.style.height = (this.height - 33) + 'px';
+		if(this.contentElement != null) {
+			this.contentElement.style.width = (this.width - (this.content.onDeploy ? 11 : 2)) + 'px';
+		}
 	}
 
 };
@@ -108,22 +91,22 @@ WindowWidget.prototype.setSizeAndPosition = function() {
 WindowWidget.prototype.writeHTML = function() {
 
 	if(this.element) {
-		var result = '<div class="title_bar_active" id="' + this.id + '_header">' +
+		var result = '<div class="title_bar_inactive" id="' + this.id + '_header">' +
 					 	'<div class="title">' + this.title + '</div>' +
-					 	'<div class="close_icon" onclick="widgetengine.destroyWidget(\'' + this.getId() + '\')"></div>' +
+					 	'<div class="close_icon" onclick="widgetmanager.destroyWidget(\'' + this.getId() + '\')"></div>' +
 					 	'</div>' +
 					 '<div class="window_contents" id="' + this.id + '_contents">';
 
-		result += this.content;
+        if(!this.content.onDeploy) {
+			result += this.content;
+		}
 
 		result += '</div>';
 
 		this.element.innerHTML = result;
 		this.dragActivationElement = document.getElementById(this.id + '_header');
 		this.contentElement = document.getElementById(this.id + '_contents');
-		if(typeof this.height != 'undefined') {
-			this.contentElement.style.height = (this.height - 33) + 'px';
-		}
+		this.setSizeAndPosition();
 	}
 };
 
@@ -134,8 +117,15 @@ WindowWidget.prototype.onDestroy = function() {
 
 
 WindowWidget.prototype.onDeploy = function() {
-	widgetengine.registerDraggableWidget(this);
-	widgetengine.registerResizeableWidget(this);
+	widgetmanager.registerDraggableWidget(this);
+	widgetmanager.registerResizeableWidget(this, 'se');
+
+	if(this.content.onDeploy) {
+		WidgetManager.instance.deployWidgetInContainer(this.contentElement, this.content);
+		widgetmanager.registerResizeableWidget(this.content, 'se');
+		//let content handle overflow
+		this.contentElement.style.overflow = 'visible';
+	}
 	//load state
 	this.refresh();
 };
@@ -150,13 +140,19 @@ WindowWidget.prototype.refresh = function() {
 //todo rename to activate / deactivate
 
 WindowWidget.prototype.onFocus = function() {
-	document.getElementById(this.id + '_header').className = 'title_bar_active';
+	this.setHeaderClass('title_bar_active');
 };
 
 WindowWidget.prototype.onBlur = function() {
-	document.getElementById(this.id + '_header').className = 'title_bar_inactive';
+	this.setHeaderClass('title_bar_inactive');
 };
 
+WindowWidget.prototype.setHeaderClass = function(className) {
+	var header = document.getElementById(this.id + '_header');
+	if(header != null) {
+		header.className = className;
+	}
+};
 
 WindowWidget.prototype.display = function(content, element)
 {

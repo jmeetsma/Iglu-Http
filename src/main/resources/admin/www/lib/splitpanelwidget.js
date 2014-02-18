@@ -25,29 +25,21 @@ function SplitPanelSettings(id, height, width) {
 
 
 function SplitPanelWidget(settings, firstPanelSize, firstPanel, secondPanel) {
+	this.cssClassName = 'splitpanel';
+
 	//this.construct(settings, firstPanelSize, firstPanel, secondPanel);
 }
 
-SplitPanelWidget.prototype = new Widget();
+subclass(SplitPanelWidget, FrameWidget);
 
-SplitPanelWidget.prototype.construct = function(settings, firstPanelSize, firstPanel, secondPanel) {
+SplitPanelWidget.prototype.constructSplitPanelWidget = function(settings, firstPanelSize, firstPanel, secondPanel) {
 
-	this.id = settings.id;
+	this.constructFrameWidget(settings);
+
 	this.firstPanelSize = firstPanelSize;
 
 	this.firstPanel = firstPanel;
 	this.secondPanel = secondPanel;
-
-	if(typeof settings.height != 'undefined') {
-		this.height = settings.height;
-	} else {
-//		this.height = '100%';
-	}
-	if(typeof settings.width != 'undefined') {
-		this.width = settings.width;
-	} else {
-//		this.width = '100%';
-	}
 };
 
 
@@ -57,18 +49,6 @@ SplitPanelWidget.prototype.alertSomething = function(value) {
 
 SplitPanelWidget.prototype.process = function(value) {
 	alert(value);
-};
-
-SplitPanelWidget.prototype.draw = function(left, top) {
-	if(top != null) this.top = top;
-	if(left != null) this.left = left;
-	if(this.element != null) {
-		this.element.style.visibility = 'hidden';
-		this.element.className = 'splitpanel';
-		this.setSizeAndPosition();
-		this.writeHTML();
-		this.element.style.visibility = 'visible';
-	}
 };
 
 
@@ -106,9 +86,9 @@ SplitPanelWidget.prototype.onDeploy = function() {
 	this.container.className = 'splitpanelcontainer';
 	this.element.appendChild(this.container);
 
-	widgetengine.deployWidgetInContainer(this.container, this.firstPanel);
+	widgetmanager.deployWidgetInContainer(this.container, this.firstPanel);
 	//secondPanel may be a splitPanel
-	widgetengine.deployWidgetInContainer(this.container, this.secondPanel);
+	widgetmanager.deployWidgetInContainer(this.container, this.secondPanel);
 
 	this.firstPanel.positionListener = this;
 
@@ -154,7 +134,8 @@ SplitPanelWidget.prototype.display = function(content, element)
 
 
 function HorizontalSplitPanelWidget(settings, firstPanelSize, firstPanel, secondPanel) {
-	this.construct(settings, firstPanelSize, firstPanel, secondPanel);
+	this.cssClassName = 'splitpanel';
+	this.constructSplitPanelWidget(settings, firstPanelSize, firstPanel, secondPanel);
 	firstPanel.height = firstPanelSize;
 	firstPanel.allowVerticalResize();
 }
@@ -170,7 +151,8 @@ HorizontalSplitPanelWidget.prototype.setPanelClasses = function() {
 
 
 function VerticalSplitPanelWidget(settings, firstPanelSize, firstPanel, secondPanel) {
-	this.construct(settings, firstPanelSize, firstPanel, secondPanel);
+	this.cssClassName = 'splitpanel';
+	this.constructSplitPanelWidget(settings, firstPanelSize, firstPanel, secondPanel);
 	firstPanel.width = firstPanelSize;
 	firstPanel.allowHorizontalResize();
 }

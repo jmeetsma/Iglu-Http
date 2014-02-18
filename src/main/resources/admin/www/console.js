@@ -100,14 +100,16 @@ AdminConsole.prototype.createWindowWidget = function(responseMessage, windowSett
         nodeNames += element.childNodes[i].nodeName + '\n';
     }
 
-	if(!widgetengine.widgetExists(windowSettings.id)) {
+	if(!widgetmanager.widgetExists(windowSettings.id)) {
 
 	    var windowWidget = new WindowWidget(windowSettings, element.getElementsByTagName('body')[0].innerHTML);
-    	widgetengine.deployWidget(windowWidget);
+    	widgetmanager.deployWidget(windowWidget);
 
 		if(typeof windowWidget.init != 'undefined') {
 			windowWidget.init(windowSettings.data);
 		}
+	} else {
+		widgetmanager.activateCurrentWidget(windowSettings.id);
 	}
 
 }
@@ -115,7 +117,7 @@ AdminConsole.prototype.createWindowWidget = function(responseMessage, windowSett
 
 function login(username, password) {
     ajaxRequestManager.doRequest('/process/admin/login', adminConsole.executeJson, null, "username=" + username + "&password=" + password);
-    widgetengine.destroyWidget('login');
+    widgetmanager.destroyWidget('login');
 }
 
 
