@@ -1,0 +1,27 @@
+
+
+<html>
+
+<head>
+	<title>IJsberg Software Sanering</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+	<script type="text/javascript" language="JavaScript" src="lib/util.js"></script>
+	<script type="text/javascript" language="JavaScript" src="lib/ajaxRequestManager.js"></script>
+	<script type="text/javascript" language="JavaScript" src="lib/widgetmanager.js"></script>
+	<script type="text/javascript" language="JavaScript" src="lib/windowwidget.js"></script>
+	<title>IJsberg</title>
+</head>
+
+<body>
+	<div class="upload_form">
+		<form action="/process/admin/upload" method="post" enctype="multipart/form-data" onSubmit="startUpload()">
+			<div class="form_line"><div class="input_label">select file</div><input type="file" name="upload"></div>
+			<div class="input_label">Remarks:</div>
+			<textarea cols="40" rows="3" name="remarks"></textarea>
+			<div class="form_line" style="text-align: right; margin-top: 5px;" ><input type="submit" value="upload" style="margin-right: 22px"></div>
+		</form>
+	</div>
+</body>
+
+</html>
