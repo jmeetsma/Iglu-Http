@@ -39,47 +39,6 @@
         contextroot = '';
 
 
-        function openJavaScriptLog() {
-            if(!WidgetManager.instance.containsWidget('logstream')){
-                var settings = new Object();
-                settings.id = 'logstream';
-                var logStream = new LogStreamWidget(settings);
-
-                settings.id = 'logWindow';
-                var logWindow = new WindowWidget(settings, logStream);
-                logWindow.set('title', 'log output');
-                logWindow.set('width', 600);
-                logWindow.set('height', 300);
-                logWindow.set('top', 100);
-                logWindow.set('left', 700);
-                WidgetManager.instance.deployWidget(logWindow);
-            } else {
-                WidgetManager.instance.activateCurrentWidget('logWindow');
-            }
-        }
-
-        function openServerLog() {
-            if(!WidgetManager.instance.containsWidget('serverlogstream')){
-                var settings = new Object();
-                settings.id = 'serverlogstream';
-                var logStream = new LogStreamWidget(settings);
-                logStream.set('source', '/process/admin/get_log_entries');
-                logStream.set('source_load_action', 'loadEntries');
-
-
-                settings.id = 'serverLogWindow';
-                var logWindow = new WindowWidget(settings, logStream);
-                logWindow.set('title', 'server log output');
-                logWindow.set('width', 600);
-                logWindow.set('height', 300);
-                logWindow.set('top', 200);
-                logWindow.set('left', 900);
-                WidgetManager.instance.deployWidget(logWindow);
-                WidgetManager.instance.registerTimerListener(logStream, 1);
-            } else {
-                WidgetManager.instance.activateCurrentWidget('serverLogWindow');
-            }
-        }
 
         function init() {
 			WidgetManager.instance.init();
@@ -122,6 +81,36 @@
 
             WidgetManager.instance.deployWidgetInContainer(menuElement, topMenuWidget);
         }
+
+
+
+function showUploadFrame() {
+
+    var element = document.getElementById(
+	document.getElementById('upload_progress_frame').style.visibility = 'hidden';
+	document.getElementById('upload_progress_frame').style.width = '0px';
+	document.getElementById('upload_progress_frame').style.height = '0px';
+	document.getElementById('upload_select_frame').style.width = '400px';
+	document.getElementById('upload_select_frame').style.height = '200px';
+	document.getElementById('upload_select_frame').style.visibility = 'visible';
+    document.getElementById('upload_progress_frame').src = '';
+}
+
+function showProgressFrame(delay) {
+	document.getElementById('submit_button').value = 'cancel';
+	document.getElementById('progress_bar_inner').style.width = '0px';
+	document.getElementById('progress_bar_text').innerHTML = '';
+	uploadCancelled = false;
+	uploadFinished = false;
+    document.getElementById('upload_progress_frame').src = '<%=getServiceBaseUrl()%>/service/upload_progress_form.jsp';
+	document.getElementById('upload_select_frame').style.visibility = 'hidden';
+	document.getElementById('upload_select_frame').style.width = '0px';
+	document.getElementById('upload_select_frame').style.height = '0px';
+	document.getElementById('upload_progress_frame').style.width = '400px';
+	document.getElementById('upload_progress_frame').style.height = '200px';
+	document.getElementById('upload_progress_frame').style.visibility = 'visible';
+	updateProgressForm();
+}
 
 
 

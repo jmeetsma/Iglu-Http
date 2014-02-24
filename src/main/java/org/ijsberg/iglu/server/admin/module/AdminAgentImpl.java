@@ -84,10 +84,10 @@ public class AdminAgentImpl implements AdminAgent, SessionDestructionListener, L
 
 		List<MenuItem> menu = new ArrayList<MenuItem>();
 
-		List<MenuItem> optionsMenu = getOptionsMenu();
-		menu.add(new MenuItem("options", "options").addSubmenu(optionsMenu).addCssClassNames("top_menu_item", "submenu"));
+		menu.add(new MenuItem("options", "options").addSubmenu(getOptionsMenu()).addCssClassNames("top_menu_item", "submenu"));
+		menu.add(new MenuItem("system", "system").addSubmenu(getSytemMenu()).addCssClassNames("top_menu_item", "submenu"));
 
-/*		menu.add(new MenuItem("dirs", "directory structure").addLink("code/directories.js", "navigation", "directory structure").addCssClassName("top_menu_item"));
+/*		menu.add(new MenuItem("upload", "directory structure").addLink("code/directories.js", "navigation", "directory structure").addCssClassName("top_menu_item"));
 
 		List<MenuItem> duplicationMenu = getDuplicationMenu();
 		menu.add(new MenuItem("duplication", "duplication").addSubmenu(duplicationMenu).addCssClassNames("top_menu_item", "submenu"));
@@ -106,6 +106,12 @@ public class AdminAgentImpl implements AdminAgent, SessionDestructionListener, L
 		optionsMenu.add(new MenuItem("js_log", "javascript log").addOnclick("openJavaScriptLog()").addCssClassName("submenu_item"));
 		optionsMenu.add(new MenuItem("server_log", "server log").addOnclick("openServerLog()").addCssClassName("submenu_item"));
 /*		optionsMenu.add(new MenuItem("style", "toggle resolved references").addOnclick("toggleCss(4);").addCssClassName("submenu_item"));    */
+		return optionsMenu;
+	}
+
+	private List<MenuItem> getSytemMenu() {
+		List<MenuItem> optionsMenu = new ArrayList<MenuItem>();
+		optionsMenu.add(new MenuItem("update", "update").addOnclick("openUpdateWindow()").addCssClassName("submenu_item"));
 		return optionsMenu;
 	}
 

@@ -30,9 +30,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Enumeration;
-import java.util.HashMap;
 
 /**
  */
@@ -57,6 +54,9 @@ public class ClassPathResourceServlet extends HttpServlet {
 		String resourcePath = FileSupport.convertToUnixStylePath(documentRoot + '/' + request.getPathInfo());
 		  if(resourcePath.startsWith("/")) {
 			  resourcePath = resourcePath.substring(1);
+		  }
+		  if(resourcePath.endsWith("/")) {
+			  resourcePath += "index.html";
 		  }
 
 		System.out.println(new LogEntry(Level.DEBUG, "obtaining resource: " + resourcePath));

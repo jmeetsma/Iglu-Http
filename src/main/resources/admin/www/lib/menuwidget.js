@@ -139,7 +139,6 @@ MenuWidget.prototype.onDestroy = function() {
 
 MenuWidget.prototype.evaluate = function(contents, menuWidget) {
 
-	//alert(contents);
 	menuWidget.menu = eval(contents);
 	menuWidget.writeHTML();
 	//save state

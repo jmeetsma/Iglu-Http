@@ -29,3 +29,24 @@ get_method
 
 invoke_method
 	RESPOND AdminResponseAgent.invokeMethod(["writeReturnValue"], properties)
+
+
+upload
+	INVOKE UploadAgent.readMultiPartUpload(request, properties, ["uploads/"])
+	REDIRECT uploadform.html
+
+cancel_upload
+	INVOKE UploadAgent.cancelUpload
+	REDIRECT uploadform.html
+
+cancel_upload_ajax
+	INVOKE UploadAgent.cancelUpload
+	RESPOND UploadAgent.getProgress(["updateProgress"])
+
+reset_upload
+	INVOKE UploadAgent.reset
+	RESPOND UploadAgent.getProgress(["updateProgress"])
+
+get_progress
+	RESPOND UploadAgent.getProgress(["updateProgress"])
+

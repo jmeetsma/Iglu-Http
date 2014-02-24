@@ -183,3 +183,77 @@ function invokeMethod(form) {
 //	alert(elementString);
 }
 
+
+
+function openJavaScriptLog() {
+	if(!WidgetManager.instance.containsWidget('logstream')){
+		var settings = new Object();
+		settings.id = 'logstream';
+		var logStream = new LogStreamWidget(settings);
+
+		settings.id = 'logWindow';
+		var logWindow = new WindowWidget(settings, logStream);
+		logWindow.set('title', 'log output');
+		logWindow.set('width', 600);
+		logWindow.set('height', 300);
+		logWindow.set('top', 100);
+		logWindow.set('left', 700);
+		WidgetManager.instance.deployWidget(logWindow);
+	} else {
+		WidgetManager.instance.activateCurrentWidget('logWindow');
+	}
+}
+
+function openServerLog() {
+	if(!WidgetManager.instance.containsWidget('serverlogstream')){
+		var settings = new Object();
+		settings.id = 'serverlogstream';
+		var logStream = new LogStreamWidget(settings);
+		logStream.set('source', '/process/admin/get_log_entries');
+		logStream.set('source_load_action', 'loadEntries');
+
+
+		settings.id = 'serverLogWindow';
+		var logWindow = new WindowWidget(settings, logStream);
+		logWindow.set('title', 'server log output');
+		logWindow.set('width', 600);
+		logWindow.set('height', 300);
+		logWindow.set('top', 200);
+		logWindow.set('left', 900);
+		WidgetManager.instance.deployWidget(logWindow);
+		WidgetManager.instance.registerTimerListener(logStream, 1);
+	} else {
+		WidgetManager.instance.activateCurrentWidget('serverLogWindow');
+	}
+}
+
+
+function openUpdateWindow() {
+	if(!WidgetManager.instance.containsWidget('updateWindow')){
+		var settings = new Object();
+
+		settings.id = 'updateWindow';
+		var updateWindow = new WindowWidget(settings);
+		updateWindow.set('title', 'system update');
+		updateWindow.set('content', 'system update');
+		updateWindow.set('width', 800);
+		updateWindow.set('height', 400);
+		updateWindow.set('top', 300);
+		updateWindow.set('title', 'system update');
+		updateWindow.set('source', 'uploadform.html');
+		WidgetManager.instance.deployWidget(updateWindow);
+	} else {
+		WidgetManager.instance.activateCurrentWidget('updateWindow');
+	}
+}
+
+
+function startUpload() {
+	//window.parent.showProgressFrame(50);return true;
+
+	// /process/admin/upload
+    WidgetManager.instance.getWidget('updateWindow').
+
+	return false;
+
+}
