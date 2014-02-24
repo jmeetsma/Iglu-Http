@@ -1,0 +1,31 @@
+
+login
+	INVOKE AdminAgent.login(username, password)
+		FALSE
+			RESPOND AdminResponseAgent.invokeJavaScript(["openLoginWindow"],["Login failed"])
+	RESPOND AdminResponseAgent.getClusterList(["openClusterWindow"])
+
+get_menu
+	RESPOND AdminAgent.getMenu()
+
+get_log_entries
+	RESPOND AdminAgent.getLogEntries()
+
+# all other actions require to be logged in
+INVOKE AdminAgent.isLoggedIn()
+	FALSE
+		RESPOND AdminResponseAgent.invokeJavaScript(["openLoginWindow"],["Please log in"])
+
+get_clusters
+	RESPOND AdminResponseAgent.getClusterList(["openClusterWindow"])
+
+get_component
+	INVOKE AdminResponseAgent.isCluster(clusterId, componentId)
+		TRUE: RESPOND AdminResponseAgent.getCluster(["openClusterWindow"], clusterId, componentId)
+	RESPOND AdminResponseAgent.getComponent(["openComponentWindow"], clusterId, componentId)
+
+get_method
+	RESPOND AdminResponseAgent.getMethod(["openMethodWindow"], clusterId, componentId, signature)
+
+invoke_method
+	RESPOND AdminResponseAgent.invokeMethod(["writeReturnValue"], properties)

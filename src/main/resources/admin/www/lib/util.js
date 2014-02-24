@@ -42,18 +42,25 @@ function registerEventHandler(element, eventDesc, handler) {
 
 //in Mozilla one could use classes as input, since the prototype member would be inherited
 //for IE it works with objects only
-function copyMembers(classA, classB)
-{
-	for (var n in classA)
-	{
+function copyMembers(classA, classB) {
+	for (var n in classA) {
 		classA[n] = classB[n];
 	}
 }
 
 function log(message) {
-	var element = document.getElementById('debug');
+
+	if(typeof WidgetManager != 'undefined') {
+		var logStream = WidgetManager.instance.getWidget('logstream');
+		if(logStream != null) {
+			logStream.append(new Date() + ' ' + message);
+			return;
+		}
+	}
+
+	var element = document.getElementById('logstream');
 	if(element != null) {
-		element.innerHTML = message;
+		element.innerHTML = new Date() + ' ' + message + '<br>\n' + element.innerHTML;
 	}
 }
 

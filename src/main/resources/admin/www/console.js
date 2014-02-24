@@ -40,26 +40,18 @@ AdminConsole.prototype.openClusterWindow = function(data, dataId) {
 }
 
 AdminConsole.prototype.openComponentWindow = function(data, dataId) {
-//	var content =
-  //  ajaxRequestManager.doRequest('/cluster.html', adminConsole.createWindowWidget, [parameter.message, parameter.message, 100, 250, content]);
 	var  windowSettings = new Object();
 	windowSettings.id = dataId;
 	windowSettings.title = dataId;
-//	windowSettings.height = 500;
-//	windowSettings.width = 400;
 	windowSettings.data = data;
 	windowSettings.initFunction = initComponentWindow;
     ajaxRequestManager.doRequest('/component.html', adminConsole.createWindowWidget, windowSettings, null);
 }
 
 AdminConsole.prototype.openMethodWindow = function(data, dataId) {
-//	var content =
-  //  ajaxRequestManager.doRequest('/cluster.html', adminConsole.createWindowWidget, [parameter.message, parameter.message, 100, 250, content]);
 	var  windowSettings = new Object();
 	windowSettings.id = dataId;
 	windowSettings.title = dataId;
-//	windowSettings.height = 500;
-//	windowSettings.width = 400;
 	windowSettings.data = data;
 	windowSettings.initFunction = initMethodWindow;
     ajaxRequestManager.doRequest('/method.html', adminConsole.createWindowWidget, windowSettings, null);
@@ -100,14 +92,16 @@ AdminConsole.prototype.createWindowWidget = function(responseMessage, windowSett
         nodeNames += element.childNodes[i].nodeName + '\n';
     }
 
-	if(!widgetengine.widgetExists(windowSettings.id)) {
+	if(!widgetmanager.widgetExists(windowSettings.id)) {
 
 	    var windowWidget = new WindowWidget(windowSettings, element.getElementsByTagName('body')[0].innerHTML);
-    	widgetengine.deployWidget(windowWidget);
+    	widgetmanager.deployWidget(windowWidget);
 
 		if(typeof windowWidget.init != 'undefined') {
 			windowWidget.init(windowSettings.data);
 		}
+	} else {
+		widgetmanager.activateCurrentWidget(windowSettings.id);
 	}
 
 }
@@ -115,7 +109,7 @@ AdminConsole.prototype.createWindowWidget = function(responseMessage, windowSett
 
 function login(username, password) {
     ajaxRequestManager.doRequest('/process/admin/login', adminConsole.executeJson, null, "username=" + username + "&password=" + password);
-    widgetengine.destroyWidget('login');
+    widgetmanager.destroyWidget('login');
 }
 
 

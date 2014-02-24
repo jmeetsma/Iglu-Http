@@ -22,30 +22,114 @@
 <title>Iglu Administrator Web Console</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" >
-	<link rel="stylesheet" type="text/css" href="console.css">
+	<link rel="stylesheet" type="text/css" href="css/console.css">
 	<link rel="stylesheet" type="text/css" href="lib/widget.css">
 	<script type="text/javascript" language="JavaScript" src="console.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/util.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/ajaxRequestManager.js"></script>
-    <script type="text/javascript" language="JavaScript" src="lib/widgetengine.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/widgetmanager.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/framewidget.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/windowwidget.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/menuwidget.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/panelwidget.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/splitpanelwidget.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/logstreamwidget.js"></script>
     <script type="text/javascript" language="JavaScript">
 
         contextroot = '';
 
+
+        function openJavaScriptLog() {
+            if(!WidgetManager.instance.containsWidget('logstream')){
+                var settings = new Object();
+                settings.id = 'logstream';
+                var logStream = new LogStreamWidget(settings);
+
+                settings.id = 'logWindow';
+                var logWindow = new WindowWidget(settings, logStream);
+                logWindow.set('title', 'log output');
+                logWindow.set('width', 600);
+                logWindow.set('height', 300);
+                logWindow.set('top', 100);
+                logWindow.set('left', 700);
+                WidgetManager.instance.deployWidget(logWindow);
+            } else {
+                WidgetManager.instance.activateCurrentWidget('logWindow');
+            }
+        }
+
+        function openServerLog() {
+            if(!WidgetManager.instance.containsWidget('serverlogstream')){
+                var settings = new Object();
+                settings.id = 'serverlogstream';
+                var logStream = new LogStreamWidget(settings);
+                logStream.set('source', '/process/admin/get_log_entries');
+                logStream.set('source_load_action', 'loadEntries');
+
+
+                settings.id = 'serverLogWindow';
+                var logWindow = new WindowWidget(settings, logStream);
+                logWindow.set('title', 'server log output');
+                logWindow.set('width', 600);
+                logWindow.set('height', 300);
+                logWindow.set('top', 200);
+                logWindow.set('left', 900);
+                WidgetManager.instance.deployWidget(logWindow);
+                WidgetManager.instance.registerTimerListener(logStream, 1);
+            } else {
+                WidgetManager.instance.activateCurrentWidget('serverLogWindow');
+            }
+        }
+
         function init() {
-			widgetengine.init();
+			WidgetManager.instance.init();
 			//get overview page
             ajaxRequestManager.doRequest('/process/admin/get_clusters', adminConsole.executeJson);
+
+            createPanels();
         }
+
+
+        function createPanels() {
+            var settings = new Object();
+
+            var emptyFrame = new FrameWidget('emptyframe');
+
+            settings.hasHeader = false;
+            settings.id = 'menu';
+            settings.contents = '<div class="logo"></div>' +
+                                 '<div id="top_menu" class="top_menu"></div>';
+
+            var menu_panel = new PanelWidget(settings, settings.contents);
+            menu_panel.set('panelContentClass', 'menupanelcontents');
+            menu_panel.set('cssClassName', 'menupanelcontents');
+
+            settings.id = 'splitpanel';
+            var menuSplitPanel = new HorizontalSplitPanelWidget(settings, 40, menu_panel, emptyFrame);
+
+            WidgetManager.instance.deployWidget(menuSplitPanel);
+
+            createMenu();
+        }
+
+        function createMenu() {
+
+            var menuElement = document.getElementById('top_menu');
+            var topMenuWidget = new MenuWidget('top_menu');
+
+            topMenuWidget.set('source', '/process/admin/get_menu');
+            topMenuWidget.set('source_load_action', 'evaluate');
+
+            WidgetManager.instance.deployWidgetInContainer(menuElement, topMenuWidget);
+        }
+
+
+
     </script>
 
 </head>
 <body onload="init()">
 
-
-
 </body>
-
 
 </html>
