@@ -67,7 +67,7 @@ AjaxRequestManager.prototype.checkAjaxSupport = function()
  * @param postData HTML formdata that must be POSTed
  *
  */
-AjaxRequestManager.prototype.doRequest = function(requestURL, callback, callbackInput, postData)
+AjaxRequestManager.prototype.doRequest = function(requestURL, callback, callbackInput, postData, multipart)
 {
 	try {
 		this.totalNrofRequests++;
@@ -85,7 +85,9 @@ AjaxRequestManager.prototype.doRequest = function(requestURL, callback, callback
 		//hand each request its own private handler
 		this.ajaxRequests[requestNr] = this.createAjaxRequest(new Function('dispatchResponse(' + requestNr + ');'));
 
-		if (postData != null) {
+		if (multipart) {
+        	this.sendMultiPartRequest(this.ajaxRequests[requestNr], requestURL, postData);
+        } else if (postData != null) {
 			this.sendPOSTRequest(this.ajaxRequests[requestNr], requestURL, postData);
 		} else {
 			this.sendGETRequest(this.ajaxRequests[requestNr], requestURL);
@@ -110,6 +112,12 @@ AjaxRequestManager.prototype.sendPOSTRequest = function(ajaxRequest, url, postDa
 	ajaxRequest.send(postData);
 }
 
+//internal function
+AjaxRequestManager.prototype.sendMultiPartRequest = function(ajaxRequest, url, postData) {
+	ajaxRequest.open('POST', url, true);
+	ajaxRequest.setRequestHeader("Content-Type", "multipart/form-data; charset=UTF-8");
+	ajaxRequest.send(postData);
+}
 
 AjaxRequestManager.prototype.createAjaxRequest = function(handler) {
 	var ajaxRequest = null;

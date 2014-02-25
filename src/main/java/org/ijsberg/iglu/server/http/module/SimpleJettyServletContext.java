@@ -22,14 +22,12 @@ package org.ijsberg.iglu.server.http.module;
 
 import org.ijsberg.iglu.configuration.ConfigurationException;
 import org.ijsberg.iglu.configuration.Startable;
-import org.ijsberg.iglu.util.collection.ArraySupport;
+import org.ijsberg.iglu.util.execution.Executable;
 import org.ijsberg.iglu.util.misc.StringSupport;
 import org.ijsberg.iglu.util.properties.PropertiesSupport;
 import org.ijsberg.iglu.util.reflection.ReflectionSupport;
-import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
-import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.Holder;
@@ -112,13 +110,19 @@ public class SimpleJettyServletContext implements Startable {
 	 */
 	public void stop() {
 		try {
-			server.stop();
-			server.destroy();
+			new Executable() {
+				@Override
+				protected Object execute() throws Throwable {
+					server.stop();
+					server.destroy();
+					System.out.println("server stopped");
+					return null;
+				}
+			}.executeAsync();
 		}
 		catch (Exception e) {
 			throw new ConfigurationException("exception occurred while stopping webserver at port " + port, e);
 		}
-		System.out.println("server stopped");
 	}
 
 	public boolean isStarted() {
@@ -146,6 +150,9 @@ public class SimpleJettyServletContext implements Startable {
 		}
 
 		server = new Server(port);
+
+		//server.setAttribute("org.mortbay.jetty.Request.maxFormContentSize", -1);
+		//server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", -1);
 
 		if (xmlConfig != null) {
 			File file = new File(xmlConfig);
@@ -182,6 +189,8 @@ public class SimpleJettyServletContext implements Startable {
 			addServlets(ctx, section);
 			addFilters(ctx, section);
 			addListeners(ctx, section);
+
+			ctx.setMaxFormContentSize(10000000);
 		}
 	}
 

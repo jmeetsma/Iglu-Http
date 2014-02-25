@@ -233,14 +233,13 @@ function openUpdateWindow() {
 		var settings = new Object();
 
 		settings.id = 'updateWindow';
-		var updateWindow = new WindowWidget(settings);
+		var updateWindow = new UploadWindowWidget(settings);
 		updateWindow.set('title', 'system update');
-		updateWindow.set('content', 'system update');
+//		updateWindow.set('content', 'system update');
 		updateWindow.set('width', 800);
 		updateWindow.set('height', 400);
 		updateWindow.set('top', 300);
-		updateWindow.set('title', 'system update');
-		updateWindow.set('source', 'uploadform.html');
+//		updateWindow.set('source', 'uploadform.html');
 		WidgetManager.instance.deployWidget(updateWindow);
 	} else {
 		WidgetManager.instance.activateCurrentWidget('updateWindow');
@@ -248,12 +247,107 @@ function openUpdateWindow() {
 }
 
 
-function startUpload() {
+function startUpload(form) {
 	//window.parent.showProgressFrame(50);return true;
 
 	// /process/admin/upload
-    WidgetManager.instance.getWidget('updateWindow').
+
+	alert(form);
+
+    var uploadWindow = WidgetManager.instance.getWidget('updateWindow');
+    uploadWindow.set('content', UploadWindowWidget.PROGRESS_HTML);
+
+
+	  /* Create a FormData instance */
+	  var formData = new FormData();
+	  /* Add the file */
+	  formData.append('upload', form.upload.files[0]);
+	  formData.append('remarks', form.remarks.value);
+
+	//AjaxRequestManager.prototype.doRequest = function(requestURL, callback, callbackInput, postData)
+    ajaxRequestManager.doRequest('/process/admin/upload', null, null, formData, true);
 
 	return false;
 
+
 }
+
+
+
+function showUploadFrame() {
+
+	var element = document.getElementById('');
+	document.getElementById('upload_progress_frame').style.visibility = 'hidden';
+	document.getElementById('upload_progress_frame').style.width = '0px';
+	document.getElementById('upload_progress_frame').style.height = '0px';
+	document.getElementById('upload_select_frame').style.width = '400px';
+	document.getElementById('upload_select_frame').style.height = '200px';
+	document.getElementById('upload_select_frame').style.visibility = 'visible';
+	document.getElementById('upload_progress_frame').src = '';
+}
+
+function showProgressFrame(delay) {
+	document.getElementById('submit_button').value = 'cancel';
+	document.getElementById('progress_bar_inner').style.width = '0px';
+	document.getElementById('progress_bar_text').innerHTML = '';
+	uploadCancelled = false;
+	uploadFinished = false;
+	document.getElementById('upload_progress_frame').src = '/service/upload_progress_form.jsp';
+	document.getElementById('upload_select_frame').style.visibility = 'hidden';
+	document.getElementById('upload_select_frame').style.width = '0px';
+	document.getElementById('upload_select_frame').style.height = '0px';
+	document.getElementById('upload_progress_frame').style.width = '400px';
+	document.getElementById('upload_progress_frame').style.height = '200px';
+	document.getElementById('upload_progress_frame').style.visibility = 'visible';
+	updateProgressForm();
+}
+
+function updateProgressForm() {
+    ajaxRequestManager.doRequest('<%=getServiceBaseUrl()%>process/user/get_progress', WidgetManager.instance.executeJson);
+}
+
+var uploadCancelled = false;
+var uploadFinished = false;
+
+function updateProgress(data, dataId) {
+
+	if(!uploadCancelled) {
+		if(parseInt(data.progress.bytesRead) > 0) {
+			document.getElementById('progress_bar_text').innerHTML = data.progress.bytesRead + ' / ' + data.progress.contentLength;
+		}
+		if(parseInt(data.progress.bytesRead) > 0 && data.progress.bytesRead == data.progress.contentLength) {
+
+		    document.getElementById('submit_button').value = 'continue';
+		    uploadFinished = true;
+		    document.getElementById('progress_bar_inner').style.width = '324px';
+
+		} else {
+
+			if(parseInt(data.progress.contentLength) != 0) {
+				var relativeProgress = Math.round(((1.0 * parseInt(data.progress.bytesRead)) / (parseInt(data.progress.contentLength))) * 324);
+				document.getElementById('progress_bar_inner').style.width = '' + relativeProgress + 'px';
+			}
+			setTimeout('updateProgressForm()', 250);
+		}
+	} else {
+		//abort request
+		document.getElementById("upload_select_frame").src='<%=getServiceBaseUrl()%>/service/uploadform.jsp';
+	}
+}
+
+function cancelUpload() {
+
+	if(!uploadFinished) {
+		uploadCancelled = true;
+		uploadFinished = true;
+		ajaxRequestManager.doRequest('<%=getServiceBaseUrl()%>process/user/cancel_upload');
+		document.getElementById('progress_bar_text').innerHTML = 'upload cancelled';
+		document.getElementById('submit_button').value = 'continue';
+	} else {
+		ajaxRequestManager.doRequest('<%=getServiceBaseUrl()%>process/user/reset_upload');
+		showUploadFrame();
+	}
+}
+
+
+

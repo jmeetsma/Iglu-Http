@@ -43,8 +43,15 @@ function registerEventHandler(element, eventDesc, handler) {
 //in Mozilla one could use classes as input, since the prototype member would be inherited
 //for IE it works with objects only
 function copyMembers(classA, classB) {
-	for (var n in classA) {
-		classA[n] = classB[n];
+	for (var n in classB) {
+//	alert(typeof classB[n]);
+		if(typeof classB[n] === 'function') {
+
+//			if(classB[n] != classB.constructor) {
+	//		alert('copying ' + classB[n]);
+				classA[n] = classB[n];
+//			}
+		}
 	}
 }
 
@@ -68,8 +75,12 @@ function log(message) {
 
 function subclass(subclass, baseclass) {
 	subclass.prototype = clone(baseclass.prototype);
-//	subclass.prototype.super = baseClass.prototype.constructor;
 	subclass.prototype.constructor = subclass;
+	subclass.prototype.supertype = clone(baseclass.prototype);
+//	subclass.prototype.super.constructor = subclass;
+//	subclass.prototype.super = new Object();
+//	subclass.prototype.super = baseclass.prototype;
+//	copyMembers(subclass.prototype.supertype, baseclass.prototype);
 }
 
 

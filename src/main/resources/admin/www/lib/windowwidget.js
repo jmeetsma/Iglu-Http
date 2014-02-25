@@ -144,6 +144,9 @@ WindowWidget.prototype.refresh = function() {
 //todo rename to activate / deactivate
 
 WindowWidget.prototype.onFocus = function() {
+
+	log('this.id:' + this.id);
+
 	this.setHeaderClass('title_bar_active');
 };
 
@@ -153,6 +156,9 @@ WindowWidget.prototype.onBlur = function() {
 
 WindowWidget.prototype.setHeaderClass = function(className) {
 	var header = document.getElementById(this.id + '_header');
+
+//	alert(this.id);
+
 	if(header != null) {
 		header.className = className;
 	}

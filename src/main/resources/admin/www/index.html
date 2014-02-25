@@ -30,6 +30,7 @@
     <script type="text/javascript" language="JavaScript" src="lib/widgetmanager.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/framewidget.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/windowwidget.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/uploadwindowwidget.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/menuwidget.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/panelwidget.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/splitpanelwidget.js"></script>
@@ -81,37 +82,6 @@
 
             WidgetManager.instance.deployWidgetInContainer(menuElement, topMenuWidget);
         }
-
-
-
-function showUploadFrame() {
-
-    var element = document.getElementById(
-	document.getElementById('upload_progress_frame').style.visibility = 'hidden';
-	document.getElementById('upload_progress_frame').style.width = '0px';
-	document.getElementById('upload_progress_frame').style.height = '0px';
-	document.getElementById('upload_select_frame').style.width = '400px';
-	document.getElementById('upload_select_frame').style.height = '200px';
-	document.getElementById('upload_select_frame').style.visibility = 'visible';
-    document.getElementById('upload_progress_frame').src = '';
-}
-
-function showProgressFrame(delay) {
-	document.getElementById('submit_button').value = 'cancel';
-	document.getElementById('progress_bar_inner').style.width = '0px';
-	document.getElementById('progress_bar_text').innerHTML = '';
-	uploadCancelled = false;
-	uploadFinished = false;
-    document.getElementById('upload_progress_frame').src = '<%=getServiceBaseUrl()%>/service/upload_progress_form.jsp';
-	document.getElementById('upload_select_frame').style.visibility = 'hidden';
-	document.getElementById('upload_select_frame').style.width = '0px';
-	document.getElementById('upload_select_frame').style.height = '0px';
-	document.getElementById('upload_progress_frame').style.width = '400px';
-	document.getElementById('upload_progress_frame').style.height = '200px';
-	document.getElementById('upload_progress_frame').style.visibility = 'visible';
-	updateProgressForm();
-}
-
 
 
     </script>
