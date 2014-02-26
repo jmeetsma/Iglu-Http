@@ -96,6 +96,74 @@ hr {
 	float: left;
 }
 
+.progress_bar_outer {
+	background-color: white;
+	border: 1px solid #ccc;
+	height: 24px;
+	width: 324px;
+	padding: 0px;
+}
+
+.progress_bar_inner {
+	background-color: #bbf;
+	height: 24px;
+	margin:0px;
+	padding: 0px;
+	width: 150px;
+	float: left;
+	text-align: center;
+	color: #33f;
+}
+
+.progress_bar_text {
+	position: absolute;
+	height: 24px;
+	margin: 0px;
+	padding: 0px;
+	width: 324px;
+	text-align: center;
+	color: #55a;
+	font-weight: bold;
+}
+
+.upload_frame {
+   /* float: left;*/
+    width: 400px;
+    border: 1px solid #CCCCCC;
+    overflow: hidden;
+}
+
+.upload_form {
+   /* float: left;*/
+    width: 368px;
+    padding: 15px;
+}
+
+
+.contact {
+   /* float: left;*/
+    width: 300px;
+    padding: 5px;
+}
+
+.contact .form_line_message {
+   float: left;
+   width: 300px;
+   color: blue;
+
+}
+
+.upload_form .form_line {
+   float: left;
+   width: 368px;
+
+}
+
+.upload_form textarea {
+    width: 368px;
+}
+
+
 
 
 

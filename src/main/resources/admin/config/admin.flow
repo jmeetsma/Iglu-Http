@@ -33,11 +33,11 @@ invoke_method
 
 upload
 	INVOKE UploadAgent.readMultiPartUpload(request, properties, ["uploads/"])
-	REDIRECT uploadform.html
+	RESPOND UploadAgent.getProgress(["updateProgress"])
 
 cancel_upload
 	INVOKE UploadAgent.cancelUpload
-	REDIRECT uploadform.html
+	RESPOND UploadAgent.getProgress(["updateProgress"])
 
 cancel_upload_ajax
 	INVOKE UploadAgent.cancelUpload

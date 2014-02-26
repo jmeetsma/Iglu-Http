@@ -669,6 +669,23 @@ public abstract class ServletSupport extends HttpEncodingSupport
 			System.out.println(new LogEntry("resource " + path + " not found"));
 		}
 	}
-	
-	
+
+
+	public static String getHtmlHeader(String title) {
+
+		return "<html>" +
+				"<head>" +
+				"<title>" + title + "</title>" +
+				"</head>" +
+				"<body>";
+	}
+
+
+	public static String getHtmlFooter() {
+		return "</body>" +
+				"</html>";
+	}
+
+
+
 }

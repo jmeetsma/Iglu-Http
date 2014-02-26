@@ -139,6 +139,12 @@ WindowWidget.prototype.refresh = function() {
 	if(this.source != null) {
 		ajaxRequestManager.doRequest(this.source, this.display, this);
 	}
+
+		//do not overwrites dragSelectionElement etc.
+	else if(this.content != null && !this.content.onDeploy) {
+
+     	this.contentElement.innerHTML = this.content;
+    }
 };
 
 //todo rename to activate / deactivate
