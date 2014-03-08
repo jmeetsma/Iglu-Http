@@ -82,6 +82,7 @@ MenuWidget.prototype.createTree = function(tree, container, insub) {
         if(typeof(item.link) != 'undefined' || typeof(item.onclick) != 'undefined') {
 			itemLabel = createLink(item);
         }
+        //TODO if item can be toggled
         var itemDiv = document.createElement('div');
         if(typeof(item.item_class_name) != 'undefined') {
 			itemDiv.className = item.item_class_name;

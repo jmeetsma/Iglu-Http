@@ -208,6 +208,7 @@ var ajaxRequestManager = new AjaxRequestManager();
 
 
 ////// UTILITIES
+//TODO move to menu (?)
 
 
 function loadPageHtml(contents, callbackInput) {
@@ -249,9 +250,58 @@ function linkToJson(source, target, title) {
 }
 
 
+function toggleProperty(key, on, off) {
+
+	var value = WidgetManager.instance.settings[key];
+
+	if(value == off) {
+		WidgetManager.instance.settings[key] = on;
+	} else {
+		WidgetManager.instance.settings[key] = off;
+	}
+	document.getElementById(key + '_select').innerHTML = (value == off ? '&#x2713;' : '&nbsp;');
+}
+
+function getToggleProperty(value, on, off) {
+
+	if(value == on) {
+		return '&#x2713;';
+	}
+	if(value == off) {
+		return '&nbsp;';
+	}
+
+}
+
+
+
 function createLink(item, alternativeLabel) {
 
 	var onclick = '';
+	var toggleIndication = '';
+	//alert(item.toggleProperty.key);
+
+	if(typeof item.toggleProperty_key != 'undefined') {
+
+		if(typeof item.toggleProperty_on == 'undefined') {
+			item.toggleProperty_on = 'true';
+		}
+		if(typeof item.toggleProperty_off == 'undefined') {
+			item.toggleProperty_off = 'false';
+		}
+		if(typeof item.toggleProperty_value == 'undefined') {
+			item.toggleProperty_value = item.toggleProperty_off;
+
+			//
+		}
+
+		toggleIndication = '<span id="' + item.toggleProperty_key + '_select">' + (item.toggleProperty_value == item.toggleProperty_off ? '&nbsp;&nbsp;' : '&#x2713;') + '</span>';
+
+		onclick += 'toggleProperty(\'' + item.toggleProperty_key + '\',\'' + item.toggleProperty_on + '\',\'' + item.toggleProperty_off + '\');';
+
+		WidgetManager.instance.settings[item.toggleProperty_key] = item.toggleProperty_value;
+	}
+
 	if(typeof(item.link) != 'undefined' && item.link.length > 0) {
 
 		for(var i in item.link) {
@@ -267,7 +317,7 @@ function createLink(item, alternativeLabel) {
 		onclick += item.onclick;
 	}
 	if(onclick.length > 0) {
-		return '<a onclick="' + onclick + '">' + (typeof alternativeLabel !== 'undefined' ? alternativeLabel : item.label) + '</a>';
+		return '<a onclick="' + onclick + '">' + (typeof alternativeLabel !== 'undefined' ? alternativeLabel : item.label) + toggleIndication + '</a>';
 	} else {
 		return item.label;
 	}

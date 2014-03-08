@@ -47,4 +47,11 @@ public class MenuItem extends JsonObject {
 		addAttribute("submenu", submenu);
 		return this;
 	}
+
+	public MenuItem setPropertyToggle(String name, String onValue, String offValue) {
+		addStringAttribute("toggleProperty_key", name);
+		addStringAttribute("toggleProperty_on", onValue);
+		addStringAttribute("toggleProperty_off", offValue);
+		return this;
+	}
 }

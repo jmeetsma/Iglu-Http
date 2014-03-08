@@ -50,6 +50,8 @@ function WidgetManager() {
 	this.FRAME_RATE = 50; // / sec
 	this.TIMER_INTERVAL = 1000 / this.FRAME_RATE;
 
+	this.settings = new Object();
+
 }
 
 
