@@ -1,5 +1,6 @@
 package org.ijsberg.iglu.server.http.servlet;
 
+import org.ijsberg.iglu.logging.LogEntry;
 import org.ijsberg.iglu.util.io.FileSupport;
 
 import java.io.IOException;
@@ -23,6 +24,10 @@ public class ZipFileResourceServlet extends BinaryResourceServlet implements Zip
 			return "currently no resources available".getBytes();
 		}
 
-		return FileSupport.getBinaryFromJar(path, zipFileName);
+		byte[] resource = FileSupport.getBinaryFromJar(path, zipFileName);
+
+        System.out.println(new LogEntry("found " + resource.length + " bytes for resource " + path + " in zip " + zipFileName));
+
+        return resource;
 	}
 }
