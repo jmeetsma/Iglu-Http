@@ -38,12 +38,15 @@ public abstract class BinaryResourceServlet extends HttpServlet {
 			if(resourcePath.endsWith("/")) {
 				resourcePath += "index.html";
 			}
+			if(resourcePath.endsWith(".js")) {
+				response.setContentType("text/plain");
+			}
 
 			System.out.println(new LogEntry(Level.DEBUG, "obtaining resource: " + resourcePath));
 
 			out.write(getResource(resourcePath));
-		}catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println(new LogEntry("unable to obtain resource", e));
 		}
 	}
 
