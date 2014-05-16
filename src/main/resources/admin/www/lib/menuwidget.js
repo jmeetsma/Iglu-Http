@@ -26,6 +26,7 @@ function MenuWidget(id, content) {
 	} else {
 		this.content = null;
 	}
+	this.isLoaded = false;
 }
 
 subclass(MenuWidget, Widget);
@@ -140,8 +141,11 @@ MenuWidget.prototype.onDestroy = function() {
 
 MenuWidget.prototype.evaluate = function(contents, menuWidget) {
 
-	menuWidget.menu = eval(contents);
-	menuWidget.writeHTML();
+	if(!this.isLoaded) {
+		menuWidget.menu = eval(contents);
+		menuWidget.writeHTML();
+		this.isLoaded = true;
+	}
 	//save state
 };
 

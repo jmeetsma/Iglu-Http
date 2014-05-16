@@ -24,7 +24,6 @@
 ////////////////////////////
 
 //singleton engine
-//var ajaxRequestManager;
 
 function AjaxRequestManager()
 {
@@ -50,12 +49,34 @@ function AjaxRequestManager()
 	this.callbackInputObjects = new Array();
 	this.ajaxRequests = new Array();
 
+
+	this.ajaxRequestHistory = new Array();
+
+}
+
+function AjaxRequest(requestURL, callback, callbackInput, postData, multipart) {
+	this.requestURL = requestURL;
+	this.callback = callback;
+	this.callbackInput = callbackInput;
+	this.postData = postData;
+	this.multipart = multipart;
 }
 
 
 AjaxRequestManager.prototype.checkAjaxSupport = function()
 {
 	return (this.createAjaxRequest(ignoreResponse) != null);
+}
+
+AjaxRequestManager.prototype.back = function()
+{
+	this.ajaxRequestHistory.pop();
+	var request = this.ajaxRequestHistory.pop();
+	if(!request) {
+		alert('No previous action available');
+	} else {
+		this.doRequest(request.requestURL, request.callback, request.callbackInput, request.postData, request.multipart);
+	}
 }
 
 /**
@@ -69,6 +90,10 @@ AjaxRequestManager.prototype.checkAjaxSupport = function()
  */
 AjaxRequestManager.prototype.doRequest = function(requestURL, callback, callbackInput, postData, multipart)
 {
+	this.ajaxRequestHistory.push(new AjaxRequest(requestURL, callback, callbackInput, postData, multipart));
+	if(this.ajaxRequestHistory.length > 50) {
+		this.ajaxRequestHistory.shift();
+	}
 	try {
 		this.totalNrofRequests++;
 		this.nrofConcurrentRequests++;
@@ -236,6 +261,7 @@ function loadPageJson(contents, callbackInput) {
 	var panelHeader = document.getElementById(callbackInput.target + '_header');
 	panelHeader.innerHTML = callbackInput.title;
 
+    //TODO this is JavaScript rather than JSON
 	eval(contents);
 
 }
