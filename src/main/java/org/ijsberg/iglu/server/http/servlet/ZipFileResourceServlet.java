@@ -3,11 +3,13 @@ package org.ijsberg.iglu.server.http.servlet;
 import org.ijsberg.iglu.util.io.FileSupport;
 
 import java.io.IOException;
+import java.util.zip.ZipFile;
 
 /**
  */
 public class ZipFileResourceServlet extends BinaryResourceServlet implements ZipFileResource {
 
+    //
 	private String zipFileName = null;
 
 	@Override
