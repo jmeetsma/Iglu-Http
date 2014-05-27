@@ -25,6 +25,8 @@
 
 //singleton engine
 
+var hash = window.location.hash;
+
 function AjaxRequestManager()
 {
 	this.is_ie = (navigator.userAgent.indexOf('MSIE') >= 0) ? 1 : 0;
@@ -72,12 +74,22 @@ AjaxRequestManager.prototype.back = function()
 {
 	this.ajaxRequestHistory.pop();
 	var request = this.ajaxRequestHistory.pop();
+	//window.location.hash = "#" + this.totalNrofRequests;
+
 	if(!request) {
 		alert('No previous action available');
 	} else {
 		this.doRequest(request.requestURL, request.callback, request.callbackInput, request.postData, request.multipart);
 	}
 }
+
+AjaxRequestManager.prototype.clearHistory = function()
+{
+	this.ajaxRequestHistory = new Array();
+}
+
+
+
 
 /**
  *
@@ -91,6 +103,8 @@ AjaxRequestManager.prototype.back = function()
 AjaxRequestManager.prototype.doRequest = function(requestURL, callback, callbackInput, postData, multipart)
 {
 	this.ajaxRequestHistory.push(new AjaxRequest(requestURL, callback, callbackInput, postData, multipart));
+    window.location.hash = "#req" + this.totalNrofRequests;
+
 	if(this.ajaxRequestHistory.length > 50) {
 		this.ajaxRequestHistory.shift();
 	}
@@ -348,6 +362,22 @@ function createLink(item, alternativeLabel) {
 		return item.label;
 	}
 }
+
+
+setInterval(function(){
+    if (window.location.hash != hash) {
+
+        //alert('' + parseInt(window.location.hash.substring(1)) + ' != ' + parseInt(hash.substring(1)));
+
+        if(parseInt(window.location.hash.substring(4)) < parseInt(hash.substring(4))) {
+            ajaxRequestManager.back();
+        }
+
+
+        hash = window.location.hash;
+        //alert("User went back or forward to application state represented by " + hash);
+    }
+}, 100);
 
 
 

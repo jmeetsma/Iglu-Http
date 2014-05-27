@@ -3,6 +3,7 @@ package org.ijsberg.iglu.server.http.servlet;
 import org.ijsberg.iglu.logging.Level;
 import org.ijsberg.iglu.logging.LogEntry;
 import org.ijsberg.iglu.util.io.FileSupport;
+import org.ijsberg.iglu.util.mail.MimeTypeSupport;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -38,9 +39,12 @@ public abstract class BinaryResourceServlet extends HttpServlet {
 			if(resourcePath.endsWith("/")) {
 				resourcePath += "index.html";
 			}
-			if(resourcePath.endsWith(".js")) {
+
+            response.setContentType(MimeTypeSupport.getMimeTypeForFileExtension(resourcePath.substring(resourcePath.lastIndexOf('.') + 1)));
+
+			/*if(resourcePath.endsWith(".js")) {
 				response.setContentType("text/plain");
-			}
+			} */
 
 			System.out.println(new LogEntry(Level.DEBUG, "obtaining resource: " + resourcePath));
 
