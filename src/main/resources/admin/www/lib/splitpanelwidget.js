@@ -17,6 +17,8 @@
  * along with Iglu.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+//TODO is a split frame really
 function SplitPanelSettings(id, height, width) {
 	this.id = id;
 	this.height = height;

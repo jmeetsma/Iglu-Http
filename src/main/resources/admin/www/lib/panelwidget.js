@@ -37,6 +37,8 @@ function PanelWidget(settings, content) {
 subclass(PanelWidget, FrameWidget);
 
 PanelWidget.prototype.constructPanelWidget = function(settings, content) {
+
+	//invoke super
 	this.constructFrameWidget(settings, content);
 
 	if(typeof settings.stickToWindowHeightMinus != 'undefined') {
@@ -134,10 +136,7 @@ PanelWidget.prototype.onDeploy = function() {
 	this.container.className = 'panelcontents' + (this.panelContentClass != null ? ', ' + this.panelContentClass : '');
 	this.container.onmouseover = new Function('event', 'event.stopPropagation();');
 	this.container.onmouseout = new Function('event', 'event.stopPropagation();');
-	//this.container.onmousemove = new Function('event', 'event.stopPropagation();');
 	this.element.appendChild(this.container);
-
-
 
     if(typeof this.stickToWindowHeightMinus != 'undefined' && this.stickToWindowHeightMinus != null) {
 		this.container.style.maxHeight = (document.documentElement.clientHeight - this.stickToWindowHeightMinus) + 'px';
@@ -149,11 +148,8 @@ PanelWidget.prototype.onDeploy = function() {
 	}
 
 	if((typeof this.content.writeHTML != 'undefined')) {
-
 		widgetmanager.deployWidgetInContainer(this.container, this.content);
 	}
-
-
 	//load state
 	this.refresh();
 };

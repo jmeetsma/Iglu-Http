@@ -19,6 +19,19 @@
 
 
 /*
+Widget
+|_______________
+|               |
+|               MenuWidget
+FrameWidget
+|_______________ ___________________________________
+|               |               |                   |
+PanelWidget     WindowWidget    LogStreamWidget     SplitPanelWidget
+                                                    |___________________________
+                                                    |							|
+                                                    HorizontalSplitPanelWidget  VerticalSplitpanelWidget
+*/
+/*
  * Keeps track of lots of different kinds of widgets.
  * It keeps order, facilitates focus, dragging, ignoring scrolling etc.
  *
@@ -385,6 +398,9 @@ WidgetManager.prototype.destroyWidget = function(widgetId) {
 		//call widget destructor
 		widget.onDestroy();
 
+		this.lastX = widget.left;
+		this.lastY = widget.top;
+
     	var canvas = document.body;
     	if(canvas != null) {
 			var element = document.getElementById(widgetId);
@@ -709,8 +725,6 @@ WidgetManager.prototype.executeJson = function(responseMessage, feedbackMessage)
 //todo sort out x,y <-> top,left
 
 
-//document.onmouseup = dropWidget;
-//document.onmousemove = dragWidget;
 window.onscroll = scroll;
 
 

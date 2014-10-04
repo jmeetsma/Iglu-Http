@@ -63,7 +63,7 @@ body {
 	top: 0px;
 	left: 0px;
 	background: white;
-	color: black; font: normal 1em Arial; border: 1px solid white;
+	color: black; font: normal 1em Arial; border: 1px solid orange;
 	overflow: auto;
 	position: relative;
 }
@@ -136,7 +136,6 @@ body {
 	width: 100%;
 	height: 100%;
 	top: 0px;
-
 }
 
 .menupanelcontents {
