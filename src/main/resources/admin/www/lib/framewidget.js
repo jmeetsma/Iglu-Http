@@ -59,6 +59,7 @@ FrameWidget.prototype.constructFrameWidget = function(settings, content) {
 	} else {
 		this.width = null;
 	}
+	//TODO use
 	if(typeof settings.source != 'undefined') {
 		this.source = settings.source;
 	} else {
@@ -79,6 +80,46 @@ FrameWidget.prototype.constructFrameWidget = function(settings, content) {
 	}
 	this.positionListener = null;
 	this.panelContentClass = null;
+};
+
+
+FrameWidget.prototype.allowsResize = function(direction)
+{
+	return this.resizeDirections.indexOf(direction) != -1;
+};
+
+
+
+FrameWidget.prototype.setPosition = function(x, y)
+{
+	this.top = y;
+	this.left = x;
+	this.refreshElementPosition();
+}
+
+
+FrameWidget.prototype.move = function(x, y)
+{
+	this.top += y;
+	this.left += x;
+	this.refreshElementPosition();
+}
+
+FrameWidget.prototype.refreshElementPosition = function()
+{
+	WidgetManager.instance.lastX = this.left;
+	WidgetManager.instance.lastY = this.top;
+
+	if(typeof this.element != 'undefined')
+	{
+		this.element.style.top = this.top + 'px';
+		this.element.style.left = this.left + 'px';
+	}
+}
+
+FrameWidget.prototype.getDragSelectElement = function()
+{
+	return this.dragActivationElement;
 };
 
 
@@ -130,7 +171,76 @@ FrameWidget.prototype.setSizeAndPosition = function() {
 	}
 	if(this.positionListener != null && typeof(this.positionListener.onPanelPositionChanged) == 'function') {
 		this.positionListener.onPanelPositionChanged(this);
-	}};
+	}
+};
+
+
+FrameWidget.prototype.getHeight = function()
+{
+	return this.height;
+};
+
+
+FrameWidget.prototype.getWidth = function()
+{
+	return this.width;
+};
+
+
+
+FrameWidget.prototype.resizeNorth = function(offset)
+{
+	//TODO use constants
+	var newHeight = offset + this.height;
+	if(newHeight < 20) {
+		newHeight = 20;
+	}
+	this.top = this.top + this.height - newHeight;
+	this.height = newHeight;
+	//widgetmanager.mouseOffset.y -= offset;
+
+	this.setSizeAndPosition();
+};
+
+FrameWidget.prototype.resizeWest = function(offset)
+{
+	//TODO use constants
+	var newWidth = offset + this.width;
+	if(newWidth < 100) {
+		newWidth = 100;
+	}
+	this.left = this.left + this.width - newWidth;
+	this.width = newWidth;
+
+	this.setSizeAndPosition();
+};
+
+FrameWidget.prototype.resizeSouth = function(offset)
+{
+	//TODO use constants
+	var newHeight = offset + this.height;
+	if(newHeight < 20) {
+		newHeight = 20;
+	}
+	this.height = newHeight;
+	widgetmanager.mouseOffset.y += offset;
+
+	this.setSizeAndPosition();
+};
+
+FrameWidget.prototype.resizeEast = function(offset)
+{
+	//TODO use constants
+	var newWidth = offset + this.width;
+	if(newWidth < 100) {
+		newWidth = 100;
+	}
+	this.width = newWidth;
+	WidgetManager.instance.mouseOffset.x += offset;
+
+	this.setSizeAndPosition();
+};
+
 
 
 FrameWidget.prototype.writeHTML = function() {
@@ -168,16 +278,16 @@ FrameWidget.prototype.onDeploy = function() {
 
     if(typeof this.stickToWindowHeightMinus != 'undefined' && this.stickToWindowHeightMinus != null) {
 		this.element.style.maxHeight = (document.documentElement.clientHeight - this.stickToWindowHeightMinus) + 'px';
-		widgetmanager.registerWindowResizeListener(this);
+		WidgetManager.instance.registerWindowResizeListener(this);
 	}
 
     if(this.resizeDirections.length > 0) {
-		widgetmanager.registerResizeableWidget(this, this.resizeDirections);
+		WidgetManager.instance.registerResizeableWidget(this, this.resizeDirections);
 	}
 
-	if((typeof this.content.writeHTML != 'undefined')) {
+	if((typeof this.content.draw != 'undefined')) {
 
-		widgetmanager.deployWidgetInContainer(this.element, this.content);
+		WidgetManager.instance.deployWidgetInContainer(this.element, this.content);
 	}
 
 
@@ -204,6 +314,20 @@ FrameWidget.prototype.refresh = function() {
 	}
 };
 
+/*WindowWidget.prototype.refresh = function() {
+	//load state
+	if(this.source != null) {
+		ajaxRequestManager.doRequest(this.source, this.display, this);
+	}
+
+		//do not overwrites dragSelectionElement etc.
+	else if(this.content != null && !this.content.onDeploy) {
+
+     	this.contentElement.innerHTML = this.content;
+    }
+};*/
+
+
 //todo rename to activate / deactivate
 
 FrameWidget.prototype.onFocus = function() {
@@ -211,3 +335,13 @@ FrameWidget.prototype.onFocus = function() {
 
 FrameWidget.prototype.onBlur = function() {
 };
+
+FrameWidget.prototype.setDOMElement = function(element)
+{
+	this.element = element; // how about coords (x, y) ?
+	if(this.dragActivationElement == null)
+	{
+		this.dragActivationElement = element;
+	}
+};
+

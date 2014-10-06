@@ -22,11 +22,11 @@
 Widget
 |_______________
 |               |
-|               MenuWidget
+|               WidgetContent
 FrameWidget
-|_______________ ___________________________________
-|               |               |                   |
-PanelWidget     WindowWidget    LogStreamWidget     SplitPanelWidget
+|_______________ ___________________________________ ___________________________
+|               |               |                   |                           |
+PanelWidget     WindowWidget    LogStreamWidget     SplitPanelWidget            MenuWidget
                                                     |___________________________
                                                     |							|
                                                     HorizontalSplitPanelWidget  VerticalSplitpanelWidget
@@ -349,6 +349,7 @@ WidgetManager.prototype.deployWidget = function(newWidget, x, y)
 	return this.deployWidgetInContainer(document.body, newWidget, x, y);
 }
 
+//TODO deploy frame widget
 WidgetManager.prototype.deployWidgetInContainer = function(container, newWidget, x, y) {
 	var widget = this.widgets[newWidget.getId()];
 	if(widget == null) {
@@ -478,53 +479,11 @@ Widget.prototype.getId = function()
 	return this.id;
 };
 
-Widget.prototype.allowsResize = function(direction)
-{
-	return this.resizeDirections.indexOf(direction) != -1;
-};
-
-
-
-Widget.prototype.setPosition = function(x, y)
-{
-	this.top = y;
-	this.left = x;
-	this.refreshElementPosition();
-}
-
-
-Widget.prototype.move = function(x, y)
-{
-	this.top += y;
-	this.left += x;
-	this.refreshElementPosition();
-}
-
-Widget.prototype.refreshElementPosition = function()
-{
-	widgetmanager.lastX = this.left;
-	widgetmanager.lastY = this.top;
-
-	if(typeof this.element != 'undefined')
-	{
-		this.element.style.top = this.top + 'px';
-		this.element.style.left = this.left + 'px';
-	}
-}
-
-Widget.prototype.getDragSelectElement = function()
-{
-	return this.dragActivationElement;
-};
 
 
 Widget.prototype.setDOMElement = function(element)
 {
 	this.element = element; // how about coords (x, y) ?
-	if(this.dragActivationElement == null)
-	{
-		this.dragActivationElement = element;
-	}
 };
 
 
@@ -534,75 +493,6 @@ Widget.prototype.getDOMElement = function()
 };
 
 
-Widget.prototype.getHeight = function()
-{
-	return this.height;
-};
-
-
-Widget.prototype.getWidth = function()
-{
-	return this.width;
-};
-
-Widget.prototype.resizeNorth = function(offset)
-{
-	//TODO use constants
-	var newHeight = offset + this.height;
-	if(newHeight < 20) {
-		newHeight = 20;
-	}
-	this.top = this.top + this.height - newHeight;
-	this.height = newHeight;
-	//widgetmanager.mouseOffset.y -= offset;
-
-	this.setSizeAndPosition();
-};
-
-Widget.prototype.resizeWest = function(offset)
-{
-	//TODO use constants
-	var newWidth = offset + this.width;
-	if(newWidth < 100) {
-		newWidth = 100;
-	}
-	this.left = this.left + this.width - newWidth;
-	this.width = newWidth;
-
-	this.setSizeAndPosition();
-};
-
-Widget.prototype.resizeSouth = function(offset)
-{
-	//TODO use constants
-	var newHeight = offset + this.height;
-	if(newHeight < 20) {
-		newHeight = 20;
-	}
-	this.height = newHeight;
-	widgetmanager.mouseOffset.y += offset;
-
-	this.setSizeAndPosition();
-};
-
-Widget.prototype.resizeEast = function(offset)
-{
-	//TODO use constants
-	var newWidth = offset + this.width;
-	if(newWidth < 100) {
-		newWidth = 100;
-	}
-	this.width = newWidth;
-	widgetmanager.mouseOffset.x += offset;
-
-	this.setSizeAndPosition();
-};
-
-Widget.prototype.draw = function(left, top)// + mode
-{
-	//todo provide a nice sample implementation
-	alert('\'draw\' not implemented');
-};
 
 Widget.prototype.onDestroy = function()
 {
@@ -646,15 +536,6 @@ Widget.prototype.processJavaScript = function(input)
 };
 
 
-Widget.prototype.setHTML = function(data)
-{
-	if(this.element != null)
-	{
-		this.element.innerHTML = data;
-	}
-};
-
-
 Widget.prototype.saveState = function() //JSON?
 {
 };
@@ -678,6 +559,152 @@ Widget.prototype.evaluate = function(content, element)
 	eval(content);
 };
 
+
+//TODO separate content (WidgetContent) from position and size (FrameWidget)
+
+///////////////////////
+//                   //
+//   WidgetContent   //
+//                   //
+///////////////////////
+
+/*function PanelWidget(settings, content) {
+	this.cssClassName = 'panel';
+	this.constructPanelWidget(settings, content);
+} */
+
+function WidgetContentSettings(id, stickToWindowHeightMinus, source, hasHeader, title) {
+	this.id = id;
+	this.stickToWindowHeightMinus;
+	this.source = source;
+	this.source_load_action = 'display';
+	this.hasHeader = hasHeader;
+	this.title = title;
+}
+
+function WidgetContent(settings, content) {
+	this.constructWidgetContent(settings, content);
+}
+
+subclass(WidgetContent, Widget);
+
+
+WidgetContent.prototype.constructWidgetContent = function(settings, content) {
+
+	//invoke super
+	this.constructWidget();
+
+	this.id = 'WidgetContent';
+
+	if(typeof settings.stickToWindowHeightMinus != 'undefined') {
+		this.stickToWindowHeightMinus = settings.stickToWindowHeightMinus;
+	}
+
+	if(typeof settings.hasHeader != 'undefined') {
+		this.hasHeader = settings.hasHeader;
+	} else {
+		this.hasHeader = false;
+	}
+	if(typeof settings.title != 'undefined') {
+		this.title = settings.title;
+	} else {
+		this.title = '';
+	}
+
+	if(typeof settings.source != 'undefined') {
+		this.source = settings.source;
+	} else {
+		this.source = null;
+	}
+	if(typeof settings.source_load_action != 'undefined' && settings.source_load_action != null) {
+		this.source_load_action = settings.source_load_action;
+	} else {
+		if(typeof this.source_load_action == 'undefined') {
+			this.source_load_action = 'display';
+		 }
+	}
+	log('source load action of ' + this.id  + ' is ' + this.source_load_action);
+	if(typeof content != 'undefined') {
+		this.content = content;
+	} else {
+		this.content = 'loading...';
+	}
+
+}
+
+
+WidgetContent.prototype.set = function(name, value, defaultValue) {
+
+	if(typeof this[name] == 'undefined') {
+		throw('attribute "' + name + '" is not declared in ' + this.constructor.name);
+	} else if(typeof value != 'undefined') {
+		this[name] = value;
+	} else if(typeof defaultValue != 'undefined') {
+		this[name] = defaultValue;
+	}
+};
+
+
+WidgetContent.prototype.getId = function()
+{
+	return this.id;
+};
+
+
+
+WidgetContent.prototype.setDOMElement = function(element)
+{
+	this.element = element; // how about coords (x, y) ?
+};
+
+
+
+
+WidgetContent.prototype.onDestroy = function()
+{
+};
+
+
+WidgetContent.prototype.onDeploy = function()
+{
+};
+
+
+WidgetContent.prototype.refresh = function() {
+	//load state
+	if(this.source != null) {
+
+		ajaxRequestManager.doRequest(this.source, this[this.source_load_action], this);
+	} else if(this.content != null) {
+		this.writeHTML();
+	}
+};
+
+
+WidgetContent.prototype.onFocus = function()
+{
+};
+
+
+WidgetContent.prototype.onBlur = function()
+{
+};
+
+
+WidgetContent.prototype.saveState = function() //JSON?
+{
+};
+
+WidgetContent.prototype.writeHTML = function() {
+
+	this.element.innerHTML = this.content;
+};
+
+
+WidgetContent.prototype.evaluate = function(content, element)
+{
+	eval(content);
+};
 
 ///////////////////////////
 
@@ -706,7 +733,6 @@ function scroll(event)
 
 WidgetManager.prototype.executeJson = function(responseMessage, feedbackMessage) {
 
-//    alert(responseMessage);
     try {
         var message = eval("(" + responseMessage + ")");
     } catch(e) {
@@ -714,7 +740,6 @@ WidgetManager.prototype.executeJson = function(responseMessage, feedbackMessage)
     }
 
     eval(message.function + '(message.data, message.dataId)');
-//    adminConsole[message.function](message.data, message.dataId);
 }
 
 

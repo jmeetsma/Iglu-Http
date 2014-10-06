@@ -60,49 +60,6 @@ PanelWidget.prototype.constructPanelWidget = function(settings, content) {
 };
 
 
-PanelWidget.prototype.allowHorizontalResize = function() {
-	if(this.resizeDirections.indexOf('e') == -1) {
-		this.resizeDirections += 'e';
-	}
-};
-
-PanelWidget.prototype.allowVerticalResize = function() {
-	if(this.resizeDirections.indexOf('s') == -1) {
-		this.resizeDirections += 's';
-	}
-};
-
-
-PanelWidget.prototype.setSizeAndPosition = function() {
-
-	if(typeof this.width != 'undefined' && this.allowsResize('e')) {
-		this.element.style.width = this.width + 'px';
-	} else {
-		this.element.style.display = 'table-row';
-		this.element.style.whiteSpace = 'nowrap';
-     }
-	if(typeof this.height != 'undefined' && this.allowsResize('s')) {
-		this.element.style.height = this.height + 'px';
-	} else {
-		this.element.style.display = 'table-cell';
-		this.element.style.whiteSpace = 'nowrap';
-	}
-	if(this.positionListener != null && typeof(this.positionListener.onPanelPositionChanged) == 'function') {
-		this.positionListener.onPanelPositionChanged(this);
-	}};
-
-
-PanelWidget.prototype.writeHTML = function() {
-
-	if(this.container) {
-		if((typeof this.content.writeHTML != 'undefined')) {
-			this.content.writeHTML();
-        } else {
-			this.container.innerHTML = this.content;
-		}
-	}
-};
-
 
 PanelWidget.prototype.onDestroy = function() {
 	//save state
@@ -147,31 +104,15 @@ PanelWidget.prototype.onDeploy = function() {
 		widgetmanager.registerResizeableWidget(this, this.resizeDirections);
 	}
 
-	if((typeof this.content.writeHTML != 'undefined')) {
+	if((typeof this.content.draw != 'undefined')) {
 		widgetmanager.deployWidgetInContainer(this.container, this.content);
 	}
 	//load state
 	this.refresh();
 };
 
-PanelWidget.prototype.onWindowResizeEvent = function(event) {
-    if(typeof this.stickToWindowHeightMinus != 'undefined' && this.stickToWindowHeightMinus != null) {
-//    alert(this.id + ': ' + this.container.style.height + ' -> ' + (document.documentElement.clientHeight - this.stickToWindowHeightMinus) + 'px');
-		this.container.style.maxHeight = (document.documentElement.clientHeight - this.stickToWindowHeightMinus) + 'px';
-	}
-}
 
 
-
-PanelWidget.prototype.refresh = function() {
-	//load state
-	if(this.source != null) {
-
-		ajaxRequestManager.doRequest(this.source, this[this.source_load_action], this);
-	} else if(this.content != null) {
-		this.writeHTML();
-	}
-};
 
 //todo rename to activate / deactivate
 

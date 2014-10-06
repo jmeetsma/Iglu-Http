@@ -5,6 +5,28 @@ Hoe moet het werken?
 
 */
 
+
+openWindowWithPanel = function(data, dataId) {
+	var  panelSettings = new Object();
+	panelSettings.id = dataId;
+	panelSettings.title = dataId;
+	panelSettings.data = data;
+	panelSettings.source = 'content.html';
+	//panelSettings.initFunction = initWindow;
+
+	var navigation_panel = new WidgetContent(panelSettings, 'TEST TEST');
+
+	var  windowSettings = new Object();
+
+
+    var windowWidget = new WindowWidget(windowSettings, navigation_panel);
+   	widgetmanager.deployWidget(windowWidget);
+
+   // ajaxRequestManager.doRequest('content.html', createWindowWidget, panelSettings, null);
+}
+
+
+
 openWindow = function(data, dataId) {
 	var  windowSettings = new Object();
 	windowSettings.id = dataId;
@@ -17,6 +39,12 @@ openWindow = function(data, dataId) {
 function initWindow() {
 
 }
+
+
+
+
+
+
 
 //TODO move to widgetmanager
 createWindowWidget = function(responseMessage, windowSettings) {

@@ -42,6 +42,7 @@ subclass(WindowWidget, FrameWidget);
 WindowWidget.prototype.constructWindowWidget = function(settings, content) {
 
 	this.constructFrameWidget(settings, content);
+
 	if(this.height == null) {
 		this.height = 200;
 	}
@@ -97,7 +98,7 @@ WindowWidget.prototype.writeHTML = function() {
 					 	'</div>' +
 					 '<div class="window_contents" id="' + this.id + '_contents">';
 
-        if(!this.content.onDeploy) {
+        if(!this.content.writeHTML){
 			result += this.content;
 		}
 
@@ -106,6 +107,11 @@ WindowWidget.prototype.writeHTML = function() {
 		this.element.innerHTML = result;
 		this.dragActivationElement = document.getElementById(this.id + '_header');
 		this.contentElement = document.getElementById(this.id + '_contents');
+
+        if(this.content.writeHTML) {
+        	this.content.element = this.contentElement;
+			this.content.writeHTML();
+		}
 		this.setSizeAndPosition();
 	}
 };
@@ -124,7 +130,7 @@ WindowWidget.prototype.onDeploy = function() {
 	widgetmanager.registerDraggableWidget(this);
 	widgetmanager.registerResizeableWidget(this, 'se');
 
-	if(this.content.onDeploy) {
+	if(this.content.draw) {
 		WidgetManager.instance.deployWidgetInContainer(this.contentElement, this.content);
 		widgetmanager.registerResizeableWidget(this.content, 'se');
 		//let content handle overflow
@@ -134,6 +140,7 @@ WindowWidget.prototype.onDeploy = function() {
 	this.refresh();
 };
 
+/*
 WindowWidget.prototype.refresh = function() {
 	//load state
 	if(this.source != null) {
@@ -145,7 +152,7 @@ WindowWidget.prototype.refresh = function() {
 
      	this.contentElement.innerHTML = this.content;
     }
-};
+};*/
 
 //todo rename to activate / deactivate
 

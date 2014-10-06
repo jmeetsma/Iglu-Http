@@ -27,22 +27,14 @@ function MenuWidget(id, content) {
 		this.content = null;
 	}
 	this.isLoaded = false;
+
+
+	//TODO initialize and invoke super
 }
 
-subclass(MenuWidget, Widget);
+subclass(MenuWidget, FrameWidget);
 
 
-MenuWidget.prototype.allowHorizontalResize = function() {
-	if(this.resizeDirections.indexOf('e') == -1) {
-		this.resizeDirections += 'e';
-	}
-};
-
-MenuWidget.prototype.allowVerticalResize = function() {
-	if(this.resizeDirections.indexOf('s') == -1) {
-		this.resizeDirections += 's';
-	}
-};
 
 MenuWidget.prototype.alertSomething = function(value) {
 	alert(value);
@@ -52,14 +44,14 @@ MenuWidget.prototype.process = function(value) {
 	alert(value);
 };
 
-MenuWidget.prototype.draw = function(left, top) {
+/*MenuWidget.prototype.draw = function(left, top) {
 	if(this.element != null) {
 		this.element.style.visibility = 'hidden';
 		this.setSizeAndPosition();
 		this.writeHTML();
 		this.element.style.visibility = 'visible';
 	}
-};
+};*/
 
 
 MenuWidget.prototype.setSizeAndPosition = function() {
