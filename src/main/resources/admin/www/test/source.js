@@ -6,9 +6,33 @@ Hoe moet het werken?
 */
 
 
+createPopup = function(element) {
+
+
+	var coords = getElementPositionInWindow(element);
+
+
+	var contentSettings = new Object();
+	contentSettings.id = 'popup_contents';
+	contentSettings.title = 'POPUP';
+	contentSettings.source = 'content3.html';
+
+	var content = new WidgetContent(contentSettings, 'TEST TEST');
+
+	var  popupSettings = new Object();
+	popupSettings.id = 'popup';
+	popupSettings.top = coords.y + 10;
+	popupSettings.left = coords.x + 20;
+	var popup = new PopupWidget(popupSettings, content, element);
+
+//	alert(coords.x);
+
+	WidgetManager.instance.deployWidget(popup);
+}
+
 openWindowWithPanel = function(data, dataId) {
 	var  panelSettings = new Object();
-	panelSettings.id = dataId;
+	panelSettings.id = dataId + '_contents_x';
 	panelSettings.title = dataId;
 	panelSettings.data = data;
 	panelSettings.source = 'content.html';
@@ -17,12 +41,11 @@ openWindowWithPanel = function(data, dataId) {
 	var navigation_panel = new WidgetContent(panelSettings, 'TEST TEST');
 
 	var  windowSettings = new Object();
-
+	windowSettings.id = dataId;
 
     var windowWidget = new WindowWidget(windowSettings, navigation_panel);
    	widgetmanager.deployWidget(windowWidget);
 
-   // ajaxRequestManager.doRequest('content.html', createWindowWidget, panelSettings, null);
 }
 
 
@@ -74,14 +97,24 @@ createWindowWidget = function(responseMessage, windowSettings) {
 
 
 function createPanels() {
+try {
 	var settings = new Object();
+
+    settings.id = 'logstream';
+    settings.width = 400;
+    settings.height = 700;
+    var logwidget = new LogStreamWidget(settings);
+
+    settings.width = null;
+    settings.height = null;
+
 
 	settings.hasHeader = true;
 	settings.title = 'code references';
 	settings.stickToWindowHeightMinus = 90;  //windowSizeReduction/Difference
 	settings.id = 'code_links';
 
-	var code_links_panel = new PanelWidget(settings, '');
+	var code_links_panel = new PanelWidget(settings, logwidget);
 	settings.id = 'code';
 	settings.title = 'source';
 	var code_panel = new PanelWidget(settings, '');
@@ -115,6 +148,9 @@ function createPanels() {
 	WidgetManager.instance.deployWidget(menuSplitPanel);
 
 	createMenu();
+	} catch (e) {
+		alert(e);
+	}
 }
 
 

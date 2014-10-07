@@ -74,6 +74,8 @@ PanelWidget.prototype.setPositionFromPage = function() {
 
 
 PanelWidget.prototype.onDeploy = function() {
+
+	this.draw();
 //	widgetmanager.registerDraggableWidget(this);
 
 	this.setPositionFromPage();
@@ -87,7 +89,7 @@ PanelWidget.prototype.onDeploy = function() {
 		this.element.appendChild(this.header);
 	}
 
-
+    //TODO new content widget
 	this.container = document.createElement('div');
 	this.container.id = this.id + '_contents';
 	this.container.className = 'panelcontents' + (this.panelContentClass != null ? ', ' + this.panelContentClass : '');
@@ -104,7 +106,7 @@ PanelWidget.prototype.onDeploy = function() {
 		widgetmanager.registerResizeableWidget(this, this.resizeDirections);
 	}
 
-	if((typeof this.content.draw != 'undefined')) {
+	if((typeof this.content.onDeploy != 'undefined')) {
 		widgetmanager.deployWidgetInContainer(this.container, this.content);
 	}
 	//load state

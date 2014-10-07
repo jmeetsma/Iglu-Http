@@ -83,6 +83,7 @@ SplitPanelWidget.prototype.onDestroy = function() {
 
 SplitPanelWidget.prototype.onDeploy = function() {
 
+	this.draw();
 
 	this.container = document.createElement('div');
 	this.container.className = 'splitpanelcontainer';

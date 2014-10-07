@@ -49,6 +49,15 @@ WindowWidget.prototype.constructWindowWidget = function(settings, content) {
 	if(this.width == null) {
 		this.width = 300;
 	}
+
+	if(typeof this.left == 'undefined' || this.left == null) {
+		this.left = WidgetManager.instance.lastX += 20;
+	}
+	if(typeof this.top == 'undefined' || this.top == null) {
+		this.top = WidgetManager.instance.lastY += 20;
+	}
+
+
 	if(typeof settings.title != 'undefined') {
 		this.title = settings.title;
 	} else {
@@ -118,41 +127,71 @@ WindowWidget.prototype.writeHTML = function() {
 
 
 WindowWidget.prototype.onDestroy = function() {
+
+	if(typeof this.left != 'undefined' && this.left != null) {
+		WidgetManager.instance.lastX = this.left;
+	}
+	if(typeof this.right != 'undefined' && this.right != null) {
+		WidgetManager.instance.lastY = this.top;
+	}
+
+
 	//save state
-	if(this.content.onDeploy) {
-		WidgetManager.instance.destroyWidget(this.content.id);
+
+/*	if(this.content.onDestroy) {
+		this.content.onDestroy();
+	} */
+
+	if(this.content.onDestroy) {
+	/*	if(!this.content.draw) {
+			WidgetManager.instance.destroyContentWidget(this.content.id);
+		} else {*/
+			WidgetManager.instance.destroyWidget(this.content.id);
+//		}
 	}
 
 };
 
 
 WindowWidget.prototype.onDeploy = function() {
+
+	this.draw();
+
+
 	widgetmanager.registerDraggableWidget(this);
 	widgetmanager.registerResizeableWidget(this, 'se');
 
 	if(this.content.draw) {
 		WidgetManager.instance.deployWidgetInContainer(this.contentElement, this.content);
-		widgetmanager.registerResizeableWidget(this.content, 'se');
 		//let content handle overflow
 		this.contentElement.style.overflow = 'visible';
 	}
+
+	if(this.content.onDeploy) {
+		WidgetManager.instance.deployWidgetInContainer(this.contentElement, this.content);
+	}
+
 	//load state
 	this.refresh();
 };
 
-/*
+
 WindowWidget.prototype.refresh = function() {
 	//load state
 	if(this.source != null) {
 		ajaxRequestManager.doRequest(this.source, this.display, this);
 	}
 
-		//do not overwrites dragSelectionElement etc.
+		//do not overwrite dragSelectionElement etc.
 	else if(this.content != null && !this.content.onDeploy) {
 
      	this.contentElement.innerHTML = this.content;
     }
-};*/
+
+    else if (this.content.refresh) {
+    	this.content.refresh();
+    }
+}
 
 //todo rename to activate / deactivate
 
@@ -169,8 +208,6 @@ WindowWidget.prototype.onBlur = function() {
 
 WindowWidget.prototype.setHeaderClass = function(className) {
 	var header = document.getElementById(this.id + '_header');
-
-//	alert(this.id);
 
 	if(header != null) {
 		header.className = className;

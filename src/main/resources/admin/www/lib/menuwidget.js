@@ -28,12 +28,19 @@ function MenuWidget(id, content) {
 	}
 	this.isLoaded = false;
 
+	var settings = new Object();
+	settings.id = id;
+	settings.content = content;
+
 
 	//TODO initialize and invoke super
 }
 
 subclass(MenuWidget, FrameWidget);
 
+ LogStreamWidget.prototype.constructMenuWidget = function(settings, content) {
+	this.constructFrameWidget(settings, content);
+ };
 
 
 MenuWidget.prototype.alertSomething = function(value) {

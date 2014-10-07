@@ -197,3 +197,13 @@ body {
 	color: #222;
 	padding: 3px;
 }
+
+
+.popup {
+	margin : 0px;
+	padding : 0px;
+	background : white;
+	border : 1px solid #444;
+	vertical-align : top;
+	position : absolute;
+}

@@ -45,6 +45,7 @@ function WidgetManager() {
 
 	this.draggableWidgets = new Array();
 	this.resizeableWidgets = new Array();
+	this.popupWidgets = new Array();
 
 	this.currentZIndex = 100;
 	this.widgets = new Array();
@@ -179,9 +180,6 @@ WidgetManager.prototype.registerDraggableWidget = function(widget)
 	this.draggableWidgets[widget.getDragSelectElement().id] = widget;
 
 	widget.isDraggable = true;
-
-//	widget.getDOMElement().style.zIndex = this.currentZIndex++;
-
 	widget.getDragSelectElement().onmousedown = function(event)
 	{
 		if(widgetmanager.resizingWidget == null) {
@@ -192,7 +190,6 @@ WidgetManager.prototype.registerDraggableWidget = function(widget)
 
 		}
 	}
-
 	widget.getDragSelectElement().onmouseover = function(event) {
 		if(WidgetManager.instance.resizingWidget == null) {
 			document.body.style.cursor = 'move';
@@ -204,14 +201,11 @@ WidgetManager.prototype.registerDraggableWidget = function(widget)
 			document.body.style.cursor = 'move';
 		}
 	}
-
 	widget.getDragSelectElement().onmouseout = function(event) {
 		if(WidgetManager.instance.resizingWidget == null && widgetmanager.draggedWidget == null) {
 			document.body.style.cursor = 'auto';
 		}
 	}
-
-
 	widget.getDOMElement().onmousedown = function(event)
 	{
 		WidgetManager.instance.activateCurrentWidget(this.id);
@@ -219,6 +213,48 @@ WidgetManager.prototype.registerDraggableWidget = function(widget)
 
 	this.activateCurrentWidget(widget);
 }
+
+
+WidgetManager.prototype.unregisterDraggableWidget = function(widget) {
+	if(typeof widget.getDragSelectElement != 'undefined') {
+		var draggableElement = widget.getDragSelectElement();
+		if(draggableElement != null) {
+			this.draggableWidgets[draggableElement.id] = null;
+		}
+	}
+}
+
+WidgetManager.prototype.registerPopupWidget = function(widget) {
+	widget.isPopup = true;
+	widget.mouseOverTrigger = true;
+	widget.mouseOverPopup = false;
+
+	widget.triggerElement.onmouseout = function(event) {
+		var widget = WidgetManager.instance.getWidget(this.id + '_popup');
+		setTimeout('WidgetManager.instance.destroyPopup("' + this.id + '_popup")', 1000);
+		widget.mouseOverTrigger = false;
+	}
+	widget.element.onmouseout = function(event) {
+		setTimeout('WidgetManager.instance.destroyPopup("' + this.id + '")', 1000);
+		widget.mouseOverPopup = false;
+	}
+	widget.element.onmouseover = function(event) {
+		WidgetManager.instance.getWidget(this.id).mouseOverPopup = true;
+		log('mouse over popup');
+	}
+	this.activateCurrentWidget(widget);
+}
+
+WidgetManager.prototype.destroyPopup = function(widgetId) {
+	log('id ' + widgetId);
+	var widget = WidgetManager.instance.getWidget(widgetId);
+	if(widget != null && !widget.mouseOverPopup) {
+		widget.triggerElement.onmouseout = null;
+		WidgetManager.instance.destroyWidget(widgetId);
+	}
+}
+
+
 
 /**
  *
@@ -231,40 +267,26 @@ WidgetManager.prototype.registerResizeableWidget = function(widget, resizeDirect
 	if(resizeDirections != null) {
 		widget.resizeDirections = resizeDirections;
 	} else {
-		widget.resizeDirections = 'nesw';
+		widget.resizeDirections = 'nesw';//North - East - South - West
 	}
-
 	widget.getDOMElement().onmousedown = function(event) {
-
 		 WidgetManager.instance.activateCurrentWidget(this.id);
-
-
-
 		if(WidgetManager.instance.resizeDirection != null) {
 			WidgetManager.instance.resizingWidget = WidgetManager.instance.currentWidget;
 		}
-//		log(widgetmanager.resizeDirection);
 	}
 
 	widget.getDOMElement().onmouseover = function(event) {
 		if(WidgetManager.instance.resizingWidget == null) {
 			WidgetManager.instance.determineResizeAction(widget, event);
 		}
-//		alert('over');
 	}
-
-	/*widget.getDOMElement().onmousemove = function(event) {
-		if(widgetmanager.resizingWidget == null) {
-			widgetmanager.determineResizeAction(widget, event);
-		}
-	} */
 
 	widget.getDOMElement().onmouseout = function(event) {
 		if( WidgetManager.instance.resizingWidget == null) {
 			document.body.style.cursor = 'auto';
     	    WidgetManager.instance.resizeDirection = null;
 		}
-//		alert('out');
 	}
 
 }
@@ -273,21 +295,18 @@ WidgetManager.prototype.registerResizeableWidget = function(widget, resizeDirect
 WidgetManager.prototype.determineResizeAction = function(widget, event)
 {
 	if(this.draggedWidget == null) {
-
 		this.mouseOffset = getMouseOffsetFromElementPosition(widget.getDOMElement(), event);
-
 		var direction = '';
-
-		if(/*this.currentWidget == widget &&*/ widget.allowsResize('n') && this.mouseOffset.y < 5) {
+		if(widget.allowsResize('n') && this.mouseOffset.y < 5) {
 			direction = 'n';
          }
-		if(/*this.currentWidget == widget &&*/ widget.allowsResize('s') && this.mouseOffset.y > widget.height - 5) {
+		if(widget.allowsResize('s') && this.mouseOffset.y > widget.height - 5) {
 			direction = 's';
         }
-		if(/*this.currentWidget == widget &&*/ widget.allowsResize('w') && this.mouseOffset.x < 5) {
+		if(widget.allowsResize('w') && this.mouseOffset.x < 5) {
 			direction += 'w';
         }
-		if(/*this.currentWidget == widget &&*/ widget.allowsResize('e') && this.mouseOffset.x > widget.width - 5) {
+		if(widget.allowsResize('e') && this.mouseOffset.x > widget.width - 5) {
 			direction += 'e';
          }
          if(direction != '') {
@@ -299,7 +318,6 @@ WidgetManager.prototype.determineResizeAction = function(widget, event)
 			}
          	this.resizeDirection = null;
          }
-
 	}
 }
 
@@ -310,22 +328,18 @@ WidgetManager.prototype.determineResizeAction = function(widget, event)
  */
 WidgetManager.prototype.activateCurrentWidget = function(widgetId)
 {
+
+	window.status = 'activating ' + widgetId;
 	if( this.currentWidget == null || this.currentWidget.id != widgetId) {
 		if(this.currentWidget != null) {
 			this.currentWidget.onBlur();
 		}
 		this.currentWidget = this.widgets[widgetId];
 		if(this.currentWidget != null) {
-			if(this.currentWidget.isDraggable) {
+			if(this.currentWidget.isDraggable || this.currentWidget.isPopup) {
 				this.currentWidget.element.style.zIndex = WidgetManager.instance.currentZIndex++;
 				log('widget "' + this.currentWidget.element.id + '" set to z-index ' + this.currentWidget.element.style.zIndex);
 			}
-		/*	for(var draggableId in this.draggableWidgets) {
-				var widget = this.draggableWidgets[draggableId];
-				if(widget != null && widget != this.currentWidget) {
-					widget.onBlur();
-				}
-			}      */
 			this.currentWidget.onFocus();
 		}
 	}
@@ -349,18 +363,11 @@ WidgetManager.prototype.deployWidget = function(newWidget, x, y)
 	return this.deployWidgetInContainer(document.body, newWidget, x, y);
 }
 
-//TODO deploy frame widget
 WidgetManager.prototype.deployWidgetInContainer = function(container, newWidget, x, y) {
 	var widget = this.widgets[newWidget.getId()];
 	if(widget == null) {
+
 		this.widgets[newWidget.getId()] = newWidget;
-        //TODO this does not apply to all widgets
-		if(typeof x == 'undefined' || x == null) {
-			var x = this.lastX += 50;
-		}
-		if(typeof y == 'undefined' || y == null) {
-			var y = this.lastY += 50;
-		}
 		var element = container;
 		if(newWidget.getId() != container.id) {
 			var element = document.getElementById(newWidget.getId());
@@ -372,17 +379,12 @@ WidgetManager.prototype.deployWidgetInContainer = function(container, newWidget,
 				container.appendChild(element);
 			}
 		}
+		newWidget.containerElement = container;
 		newWidget.setDOMElement(element);
-		if(newWidget.ignoresPageScroll) { //TODO display: fixed
-			var scrollPos = getScrollOffset();
-			x = x + scrollPos.x;
-			y = y + scrollPos.y;
-		}
-		newWidget.draw(x, y);
+		//newWidget.draw();
     	newWidget.onDeploy();
 		log('widget "' + newWidget.getId() + '" deployed');
-	}
-	else {
+	} else {
 		log('widget "' + widget.getId() + '" already exists');
 		this.activateCurrentWidget(widget.id);
     	return widget;
@@ -392,31 +394,22 @@ WidgetManager.prototype.deployWidgetInContainer = function(container, newWidget,
 }
 
 
+
 WidgetManager.prototype.destroyWidget = function(widgetId) {
 	var widget = this.widgets[widgetId];
 	if(widget != null) {
 		log('removing widget "' + widgetId + '"');
 		//call widget destructor
 		widget.onDestroy();
-
-		this.lastX = widget.left;
-		this.lastY = widget.top;
-
-    	var canvas = document.body;
-    	if(canvas != null) {
-			var element = document.getElementById(widgetId);
-    		if(element != null) {
-    			try {
-					canvas.removeChild(element);
-				} catch(e) {
-					log('ERROR when removing child node: ' + e.message);
-				}
+		var element = document.getElementById(widgetId);
+		if(element != null) {
+			try {
+				widget.containerElement.removeChild(element);
+			} catch(e) {
+				log('ERROR while removing ' + element + ': ' + e.message);
 			}
 		}
-		var draggableElement = widget.getDragSelectElement();
-		if(draggableElement != null) {
-			this.draggableWidgets[draggableElement.id] = null;
-		}
+		this.unregisterDraggableWidget(widget);
 		this.widgets[widgetId] = null;
 		log('done');
 	} else {
@@ -426,8 +419,8 @@ WidgetManager.prototype.destroyWidget = function(widgetId) {
 
 
 
-WidgetManager.prototype.getWidget = function(id) {
 
+WidgetManager.prototype.getWidget = function(id) {
 	return this.widgets[id];
 }
 
@@ -452,13 +445,14 @@ function Widget() {
 	this.constructWidget();
 }
 
-Widget.prototype.constructWidget = function() {
-	this.id = 'Widget';
-	//element that must be clicked to drag the widget
-	this.dragActivationElement = null;
-	this.ignoresPageScroll = false;
-
-	this.resizeDirections = '';
+Widget.prototype.constructWidget = function(settings, content) {
+	if(typeof settings == 'undefined') {
+        throw 'widget must have settings';
+	}
+	this.id = settings.id;
+	if(typeof this.id == 'undefined') {
+        throw 'widget must have an id';
+	}
 	this.source_load_action = 'display';
 }
 
@@ -483,7 +477,7 @@ Widget.prototype.getId = function()
 
 Widget.prototype.setDOMElement = function(element)
 {
-	this.element = element; // how about coords (x, y) ?
+	this.element = element;
 };
 
 
@@ -505,10 +499,6 @@ Widget.prototype.onDeploy = function()
 
 
 Widget.prototype.refresh = function()
-{
-}
-
-Widget.prototype.setSizeAndPosition = function()
 {
 }
 
@@ -568,10 +558,6 @@ Widget.prototype.evaluate = function(content, element)
 //                   //
 ///////////////////////
 
-/*function PanelWidget(settings, content) {
-	this.cssClassName = 'panel';
-	this.constructPanelWidget(settings, content);
-} */
 
 function WidgetContentSettings(id, stickToWindowHeightMinus, source, hasHeader, title) {
 	this.id = id;
@@ -592,9 +578,8 @@ subclass(WidgetContent, Widget);
 WidgetContent.prototype.constructWidgetContent = function(settings, content) {
 
 	//invoke super
-	this.constructWidget();
+	this.constructWidget(settings, content);
 
-	this.id = 'WidgetContent';
 
 	if(typeof settings.stickToWindowHeightMinus != 'undefined') {
 		this.stickToWindowHeightMinus = settings.stickToWindowHeightMinus;
@@ -633,32 +618,6 @@ WidgetContent.prototype.constructWidgetContent = function(settings, content) {
 }
 
 
-WidgetContent.prototype.set = function(name, value, defaultValue) {
-
-	if(typeof this[name] == 'undefined') {
-		throw('attribute "' + name + '" is not declared in ' + this.constructor.name);
-	} else if(typeof value != 'undefined') {
-		this[name] = value;
-	} else if(typeof defaultValue != 'undefined') {
-		this[name] = defaultValue;
-	}
-};
-
-
-WidgetContent.prototype.getId = function()
-{
-	return this.id;
-};
-
-
-
-WidgetContent.prototype.setDOMElement = function(element)
-{
-	this.element = element; // how about coords (x, y) ?
-};
-
-
-
 
 WidgetContent.prototype.onDestroy = function()
 {
@@ -672,6 +631,9 @@ WidgetContent.prototype.onDeploy = function()
 
 WidgetContent.prototype.refresh = function() {
 	//load state
+
+	//alert(this.source);
+
 	if(this.source != null) {
 
 		ajaxRequestManager.doRequest(this.source, this[this.source_load_action], this);

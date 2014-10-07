@@ -31,22 +31,26 @@ function FrameWidget(id, content, settings) {
 	this.id = id;
 	if(typeof settings == 'undefined') {
 		settings = new Object();
-		settings.id = id;
 	}
+	settings.id = id;
 	this.constructFrameWidget(settings, content);
 }
 
 subclass(FrameWidget, Widget);
 
 FrameWidget.prototype.constructFrameWidget = function(settings, content) {
+
 	this.constructWidget(settings, content);
 
-	this.id = settings.id;
 
+	//element that must be clicked to drag the widget
+	this.dragActivationElement = null;
+	this.ignoresPageScroll = false;
+
+	this.resizeDirections = '';
 	if(typeof settings.stickToWindowHeightMinus != 'undefined') {
 		this.stickToWindowHeightMinus = settings.stickToWindowHeightMinus;
 	}
-
 	this.resizeDirections = '';
 
 	if(typeof settings.height != 'undefined') {
@@ -59,6 +63,27 @@ FrameWidget.prototype.constructFrameWidget = function(settings, content) {
 	} else {
 		this.width = null;
 	}
+
+    var scrollPos = getScrollOffset();
+	if(typeof settings.top != 'undefined') {
+		this.top = settings.top;
+		if(this.ignoresPageScroll) { //TODO display: fixed
+        	newWidget.top = newWidget.top + scrollPos.y;
+        }
+	} else {
+		this.top = null;
+	}
+	if(typeof settings.left != 'undefined') {
+		this.left = settings.left;
+		if(this.ignoresPageScroll) { //TODO display: fixed
+        	newWidget.left = newWidget.left + scrollPos.x;
+        }
+	} else {
+		this.left = null;
+	}
+
+
+
 	//TODO use
 	if(typeof settings.source != 'undefined') {
 		this.source = settings.source;
@@ -136,14 +161,7 @@ FrameWidget.prototype.allowVerticalResize = function() {
 };
 
 
-FrameWidget.prototype.draw = function(left, top) {
-
-	if(typeof left != 'undefined') {
-		this.left = left;
-	}
-	if(typeof top != 'undefined') {
-		this.top = top;
-	}
+FrameWidget.prototype.draw = function() {
 
 	if(this.element != null) {
 		this.element.style.visibility = 'hidden';
@@ -268,7 +286,8 @@ FrameWidget.prototype.setPositionFromPage = function() {
 
 
 FrameWidget.prototype.onDeploy = function() {
-//	widgetmanager.registerDraggableWidget(this);
+
+	this.draw();
 
 	this.setPositionFromPage();
 
@@ -285,7 +304,7 @@ FrameWidget.prototype.onDeploy = function() {
 		WidgetManager.instance.registerResizeableWidget(this, this.resizeDirections);
 	}
 
-	if((typeof this.content.draw != 'undefined')) {
+	if((typeof this.content.onDeploy != 'undefined')) {
 
 		WidgetManager.instance.deployWidgetInContainer(this.element, this.content);
 	}
@@ -307,7 +326,6 @@ FrameWidget.prototype.onWindowResizeEvent = function(event) {
 FrameWidget.prototype.refresh = function() {
 	//load state
 	if(this.source != null) {
-
 		ajaxRequestManager.doRequest(this.source, this[this.source_load_action], this);
 	} else if(this.content != null) {
 		this.writeHTML();

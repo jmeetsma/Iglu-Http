@@ -85,5 +85,13 @@ LogStreamWidget.prototype.onDestroy = function() {
 	//save state
 };
 
+LogStreamWidget.prototype.setSizeAndPosition = function() {
+
+	if(typeof this.width != null) {
+		this.element.style.width = this.width + 'px';
+	}	if(typeof this.height != null) {
+		this.element.style.height = this.height + 'px';
+	}
+};
 
 
