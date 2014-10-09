@@ -34,7 +34,7 @@ openWindowWithPanel = function(data, dataId) {
 	var  panelSettings = new Object();
 	panelSettings.id = dataId + '_contents_x';
 	panelSettings.title = dataId;
-	panelSettings.data = data;
+	panelSettings.content = data;
 	panelSettings.source = 'content.html';
 	//panelSettings.initFunction = initWindow;
 
@@ -54,7 +54,7 @@ openWindow = function(data, dataId) {
 	var  windowSettings = new Object();
 	windowSettings.id = dataId;
 	windowSettings.title = dataId;
-	windowSettings.data = data;
+	windowSettings.content = data;
 	windowSettings.initFunction = initWindow;
     ajaxRequestManager.doRequest('content.html', createWindowWidget, windowSettings, null);
 }
@@ -102,8 +102,9 @@ try {
 
     settings.id = 'logstream';
     settings.width = 400;
-    settings.height = 700;
+    settings.height = 300;
     var logwidget = new LogStreamWidget(settings);
+//    var logwidget = new PanelWidget(settings);
 
     settings.width = null;
     settings.height = null;
@@ -113,13 +114,28 @@ try {
 	settings.title = 'code references';
 	settings.stickToWindowHeightMinus = 90;  //windowSizeReduction/Difference
 	settings.id = 'code_links';
-
 	var code_links_panel = new PanelWidget(settings, logwidget);
+
+	settings.hasHeader = true;
+	settings.title = 'code references 2';
+	settings.stickToWindowHeightMinus = 90;  //windowSizeReduction/Difference
+	settings.id = 'code_links_2';
+	var code_links_panel2 = new PanelWidget(settings, '');
+
+	settings.id = 'code 0';
+	settings.title = 'source 0';
+	var code_panel = new PanelWidget(settings, '');
+	settings.id = 'result_split_0';
+	var extraSplitPanel = new HorizontalSplitPanelWidget(settings, 400, code_links_panel, code_links_panel2);
+
+	settings.id = 'xxxx';
+	var xxxx = new PanelWidget(settings, extraSplitPanel);
+
 	settings.id = 'code';
 	settings.title = 'source';
 	var code_panel = new PanelWidget(settings, '');
 	settings.id = 'result_split';
-	var codeSplitPanel = new VerticalSplitPanelWidget(settings, 375, code_links_panel, code_panel);
+	var codeSplitPanel = new VerticalSplitPanelWidget(settings, 375, xxxx, code_panel);
 
 	settings.id = 'navigation';
 	settings.title = 'navigation';

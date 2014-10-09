@@ -69,7 +69,7 @@
 .master_container {
     width: 100%; height: 100%;
     border: 1px solid red;
-    overflow: auto;
+    overflow: scroll;
 }
 
 .frame_container {
@@ -109,67 +109,103 @@
 
 
         function init() {
+            try {
+                //TODO master container must figure out its dimensions
+                var settings = new Object();
+                settings.id = 'master_container';
+                settings.cssClassName = 'master_container';
+                var masterFrame = new MasterFrameWidget(settings);
+                WidgetManager.instance.deployWidget(masterFrame);
 
-            //TODO master container must figure out its dimensions
-            var settings = new Object();
-            settings.id = 'master_container';
-            settings.cssClassName = 'master_container';
-            var masterFrame = new MasterFrameWidget(settings);
-            WidgetManager.instance.deployWidget(masterFrame);
-
-            settings = new Object();
-            settings.id = 'frame_container_1';
-            settings.cssClassName = 'frame_container';
-            settings.top = 100;
-            settings.left = 20;
-            settings.height = 180;
-            settings.width = 400;
-            var frame_1 = new FrameWidget(settings);
-            frame_1.allowHorizontalResize();
-            frame_1.allowVerticalResize();
-            WidgetManager.instance.deployWidget(frame_1);
-
-
-
-            settings = new Object();
-            settings.id = 'logstream';
-            settings.cssClassName = 'frame_container';
-            settings.top = 50;
-            settings.left = 500;
-            settings.height = 500;
-            settings.width = 500;
-            var frame_2 = new LogStreamWidget(settings);
-            WidgetManager.instance.deployWidget(frame_2);
+                settings = new Object();
+                settings.id = 'frame_container_1';
+                settings.cssClassName = 'frame_container';
+                settings.top = 100;
+                settings.left = 20;
+                settings.height = 180;
+                settings.width = 400;
+                var frame_1 = new FrameWidget(settings);
+                frame_1.allowHorizontalResize();
+                frame_1.allowVerticalResize();
+                WidgetManager.instance.deployWidget(frame_1);
 
 
 
-            settings = new Object();
-            settings.id = 'frame_container_3';
-            settings.cssClassName = 'frame_container';
-            settings.top = 320;
-            settings.left = 20;
-            settings.height = 200;
-            settings.width = 400;
-            var frame_3 = new FrameWidget(settings);
+                settings = new Object();
+                settings.id = 'logstream';
+                settings.cssClassName = 'frame_container';
+                settings.top = 50;
+                settings.left = 500;
+                settings.height = 500;
+                settings.width = 500;
+                var frame_2 = new LogStreamWidget(settings);
+                WidgetManager.instance.deployWidget(frame_2);
 
-            //widget moet kunnen stretchen naar rechts of naar beneden
-            // - naar de buitenrand (e / s) van een andere widget - offset
-            //
-/*
-            frame_3.alignWidth x
-            frame_3.alignHeight x
-            frame_3.alignSize/stretch (s/e only) otherwidget directions : offsets (needs resize listener and resize self)
-            frame_3.alignTop x
-            frame_3.alignLeft x
-            frame_3.alignPosition (s/e only) otherwidget directions : offsets (needs resize listener and move self)
-            frame_1.addResizeListener(frame_3, {'e':{'action':frame_3.resizeEast, factor: 1}});
-            x frame_1.addMoveListener(frame_3, {'ew':{'action':frame_3.resizeEast, factor: 1}});
-*/
-            frame_1.addSizeAndPositionListener(frame_3, {'e':{'action':frame_3.resizeEast, factor: 1}});
-            frame_1.addSizeAndPositionListener(frame_3, {'s':{'action':frame_3.moveVertical, factor: 1}});
 
-           // frame_3.allowHorizontalResize();
-            WidgetManager.instance.deployWidget(frame_3);
+
+                settings = new Object();
+                settings.id = 'frame_container_3';
+                settings.cssClassName = 'frame_container';
+                settings.top = 320;
+                settings.left = 20;
+                settings.height = 200;
+                settings.width = 400;
+                var frame_3 = new FrameWidget(settings);
+
+                //widget moet kunnen stretchen naar rechts of naar beneden
+                // - naar de buitenrand (e / s) van een andere widget - offset
+                //
+    /*
+                frame_3.alignWidth x
+                frame_3.alignHeight x
+                frame_3.alignSize/stretch (s/e only) otherwidget directions : offsets (needs resize listener and resize self)
+                frame_3.alignTop x
+                frame_3.alignLeft x
+                frame_3.alignPosition (s/e only) otherwidget directions : offsets (needs resize listener and move self)
+                frame_1.addResizeListener(frame_3, {'e':{'action':frame_3.resizeEast, factor: 1}});
+                x frame_1.addMoveListener(frame_3, {'ew':{'action':frame_3.resizeEast, factor: 1}});
+    */
+                frame_1.addResizeListener(frame_3, {'e':{'action':frame_3.resizeEast, factor: 1}});
+                frame_1.addResizeListener(frame_3, {'s':{'action':frame_3.moveVertical, factor: 1}});
+
+               // frame_3.allowHorizontalResize();
+                WidgetManager.instance.deployWidget(frame_3);
+
+                settings = new Object();
+                settings.id = 'frame_container_4';
+                settings.cssClassName = 'frame_container';
+                settings.top = 320;
+                settings.left = 800;
+                settings.height = 200;
+                settings.width = 100;
+                var frame_4 = new FrameWidget(settings);
+
+                frame_4.stretchToOuterWidget(masterFrame, {'e':{'offset':10}});
+                frame_4.stretchToOuterWidget(masterFrame, {'s':{'offset':10}});
+
+                WidgetManager.instance.deployWidget(frame_4);
+
+
+                settings = new Object();
+                settings.id = 'frame_container_5';
+                settings.cssClassName = 'frame_container';
+                settings.top = 120;
+                settings.left = 800;
+                settings.height = 200;
+                settings.width = 100;
+                var frame_5 = new FrameWidget(settings);
+
+                frame_5.alignWithOuterWidget(masterFrame, {'e':{'offset':10}});
+                frame_5.alignWithOuterWidget(masterFrame, {'s':{'offset':10}});
+
+                WidgetManager.instance.deployWidget(frame_5);
+
+
+
+        } catch (e) {
+               alert(e + '\n' + e.stack);
+               //printStackTrace(e);
+            }
 
 
 

@@ -17,19 +17,10 @@
  * along with Iglu.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-function FrameSettings(id, width, height, stickToWindowHeightMinus, source, hasHeader, title) {
-	this.id = id;
-	this.width = width;
-	this.height = height;
-	this.top = top;
-	this.left = left;
-	this.source = source;
-	this.source_load_action = 'display';
-}
 
 
-function FrameWidget(settings, content) {
-	this.constructFrameWidget(settings, content);
+function FrameWidget(settings, enclosedWidget) {
+	this.constructFrameWidget(settings, enclosedWidget);
 }
 
 FrameWidget.MINIMUM_FRAME_WIDTH = 100;
@@ -37,70 +28,48 @@ FrameWidget.MINIMUM_FRAME_HEIGHT = 20;
 
 subclass(FrameWidget, Widget);
 
-FrameWidget.prototype.constructFrameWidget = function(settings, content) {
-   	this.sizeAndPositionListeners = new Array();
-   	//other widgets may resize or move if current widget resizes or moves
+FrameWidget.prototype.constructFrameWidget = function(settings, enclosedWidget) {
 
-	this.constructWidget(settings, content);
+	//TODO a frame may not exceed the limits of the master frame
+
+	//declare attributes
+	this.width = null;
+	this.height = null;
+	this.top = null;
+	this.left = null;
+
+	this.offsetOverFlowLeft = 0;
+	this.offsetOverFlowTop = 0;
+
+	this.content = null;//TODO enclosedWidget
+
 	this.ignoresPageScroll = false;
 	this.resizeDirections = '';
 
-	if(typeof settings.cssClassName != 'undefined') {
-		this.cssClassName = settings.cssClassName;
-	} else {
-		this.cssClassName = null;
-	}
-	if(typeof settings.height != 'undefined') {
-		this.height = settings.height;
-	} else {
-		this.height = null;
-	}
-	if(typeof settings.width != 'undefined') {
-		this.width = settings.width;
-	} else {
-		this.width = null;
-	}
-    var scrollPos = getScrollOffset();
-	if(typeof settings.top != 'undefined') {
-		this.top = settings.top;
-		if(this.ignoresPageScroll) { //TODO display: fixed
-        	this.top = this.top + scrollPos.y;
-        }
-	} else {
-		this.top = null;
-	}
-	if(typeof settings.left != 'undefined') {
-		this.left = settings.left;
-		if(this.ignoresPageScroll) { //TODO display: fixed
-        	this.left = this.left + scrollPos.x;
-        }
-	} else {
-		this.left = null;
+   	//other widgets may resize or move if current widget resizes or moves
+   	this.sizeAndPositionListeners = new Array();
+
+	this.positionListener = null;
+
+	if(typeof enclosedWidget != 'undefined' && !enclosedWidget.onDeploy) {
+		throw 'content must be of type widget';
 	}
 
+	this.set('content', enclosedWidget);
+	//invoke super
+	this.constructWidget(settings, enclosedWidget);
+
+    var scrollPos = getScrollOffset();
+	if(this.top != null && this.ignoresPageScroll) { //TODO display: fixed
+        this.top = this.top + scrollPos.y;
+	}
+	if(this.left != null && this.ignoresPageScroll) { //TODO display: fixed
+        this.left = this.left + scrollPos.x;
+	}
 	//TODO use ContentWidget
-	if(typeof settings.source != 'undefined') {
-		this.source = settings.source;
-	} else {
-		this.source = null;
-	}
-	if(typeof settings.source_load_action != 'undefined' && settings.source_load_action != null) {
-		this.source_load_action = settings.source_load_action;
-	} else {
-		if(typeof this.source_load_action == 'undefined') {
-			this.source_load_action = 'display';
-		 }
-	}
-	log('source load action of ' + this.id  + ' is ' + this.source_load_action);
-	if(typeof content != 'undefined') {
-		this.content = content;
-	} else {
-		this.content = 'loading...';
-	}
-	this.positionListener = null;
 };
 
-FrameWidget.prototype.addSizeAndPositionListener = function(widget, actionsByDirection, invertOffset) {
+FrameWidget.prototype.addResizeListener = function(widget, actionsByDirection, invertOffset) {
 
 	var listenerData = this.sizeAndPositionListeners[widget.id];
 	if(typeof listenerData == 'undefined' || listenerData == null) {
@@ -114,7 +83,7 @@ FrameWidget.prototype.addSizeAndPositionListener = function(widget, actionsByDir
 	this.sizeAndPositionListeners[widget.id] = listenerData;
 };
 
-FrameWidget.prototype.notifySizeAndPositionListeners = function(direction, offSet) {
+FrameWidget.prototype.notifyResizeListeners = function(direction, offSet) {
 	for(var widgetId in this.sizeAndPositionListeners) {
 		var listenerData = this.sizeAndPositionListeners[widgetId];
 		var actionData = listenerData.actionsByDirection[direction];
@@ -221,7 +190,7 @@ FrameWidget.prototype.resizeNorth = function(offset) {
 	this.height = newHeight;
 	this.setSizeAndPosition();
 
-	this.notifySizeAndPositionListeners('n', offset);
+	this.notifyResizeListeners('n', offset);
 };
 
 FrameWidget.prototype.resizeWest = function(offset) {
@@ -232,27 +201,38 @@ FrameWidget.prototype.resizeWest = function(offset) {
 	this.left = this.left + this.width - newWidth;
 	this.width = newWidth;
 	this.setSizeAndPosition();
-	this.notifySizeAndPositionListeners('w', offset);
+	this.notifyResizeListeners('w', offset);
 };
 
 FrameWidget.prototype.resizeSouth = function(offset) {
-	var newHeight = offset + this.height;
+	var calcOffset = offset + this.offsetOverFlowTop;
+
+	var newHeight = calcOffset + this.height;
 	if(newHeight < FrameWidget.MINIMUM_FRAME_HEIGHT) {
-		newHeight = FrameWidget.MINIMUM_FRAME_HEIGHT;
+		this.height = FrameWidget.MINIMUM_FRAME_HEIGHT;
+		this.offsetOverFlowTop = newHeight - this.height;
+	} else {
+		this.height = newHeight;
+		this.offsetOverFlowTop = 0;
 	}
-	this.height = newHeight;
 	this.setSizeAndPosition();
-	this.notifySizeAndPositionListeners('s', offset);
+	this.notifyResizeListeners('s', offset);
 };
 
 FrameWidget.prototype.resizeEast = function(offset) {
-	var newWidth = offset + this.width;
+
+	var calcOffset = offset + this.offsetOverFlowLeft;
+
+	var newWidth = calcOffset + this.width;
 	if(newWidth < FrameWidget.MINIMUM_FRAME_WIDTH) {
-		newWidth = FrameWidget.MINIMUM_FRAME_WIDTH;
+		this.width = FrameWidget.MINIMUM_FRAME_WIDTH;
+		this.offsetOverFlowLeft = newWidth - this.width;
+	} else {
+		this.width = newWidth;
+		this.offsetOverFlowLeft = 0;
 	}
-	this.width = newWidth;
 	this.setSizeAndPosition();
-	this.notifySizeAndPositionListeners('e', offset);
+	this.notifyResizeListeners('e', offset);
 };
 
 
@@ -286,6 +266,41 @@ FrameWidget.prototype.setDOMElement = function(element) {
 	element.style.position = 'absolute';
 };
 
+FrameWidget.prototype.stretchToOuterWidget = function(outerWidget, directionMap) {
+	if(typeof directionMap['e'] != 'undefined') {
+		//TODO does it fit?
+		var proposedWidth = outerWidget.width - this.left - outerWidget.left - directionMap['e'].offset;
+		if(proposedWidth < FrameWidget.MINIMUM_FRAME_WIDTH) {
+			this.width = FrameWidget.MINIMUM_FRAME_WIDTH;
+			this.offsetOverFlowLeft = proposedWidth - this.width;
+		} else {
+			this.width = proposedWidth;
+		}
+        outerWidget.addResizeListener(this, {'e':{'action':this.resizeEast, factor: 1}});
+	}
+	if(typeof directionMap['s'] != 'undefined') {
+		var proposedHeight = outerWidget.height - this.top - outerWidget.top - directionMap['s'].offset;
+		if(proposedHeight < FrameWidget.MINIMUM_FRAME_HEIGHT) {
+			this.height = FrameWidget.MINIMUM_FRAME_HEIGHT;
+			this.offsetOverFlowTop = proposedHeight - this.height;
+		} else {
+			this.height = proposedHeight;
+		}
+        outerWidget.addResizeListener(this, {'s':{'action':this.resizeSouth, factor: 1}});
+	}
+}
+
+
+FrameWidget.prototype.alignWithOuterWidget = function(outerWidget, directionMap) {
+	if(typeof directionMap['e'] != 'undefined') {
+		this.left = outerWidget.left + outerWidget.width - this.width - directionMap['e'].offset;
+        outerWidget.addResizeListener(this, {'e':{'action':this.moveHorizontal, factor: 1}});
+	}
+	if(typeof directionMap['s'] != 'undefined') {
+		this.top = outerWidget.top + outerWidget.height - this.height - directionMap['s'].offset;
+        outerWidget.addResizeListener(this, {'s':{'action':this.moveVertical, factor: 1}});
+	}
+}
 
 
 FrameWidget.prototype.onDeploy = function() {
@@ -309,7 +324,7 @@ FrameWidget.prototype.onDeploy = function() {
 
 	}
 
-	if((typeof this.content.onDeploy != 'undefined')) {
+	if(this.content && this.content.onDeploy != 'undefined') {
 
 		WidgetManager.instance.deployWidgetInContainer(this.element, this.content);
 	}

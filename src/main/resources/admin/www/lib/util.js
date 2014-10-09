@@ -56,7 +56,6 @@ function copyMembers(classA, classB) {
 }
 
 function log(message) {
-
 	if(typeof WidgetManager != 'undefined') {
 		var logStream = WidgetManager.instance.getWidget('logstream');
 		if(logStream != null) {
@@ -64,7 +63,6 @@ function log(message) {
 			return;
 		}
 	}
-
 	var element = document.getElementById('logstream');
 	if(element != null) {
 		element.innerHTML = new Date() + ' ' + message + '<br>\n' + element.innerHTML;
@@ -116,11 +114,7 @@ function getElementFromEvent(event)
 function getMousePositionInWindow(event)
 {
 	event = event || window.event;
-/*	if(typeof event.pageX != 'undefined')
-	{
-		return {x:event.pageX, y:event.pageY};
-	} */
-	return {x:event.clientX /*+ document.body.scrollLeft - document.body.clientLeft*/, y:event.clientY /*+ document.body.scrollTop - document.body.clientTop*/};
+	return {x:event.clientX, y:event.clientY};
 }
 
 function getMousePositionInPage(event)
@@ -145,6 +139,14 @@ function getMouseOffsetFromElementPosition(target, event)
 	return {x:mousePos.x - docPos.x, y:mousePos.y - docPos.y};
 }
 
+function getMouseOffsetFromAbsoluteElementPosition(target, event)
+{
+	event = event || window.event;
+
+	var docPos = getElementPositionInPage(target);
+	var mousePos = getMousePositionInPage(event);
+	return {x:mousePos.x - docPos.x, y:mousePos.y - docPos.y};
+}
 
 function getScrollOffset()
 {
@@ -170,18 +172,16 @@ function getScrollOffset()
   return {x: scrOfX, y: scrOfY };
 }
 
-function getElementPositionInPage(element)
-{
+//determine position of element (in case not known)
+function getElementPositionInPage(element) {
 	var left = 0;
 	var top  = 0;
 
-	while (element.offsetParent)
-	{
+	while (element.offsetParent) {
 		left += element.offsetLeft;
 		top  += element.offsetTop;
 		element = element.offsetParent;
 	}
-
 	left += element.offsetLeft;
 	top  += element.offsetTop;
 
@@ -194,3 +194,55 @@ function getElementPositionInWindow(element)
 	var scrollOffset = getScrollOffset();
 	return {x:elementPosInPage.x - scrollOffset.x, y:elementPosInPage.y - scrollOffset.y};
 }
+
+function printStackTrace(e) {
+
+  var callstack = [];
+  var isCallstackPopulated = false;
+
+    if (e.stack) { //Firefox
+      var lines = e.stack.split('\n');
+      for (var i=0, len=lines.length; i < len; i++) {
+        if (lines[i].match(/^\s*[A-Za-z0-9\-_\$]+\(/)) {
+          callstack.push(lines[i]);
+        }
+      }
+      //Remove call to printStackTrace()
+      callstack.shift();
+      isCallstackPopulated = true;
+    }
+    else if (window.opera && e.message) { //Opera
+      var lines = e.message.split('\n');
+      for (var i=0, len=lines.length; i < len; i++) {
+        if (lines[i].match(/^\s*[A-Za-z0-9\-_\$]+\(/)) {
+          var entry = lines[i];
+          //Append next line also since it has the file info
+          if (lines[i+1]) {
+            entry += ' at ' + lines[i+1];
+            i++;
+          }
+          callstack.push(entry);
+        }
+      }
+      //Remove call to printStackTrace()
+      callstack.shift();
+      isCallstackPopulated = true;
+    }
+
+  if (!isCallstackPopulated) { //IE and Safari
+    var currentFunction = arguments.callee.caller;
+    while (currentFunction) {
+      var fn = currentFunction.toString();
+      var fname = fn.substring(fn.indexOf('function') + 8, fn.indexOf('')) || 'anonymous';
+      callstack.push(fname);
+      currentFunction = currentFunction.caller;
+    }
+    }
+  output(callstack);
+}
+
+function output(arr) {
+  //Output however you want
+  alert(arr.join('\n\n'));
+}
+
