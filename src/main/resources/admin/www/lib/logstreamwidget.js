@@ -17,17 +17,8 @@
  * along with Iglu.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-function LogStreamSettings(id, width, height, stickToWindowHeightMinus, source, hasHeader, title) {
-	this.id = id;
-	this.width = width;
-	this.height = height;
-	this.stickToWindowHeightMinus;
-	this.source = source;
-	this.source_load_action = 'loadEntries';
-	this.hasHeader = hasHeader;
-	this.title = title;
-}
 
+subclass(LogStreamWidget, FrameWidget);
 
 function LogStreamWidget(settings, content) {
 	this.bufferSize = 100;
@@ -37,7 +28,6 @@ function LogStreamWidget(settings, content) {
 	this.constructLogStreamWidget(settings, content);
 }
 
-subclass(LogStreamWidget, FrameWidget);
 
 LogStreamWidget.prototype.constructLogStreamWidget = function(settings, content) {
 	this.constructFrameWidget(settings, content);
@@ -72,7 +62,7 @@ LogStreamWidget.prototype.onTimer = function(line) {
 
 LogStreamWidget.prototype.loadEntries = function(entries, logStreamWidget) {
 	var entryStrings = eval(entries);
-	for(var[i] in entryStrings) {
+	for(var i in entryStrings) {
 		logStreamWidget.append(entryStrings[i]);
 	}
 }

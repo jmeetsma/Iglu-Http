@@ -178,8 +178,8 @@ function getElementPositionInPage(element) {
 	var top  = 0;
 
 	while (element.offsetParent) {
-		left += element.offsetLeft;
-		top  += element.offsetTop;
+		left += element.offsetLeft /*- element.scrollLeft + element.clientLeft*/;
+		top  += element.offsetTop /*- element.scrollTop + element.clientTop*/;
 		element = element.offsetParent;
 	}
 	left += element.offsetLeft;

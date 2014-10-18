@@ -58,7 +58,7 @@ SplitPanelWidget.prototype.setSizeAndPosition = function() {
 
 	this.element.style.top = this.top + 'px';
 	this.element.style.left = this.left + 'px';
-	if(typeof this.height != 'undefined') {
+/*	if(typeof this.height != 'undefined') {
 		this.element.style.height = this.height + 'px';
 	} else {
 		this.element.style.height = '100%';
@@ -67,7 +67,7 @@ SplitPanelWidget.prototype.setSizeAndPosition = function() {
 		this.element.style.width = this.width + 'px';
 	} else {
 		this.element.style.width = '100%';
-	}
+	}*/
 };
 
 
@@ -80,28 +80,27 @@ SplitPanelWidget.prototype.onDestroy = function() {
 	//save state
 };
 
-
-SplitPanelWidget.prototype.onDeploy = function() {
-
-	this.draw();
-
+SplitPanelWidget.prototype.createContainers = function() {
 	this.container = document.createElement('div');
 	this.container.className = 'splitpanelcontainer';
+//	this.container.style.width = this.element.offsetWidth;
 	this.element.appendChild(this.container);
 
-	widgetmanager.deployWidgetInContainer(this.container, this.firstPanel);
-	//secondPanel may be a splitPanel
-	widgetmanager.deployWidgetInContainer(this.container, this.secondPanel);
-
-	this.firstPanel.positionListener = this;
-
+	this.firstPanelContainer = document.createElement('div');
+	this.secondPanelContainer = document.createElement('div');
 	this.setPanelClasses();
+	this.container.appendChild(this.firstPanelContainer);
+	this.container.appendChild(this.secondPanelContainer);
+}
 
-};
+
+
 
 
 SplitPanelWidget.prototype.onPanelPositionChanged = function(panel) {
 	this.secondPanel.setPositionFromPage();
+
+	//TODO set second panel on 'calc(100% - ' + panel.width + 'px)';
 }
 
 
@@ -143,12 +142,39 @@ function HorizontalSplitPanelWidget(settings, firstPanelSize, firstPanel, second
 	firstPanel.allowVerticalResize();
 }
 
-HorizontalSplitPanelWidget.prototype = new SplitPanelWidget();
+subclass(HorizontalSplitPanelWidget, SplitPanelWidget);
 
 HorizontalSplitPanelWidget.prototype.setPanelClasses = function() {
-	this.firstPanel.element.className = 'first_horizontal_splitpanel';
-    this.secondPanel.element.className = 'second_splitpanel';
-}
+	this.firstPanelContainer.className = 'first_horizontal_splitpanel';
+    this.secondPanelContainer.className = 'second_horizontal_splitpanel';
+ }
+
+
+
+HorizontalSplitPanelWidget.prototype.onDeploy = function() {
+
+	this.draw();
+
+//	this.container = this.element;
+
+	this.createContainers();
+
+	this.firstPanelContainer.style.height = this.firstPanelSize;
+
+
+	var firstWidget = widgetmanager.deployWidgetInContainer(this.firstPanelContainer, this.firstPanel);
+	/*firstWidget.element.style.height = '100%';  */
+	/*firstWidget.element.style.width = '100%';  */
+	WidgetManager.instance.registerResizeableWidget(firstWidget, firstWidget.resizeDirections);
+	//secondPanel may be a splitPanel
+	widgetmanager.deployWidgetInContainer(this.secondPanelContainer, this.secondPanel);
+
+	this.firstPanel.positionListener = this;
+
+};
+
+
+
 
 //////////////////////////
 
@@ -160,11 +186,35 @@ function VerticalSplitPanelWidget(settings, firstPanelSize, firstPanel, secondPa
 	firstPanel.allowHorizontalResize();
 }
 
-VerticalSplitPanelWidget.prototype = new SplitPanelWidget();
+subclass(VerticalSplitPanelWidget, SplitPanelWidget);
 
 VerticalSplitPanelWidget.prototype.setPanelClasses = function() {
-	this.firstPanel.element.className = 'first_vertical_splitpanel';
-    this.secondPanel.element.className = 'second_splitpanel';
+	this.firstPanelContainer.className = 'first_vertical_splitpanel';
+    this.secondPanelContainer.className = 'second_vertical_splitpanel';
 }
 
+
+
+
+
+VerticalSplitPanelWidget.prototype.onDeploy = function() {
+
+	this.draw();
+
+//	this.container = this.element;
+
+	this.createContainers();
+	this.firstPanelContainer.style.width = this.firstPanelSize;
+	this.secondPanelContainer.style.width = this.container.offsetWidth - this.firstPanelSize;
+
+	var firstWidget = widgetmanager.deployWidgetInContainer(this.firstPanelContainer, this.firstPanel);
+	/*firstWidget.element.style.height = '100%';  */
+	/*firstWidget.element.style.width = '100%';  */
+	WidgetManager.instance.registerResizeableWidget(firstWidget, firstWidget.resizeDirections);
+	//secondPanel may be a splitPanel
+	widgetmanager.deployWidgetInContainer(this.secondPanelContainer, this.secondPanel);
+
+	this.firstPanel.positionListener = this;
+
+};
 

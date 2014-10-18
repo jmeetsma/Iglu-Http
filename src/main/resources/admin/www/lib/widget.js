@@ -49,6 +49,9 @@ Widget.prototype.getId = function()
 Widget.prototype.setDOMElement = function(element)
 {
 	this.element = element;
+	if(this.cssClassName != null) {
+		element.className = this.cssClassName;
+	}
 };
 
 
@@ -115,8 +118,7 @@ Widget.prototype.display = function(content, element)
 	}
 };
 
-Widget.prototype.evaluate = function(content, element)
-{
+Widget.prototype.evaluate = function(content, element) {
 	eval(content);
 };
 
@@ -195,46 +197,22 @@ WidgetContent.prototype.onDestroy = function()
 };
 
 
-WidgetContent.prototype.onDeploy = function()
-{
+WidgetContent.prototype.onDeploy = function() {
+	this.refresh();
 };
 
 
 WidgetContent.prototype.refresh = function() {
 	//load state
-
-	//alert(this.source);
-
+    if(this.content != null) {
+      	this.writeHTML();
+    }
 	if(this.source != null) {
-
 		ajaxRequestManager.doRequest(this.source, this[this.source_load_action], this);
-	} else if(this.content != null) {
-		this.writeHTML();
 	}
 };
 
 
-WidgetContent.prototype.onFocus = function()
-{
-};
-
-
-WidgetContent.prototype.onBlur = function()
-{
-};
-
-
-WidgetContent.prototype.saveState = function() //JSON?
-{
-};
-
 WidgetContent.prototype.writeHTML = function() {
-
 	this.element.innerHTML = this.content;
-};
-
-
-WidgetContent.prototype.evaluate = function(content, element)
-{
-	eval(content);
 };

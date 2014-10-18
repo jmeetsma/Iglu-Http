@@ -17,22 +17,8 @@
  * along with Iglu.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-function WindowSettings(widgetId, title, height, width, source, ignorePageScroll) {
-	this.id = widgetId;
-	this.height = height;
-	this.width = width;
-	this.title = title;
-	this.source = source;
-	this.ignoresPageScroll = ignorePageScroll;
-}
-
-
 function WindowWidget(settings, content) {
 	this.cssClassName = 'window';
-	this.height = null;
-	this.width = null;
-	this.top = null;
-	this.left = null;
 	this.constructWindowWidget(settings, content);
 }
 
@@ -73,6 +59,26 @@ WindowWidget.prototype.constructWindowWidget = function(settings, content) {
 	}
 };
 
+
+
+
+/*
+FrameWidget.prototype.refreshElementPosition = function()
+{
+	WidgetManager.instance.lastX = this.left;
+	WidgetManager.instance.lastY = this.top;
+
+	if(typeof this.element != 'undefined')
+	{
+		this.element.style.top = this.top + 'px';
+		this.element.style.left = this.left + 'px';
+	}
+}*/
+
+WindowWidget.prototype.getDragSelectElement = function()
+{
+	return this.dragActivationElement;
+};
 
 
 

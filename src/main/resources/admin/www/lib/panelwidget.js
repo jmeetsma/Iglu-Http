@@ -17,20 +17,8 @@
  * along with Iglu.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-function PanelSettings(id, width, height, stickToWindowHeightMinus, source, hasHeader, title) {
-	this.id = id;
-	this.width = width;
-	this.height = height;
-	this.stickToWindowHeightMinus;
-	this.source = source;
-	this.source_load_action = 'display';
-	this.hasHeader = hasHeader;
-	this.title = title;
-}
-
 
 function PanelWidget(settings, content) {
-	this.cssClassName = 'panel';
 	this.constructPanelWidget(settings, content);
 }
 
@@ -38,90 +26,86 @@ subclass(PanelWidget, FrameWidget);
 
 PanelWidget.prototype.constructPanelWidget = function(settings, content) {
 
+	this.cssClassName = 'panel';
+	this.hasHeader = false;
+	this.title = null;
 	//invoke super
 	this.constructFrameWidget(settings, content);
 
-	if(typeof settings.stickToWindowHeightMinus != 'undefined') {
-		this.stickToWindowHeightMinus = settings.stickToWindowHeightMinus;
-	}
-
-	this.resizeDirections = '';
-
-	if(typeof settings.hasHeader != 'undefined') {
-		this.hasHeader = settings.hasHeader;
-	} else {
-		this.hasHeader = false;
-	}
-	if(typeof settings.title != 'undefined') {
-		this.title = settings.title;
-	} else {
-		this.title = '';
-	}
 };
 
 
-
-PanelWidget.prototype.onDestroy = function() {
-	//save state
+PanelWidget.prototype.onFocus = function() {
+	//highlight title
 };
 
-PanelWidget.prototype.setPositionFromPage = function() {
+PanelWidget.prototype.onBlur = function() {
+	//gray title
+};
 
-	this.top = getElementPositionInPage(this.element).y;
-	this.left = getElementPositionInPage(this.element).x;
-}
-
-
-
-PanelWidget.prototype.onDeploy = function() {
-
-	this.draw();
-//	widgetmanager.registerDraggableWidget(this);
-
-	this.setPositionFromPage();
-
+PanelWidget.prototype.writeHTML = function() {
 
 	if(this.hasHeader) {
 		this.header = document.createElement('div');
 		this.header.id = this.id + '_header';
 		this.header.className = 'panelheader';
-		this.header.innerHTML = this.title;
+
+		if(this.content.title != null) {
+			this.header.innerHTML = this.content.title;
+		} else {
+			if(this.title != null) {
+				this.header.innerHTML = this.title;
+			}
+		}
 		this.element.appendChild(this.header);
 	}
 
-    //TODO new content widget
-	this.container = document.createElement('div');
+	var contentFrame = new FrameWidget({
+        id : this.id + '_frame',
+        cssClassName : 'panelcontentframe',
+        //todo margin
+        top: 30,
+        left: 5,
+        width: (this.width - 10),
+        height: (this.height - 35)
+	}, this.content);
+	contentFrame.stretchToOuterWidget(this, {'e':{'offset':5}});
+	contentFrame.stretchToOuterWidget(this, {'s':{'offset':5}});
+
+	this.addResizeListener(contentFrame, {'e':{'action':contentFrame.resizeEast, factor: 1}});
+    this.addResizeListener(contentFrame, {'s':{'action':contentFrame.resizeSouth, factor: 1}});
+	this.addResizeListener(contentFrame, {'n':{'action':contentFrame.resizeSouth, factor: 1}});
+    this.addResizeListener(contentFrame, {'w':{'action':contentFrame.resizeEast, factor: 1}});
+
+
+
+//	alert('' + this.id + ': ' + this.width + '->' + contentFrame.width + '\n' +
+//			'' + this.id + ': ' + this.height + '->' + contentFrame.height);
+
+	this.subWidgets[this.element.id] = contentFrame;
+
+	//widgetmanager.deployWidgetInContainer(this.element, contentFrame);
+
+/*	this.container = document.createElement('div');
 	this.container.id = this.id + '_contents';
-	this.container.className = 'panelcontents' + (this.panelContentClass != null ? ', ' + this.panelContentClass : '');
-	this.container.onmouseover = new Function('event', 'event.stopPropagation();');
-	this.container.onmouseout = new Function('event', 'event.stopPropagation();');
-	this.element.appendChild(this.container);
-
-    if(typeof this.stickToWindowHeightMinus != 'undefined' && this.stickToWindowHeightMinus != null) {
-		this.container.style.maxHeight = (document.documentElement.clientHeight - this.stickToWindowHeightMinus) + 'px';
-		widgetmanager.registerWindowResizeListener(this);
-	}
-
-    if(this.resizeDirections.length > 0) {
-		widgetmanager.registerResizeableWidget(this, this.resizeDirections);
-	}
-
+	this.container.className = 'panelcontents';
+//	this.container.onmouseover = new Function('event', 'event.stopPropagation();');
+//	this.container.onmouseout = new Function('event', 'event.stopPropagation();');
+	this.element.appendChild(this.container);       */
+    /*
 	if((typeof this.content.onDeploy != 'undefined')) {
 		widgetmanager.deployWidgetInContainer(this.container, this.content);
 	}
-	//load state
-	this.refresh();
+    */
+/*	if((typeof this.content.writeHTML != 'undefined')) {
+		this.content.writeHTML();
+	} else {
+		this.container.innerHTML = this.content;
+	} */
 };
 
 
 
 
-//todo rename to activate / deactivate
-
-PanelWidget.prototype.onFocus = function() {
-};
-
-PanelWidget.prototype.onBlur = function() {
-};
 
 

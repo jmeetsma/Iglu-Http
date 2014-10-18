@@ -18,7 +18,8 @@
  */
 
 function MenuWidget(id, content) {
-	Widget.call(this);
+
+	//Widget.call(this);
 	this.id = id;
 	this.source = null;
 	if(typeof(content) != 'undefined') {
@@ -31,16 +32,17 @@ function MenuWidget(id, content) {
 	var settings = new Object();
 	settings.id = id;
 	settings.content = content;
+	this.constructMenuWidget(settings, settings.content);
 
 
 	//TODO initialize and invoke super
 }
 
-subclass(MenuWidget, FrameWidget);
+subclass(MenuWidget, WidgetContent);
 
- LogStreamWidget.prototype.constructMenuWidget = function(settings, content) {
-	this.constructFrameWidget(settings, content);
- };
+MenuWidget.prototype.constructMenuWidget = function(settings, content) {
+	this.constructWidgetContent(settings, content);
+};
 
 
 MenuWidget.prototype.alertSomething = function(value) {
@@ -149,10 +151,12 @@ MenuWidget.prototype.evaluate = function(contents, menuWidget) {
 };
 
 
+/*
 MenuWidget.prototype.onDeploy = function() {
+	this.draw();
 	this.refresh();
 };
-
+*/
 
 
 

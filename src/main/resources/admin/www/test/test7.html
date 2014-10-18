@@ -34,7 +34,6 @@
     <link rel="stylesheet" type="text/css" href="css/dashboard_no_text_select.css" />
     <link rel="stylesheet" type="text/css" href="css/dashboard_hide_resolved_references.css" / -->
 
-
     <!--link rel="stylesheet" type="text/css" href="/fd275af8b0604d12be97256fc02cf076&css_id=bubble.min.css"/>
     <script src="/fd275af8b0604d12be97256fc02cf076&jscript_id=fs_rating.min.js" type="text/javascript" charset="utf-8"></script-->
 
@@ -77,13 +76,11 @@
     overflow: auto;
 }
 
-
-.main_container_2 {
-    display: table; width: 100%; height: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
-    white-space: nowrap;
-    border: 3px solid green;
+.content_container {
+    border: 2px solid orange;
+    margin: 5px;
+    padding: 5px;
+    overflow: auto;
 }
 
 
@@ -110,26 +107,26 @@
 
         function init() {
             try {
-                //TODO master container must figure out its dimensions
-                var settings = new Object();
-                settings.id = 'master_container';
-                settings.cssClassName = 'master_container';
-                var masterFrame = new MasterFrameWidget(settings);
+                //DONE master container must figure out its dimensions
+
+                var masterFrame = new MasterFrameWidget({
+                    id: 'master_container',
+                    cssClassName: 'master_container'
+                });
                 WidgetManager.instance.deployWidget(masterFrame);
 
-                settings = new Object();
-                settings.id = 'frame_container_1';
-                settings.cssClassName = 'frame_container';
-                settings.top = 100;
-                settings.left = 20;
-                settings.height = 180;
-                settings.width = 400;
-                var frame_1 = new FrameWidget(settings);
+
+                var frame_1 = new FrameWidget({
+                    id: 'frame_container_1',
+                    cssClassName: 'frame_container',
+                    top: 100, left: 20, height: 180, width: 400
+                });
                 frame_1.allowHorizontalResize();
                 frame_1.allowVerticalResize();
                 WidgetManager.instance.deployWidget(frame_1);
 
 
+                var settings = new Object();
 
                 settings = new Object();
                 settings.id = 'logstream';
@@ -158,11 +155,11 @@
     /*
                 frame_3.alignWidth x
                 frame_3.alignHeight x
-                frame_3.alignSize/stretch (s/e only) otherwidget directions : offsets (needs resize listener and resize self)
+DONE                frame_3.alignSize/stretch (s/e only) otherwidget directions : offsets (needs resize listener and resize self)
                 frame_3.alignTop x
                 frame_3.alignLeft x
-                frame_3.alignPosition (s/e only) otherwidget directions : offsets (needs resize listener and move self)
-                frame_1.addResizeListener(frame_3, {'e':{'action':frame_3.resizeEast, factor: 1}});
+DONE                frame_3.alignPosition (s/e only) otherwidget directions : offsets (needs resize listener and move self)
+DONE                frame_1.addResizeListener(frame_3, {'e':{'action':frame_3.resizeEast, factor: 1}});
                 x frame_1.addMoveListener(frame_3, {'ew':{'action':frame_3.resizeEast, factor: 1}});
     */
                 frame_1.addResizeListener(frame_3, {'e':{'action':frame_3.resizeEast, factor: 1}});
@@ -185,6 +182,12 @@
 
                 WidgetManager.instance.deployWidget(frame_4);
 
+                var widgetContent = new PanelWidget({
+                    id: 'content',
+                    title: 'title',
+                    cssClassName: 'content_container'
+                }
+                ,'test content X');
 
                 settings = new Object();
                 settings.id = 'frame_container_5';
@@ -193,7 +196,7 @@
                 settings.left = 800;
                 settings.height = 200;
                 settings.width = 100;
-                var frame_5 = new FrameWidget(settings);
+                var frame_5 = new FrameWidget(settings, widgetContent);
 
                 frame_5.alignWithOuterWidget(masterFrame, {'e':{'offset':10}});
                 frame_5.alignWithOuterWidget(masterFrame, {'s':{'offset':10}});
@@ -201,14 +204,12 @@
                 WidgetManager.instance.deployWidget(frame_5);
 
 
+                //alert(document.getElementById('content_contents'));
 
         } catch (e) {
                alert(e + '\n' + e.stack);
                //printStackTrace(e);
             }
-
-
-
         }
 
 

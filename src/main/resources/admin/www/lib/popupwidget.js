@@ -56,11 +56,6 @@ PopupWidget.prototype.onDestroy = function() {
 	WidgetManager.instance.destroyWidget(this.content.id);
 };
 
-PopupWidget.prototype.setPositionFromPage = function() {
-
-	this.top = getElementPositionInPage(this.element).y;
-	this.left = getElementPositionInPage(this.element).x;
-}
 
 PopupWidget.prototype.setSizeAndPosition = function() {
 	this.element.style.top = this.top + 'px';

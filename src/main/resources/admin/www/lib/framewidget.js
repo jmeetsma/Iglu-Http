@@ -27,24 +27,21 @@ function FrameSettings(id, width, height, stickToWindowHeightMinus, source, hasH
 }
 
 
-function FrameWidget(id, content, settings) {
-	this.id = id;
-	if(typeof settings == 'undefined') {
-		settings = new Object();
-	}
-	settings.id = id;
+function FrameWidget(settings, content) {
 	this.constructFrameWidget(settings, content);
 }
 
 subclass(FrameWidget, Widget);
+
+FrameWidget.MINIMUM_FRAME_WIDTH = 100;
+FrameWidget.MINIMUM_FRAME_HEIGHT = 20;
+
 
 FrameWidget.prototype.constructFrameWidget = function(settings, content) {
 
 	this.constructWidget(settings, content);
 
 
-	//element that must be clicked to drag the widget
-	this.dragActivationElement = null;
 	this.ignoresPageScroll = false;
 
 	this.resizeDirections = '';
@@ -104,7 +101,6 @@ FrameWidget.prototype.constructFrameWidget = function(settings, content) {
 		this.content = 'loading...';
 	}
 	this.positionListener = null;
-	this.panelContentClass = null;
 };
 
 
@@ -115,37 +111,6 @@ FrameWidget.prototype.allowsResize = function(direction)
 
 
 
-FrameWidget.prototype.setPosition = function(x, y)
-{
-	this.top = y;
-	this.left = x;
-	this.refreshElementPosition();
-}
-
-
-FrameWidget.prototype.move = function(x, y)
-{
-	this.top += y;
-	this.left += x;
-	this.refreshElementPosition();
-}
-
-FrameWidget.prototype.refreshElementPosition = function()
-{
-	WidgetManager.instance.lastX = this.left;
-	WidgetManager.instance.lastY = this.top;
-
-	if(typeof this.element != 'undefined')
-	{
-		this.element.style.top = this.top + 'px';
-		this.element.style.left = this.left + 'px';
-	}
-}
-
-FrameWidget.prototype.getDragSelectElement = function()
-{
-	return this.dragActivationElement;
-};
 
 
 FrameWidget.prototype.allowHorizontalResize = function() {
@@ -175,17 +140,17 @@ FrameWidget.prototype.draw = function() {
 
 FrameWidget.prototype.setSizeAndPosition = function() {
 
-	if(typeof this.width != 'undefined' && this.allowsResize('e')) {
+	if(typeof this.width != null /*&& this.allowsResize('e')*/) {
 		this.element.style.width = this.width + 'px';
 	} else {
-		this.element.style.display = 'table-row';
-		this.element.style.whiteSpace = 'nowrap';
+//		this.element.style.display = 'table-row';
+//		this.element.style.whiteSpace = 'nowrap';
      }
-	if(typeof this.height != 'undefined' && this.allowsResize('s')) {
+	if(typeof this.height != null /*&& this.allowsResize('s')*/) {
 		this.element.style.height = this.height + 'px';
 	} else {
-		this.element.style.display = 'table-cell';
-		this.element.style.whiteSpace = 'nowrap';
+//		this.element.style.display = 'table-cell';
+//		this.element.style.whiteSpace = 'nowrap';
 	}
 	if(this.positionListener != null && typeof(this.positionListener.onPanelPositionChanged) == 'function') {
 		this.positionListener.onPanelPositionChanged(this);
@@ -208,15 +173,12 @@ FrameWidget.prototype.getWidth = function()
 
 FrameWidget.prototype.resizeNorth = function(offset)
 {
-	//TODO use constants
 	var newHeight = offset + this.height;
-	if(newHeight < 20) {
-		newHeight = 20;
+	if(newHeight < FrameWidget.MINIMUM_FRAME_HEIGHT) {
+		newHeight = FrameWidget.MINIMUM_FRAME_HEIGHT;
 	}
 	this.top = this.top + this.height - newHeight;
 	this.height = newHeight;
-	//widgetmanager.mouseOffset.y -= offset;
-
 	this.setSizeAndPosition();
 };
 
@@ -224,8 +186,8 @@ FrameWidget.prototype.resizeWest = function(offset)
 {
 	//TODO use constants
 	var newWidth = offset + this.width;
-	if(newWidth < 100) {
-		newWidth = 100;
+	if(newWidth < FrameWidget.MINIMUM_FRAME_WIDTH) {
+		newWidth = FrameWidget.MINIMUM_FRAME_WIDTH;
 	}
 	this.left = this.left + this.width - newWidth;
 	this.width = newWidth;
@@ -235,10 +197,9 @@ FrameWidget.prototype.resizeWest = function(offset)
 
 FrameWidget.prototype.resizeSouth = function(offset)
 {
-	//TODO use constants
 	var newHeight = offset + this.height;
-	if(newHeight < 20) {
-		newHeight = 20;
+	if(newHeight < FrameWidget.MINIMUM_FRAME_HEIGHT) {
+		newHeight = FrameWidget.MINIMUM_FRAME_HEIGHT;
 	}
 	this.height = newHeight;
 	widgetmanager.mouseOffset.y += offset;
@@ -250,8 +211,8 @@ FrameWidget.prototype.resizeEast = function(offset)
 {
 	//TODO use constants
 	var newWidth = offset + this.width;
-	if(newWidth < 100) {
-		newWidth = 100;
+	if(newWidth < FrameWidget.MINIMUM_FRAME_WIDTH) {
+		newWidth = FrameWidget.MINIMUM_FRAME_WIDTH;
 	}
 	this.width = newWidth;
 	WidgetManager.instance.mouseOffset.x += offset;
@@ -261,16 +222,6 @@ FrameWidget.prototype.resizeEast = function(offset)
 
 
 
-FrameWidget.prototype.writeHTML = function() {
-
-	if(this.container) {
-		if((typeof this.content.writeHTML != 'undefined')) {
-			this.content.writeHTML();
-        } else {
-			this.container.innerHTML = this.content;
-		}
-	}
-};
 
 
 FrameWidget.prototype.onDestroy = function() {
@@ -285,9 +236,14 @@ FrameWidget.prototype.setPositionFromPage = function() {
 
 
 
+
+
+
 FrameWidget.prototype.onDeploy = function() {
 
+
 	this.draw();
+
 
 	this.setPositionFromPage();
 
@@ -332,18 +288,6 @@ FrameWidget.prototype.refresh = function() {
 	}
 };
 
-/*WindowWidget.prototype.refresh = function() {
-	//load state
-	if(this.source != null) {
-		ajaxRequestManager.doRequest(this.source, this.display, this);
-	}
-
-		//do not overwrites dragSelectionElement etc.
-	else if(this.content != null && !this.content.onDeploy) {
-
-     	this.contentElement.innerHTML = this.content;
-    }
-};*/
 
 
 //todo rename to activate / deactivate
@@ -354,12 +298,4 @@ FrameWidget.prototype.onFocus = function() {
 FrameWidget.prototype.onBlur = function() {
 };
 
-FrameWidget.prototype.setDOMElement = function(element)
-{
-	this.element = element; // how about coords (x, y) ?
-	if(this.dragActivationElement == null)
-	{
-		this.dragActivationElement = element;
-	}
-};
 

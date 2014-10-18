@@ -90,7 +90,7 @@ body {
 }
 
 
-.panel, .second_splitpanel, .first_horizontal_splitpanel, .first_vertical_splitpanel {
+.panel, .second_split_panel, .first_horizontal_splitpanel, .first_vertical_splitpanel {
 	width: auto;
 	border-color: black;
 	border-width: 0px;
@@ -98,7 +98,6 @@ body {
 	height: 100%;
 	table-layout:fixed;
 	padding: 5px;
-
 }
 
 .panel {
@@ -109,13 +108,6 @@ body {
 	border: 1px solid red;
 }
 
-.first_horizontal_splitpanel {
-	border-bottom: 1px solid #333;
-}
-
-.first_vertical_splitpanel {
-	border-right: 1px solid #333;
-}
 
 
 .splitpanel {
@@ -123,11 +115,6 @@ body {
 
 }
 
-.splitpanelcontainer {
-	display: table; width: 100%; height: 100%;
-	table-layout: fixed;
-	border-collapse: collapse;
-}
 
 .panelcontents {
 	position: relative;
@@ -136,6 +123,51 @@ body {
 	width: 100%;
 	height: 100%;
 	top: 0px;
+}
+
+
+
+.horizontal_container {
+    display: table-row;
+    border: 3px solid blue;
+    white-space: nowrap;
+}
+
+.vertical_container {
+    display: inline-table;
+    table-layout: fixed;
+    border: 3px solid green;
+    height: 100%;
+    white-space: nowrap;
+}
+
+
+
+.first_horizontal_splitpanel {
+	display: table-row;
+	white-space : nowrap;
+	border-bottom: 2px solid red;
+}
+
+.second_horizontal_splitpanel {
+	display: table-row;
+	white-space : nowrap;
+    border: 1px solid blue;
+}
+
+.first_vertical_splitpanel {
+	display: inline-table;
+	table-layout: fixed;
+	height: 100%;
+	white-space : nowrap;
+	border-right: 2px solid orange;
+}
+
+.second_vertical_splitpanel {
+	display: inline-table;
+	table-layout: fixed;
+	height: 100%;
+	white-space : nowrap;
 }
 
 .menupanelcontents {

@@ -251,11 +251,18 @@ var ajaxRequestManager = new AjaxRequestManager();
 
 
 function loadPageHtml(contents, callbackInput) {
+
+	//TODO lot of assumptions here
+
 	var panelContents = document.getElementById(callbackInput.target + '_contents');
 	panelContents.innerHTML = contents;
 
 	var panelHeader = document.getElementById(callbackInput.target + '_header');
-	panelHeader.innerHTML = callbackInput.title;
+	if(panelHeader != null) {
+		panelHeader.innerHTML = callbackInput.title;
+	} else {
+		log('ERROR: cannot find element ' + callbackInput.target + '_header');
+	}
 }
 
 function linkToHtml(source, target, title) {

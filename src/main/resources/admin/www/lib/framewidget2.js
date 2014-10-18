@@ -38,6 +38,8 @@ FrameWidget.prototype.constructFrameWidget = function(settings, enclosedWidget) 
 	this.top = null;
 	this.left = null;
 
+	this.innerContainer;
+
 	this.offsetOverFlowLeft = 0;
 	this.offsetOverFlowTop = 0;
 
@@ -66,7 +68,11 @@ FrameWidget.prototype.constructFrameWidget = function(settings, enclosedWidget) 
 	if(this.left != null && this.ignoresPageScroll) { //TODO display: fixed
         this.left = this.left + scrollPos.x;
 	}
-	//TODO use ContentWidget
+
+	this.outerWidgetsToStretchTo = new Object();
+	this.outerWidgetsToAlignWith = new Object();
+
+	this.subWidgets = new Object();
 };
 
 FrameWidget.prototype.addResizeListener = function(widget, actionsByDirection, invertOffset) {
@@ -88,7 +94,7 @@ FrameWidget.prototype.notifyResizeListeners = function(direction, offSet) {
 		var listenerData = this.sizeAndPositionListeners[widgetId];
 		var actionData = listenerData.actionsByDirection[direction];
 		if(typeof actionData != 'undefined') {
-			//log('also resizing ' + widgetId + ' ' + direction + ':' + offSet);
+			log('' + this.id + ' triggers resize of ' + widgetId + ' ' + direction + ':' + offSet);
 			actionData.action.call(listenerData.widget, actionData.factor * offSet);
 		}
 	}
@@ -123,8 +129,8 @@ FrameWidget.prototype.getWidth = function() {
 	return this.width;
 };
 
-FrameWidget.prototype.draw = function() {
 
+FrameWidget.prototype.draw = function() {
 	if(this.element != null) {
 		this.element.style.visibility = 'hidden';
 		this.element.className = this.cssClassName;
@@ -193,7 +199,44 @@ FrameWidget.prototype.resizeNorth = function(offset) {
 	this.notifyResizeListeners('n', offset);
 };
 
+FrameWidget.prototype.resizeEast = function(offset) {
+
+//	log('' + this.id + ' OFL: ' + this.offsetOverFlowLeft);
+
+//	var oldWidth = this.width;
+	var calcOffset = offset + this.offsetOverFlowLeft;
+
+	var newWidth = calcOffset + this.width;
+	if(newWidth < FrameWidget.MINIMUM_FRAME_WIDTH) {
+		this.width = FrameWidget.MINIMUM_FRAME_WIDTH;
+		this.offsetOverFlowLeft = newWidth - this.width;
+	} else {
+		this.width = newWidth;
+		this.offsetOverFlowLeft = 0;
+	}
+	offset = this.notifyResizeListeners('e', offset);
+	this.setSizeAndPosition();
+//	return this.width - oldWidth;
+};
+
 FrameWidget.prototype.resizeWest = function(offset) {
+
+	var calcOffset = offset + this.offsetOverFlowLeft;
+
+	var newWidth = calcOffset + this.width;
+	if(newWidth < FrameWidget.MINIMUM_FRAME_WIDTH) {
+		this.left = this.left + this.width - FrameWidget.MINIMUM_FRAME_WIDTH;
+		this.width = FrameWidget.MINIMUM_FRAME_WIDTH;
+		this.offsetOverFlowLeft = newWidth - this.width;
+	} else {
+		this.left = this.left + this.width - newWidth;
+		this.width = newWidth;
+		this.offsetOverFlowLeft = 0;
+	}
+	offset = this.notifyResizeListeners('e', offset);
+	this.setSizeAndPosition();
+
+/*	var calcOffset = offset + this.offsetOverFlowLeft;
 	var newWidth = offset + this.width;
 	if(newWidth < FrameWidget.MINIMUM_FRAME_WIDTH) {
 		newWidth = FrameWidget.MINIMUM_FRAME_WIDTH;
@@ -202,6 +245,7 @@ FrameWidget.prototype.resizeWest = function(offset) {
 	this.width = newWidth;
 	this.setSizeAndPosition();
 	this.notifyResizeListeners('w', offset);
+	*/
 };
 
 FrameWidget.prototype.resizeSouth = function(offset) {
@@ -219,31 +263,14 @@ FrameWidget.prototype.resizeSouth = function(offset) {
 	this.notifyResizeListeners('s', offset);
 };
 
-FrameWidget.prototype.resizeEast = function(offset) {
-
-	var calcOffset = offset + this.offsetOverFlowLeft;
-
-	var newWidth = calcOffset + this.width;
-	if(newWidth < FrameWidget.MINIMUM_FRAME_WIDTH) {
-		this.width = FrameWidget.MINIMUM_FRAME_WIDTH;
-		this.offsetOverFlowLeft = newWidth - this.width;
-	} else {
-		this.width = newWidth;
-		this.offsetOverFlowLeft = 0;
-	}
-	this.setSizeAndPosition();
-	this.notifyResizeListeners('e', offset);
-};
-
-
 FrameWidget.prototype.onDestroy = function() {
 	//save state
 };
 
 FrameWidget.prototype.setPositionFromPage = function() {
-	var elementPosition = getElementPositionInPage(this.element);
-	this.top = elementPosition.y;
-	this.left = elementPosition.x;
+//	var elementPosition = getElementPositionInPage(this.element);
+//	this.top = elementPosition.y;
+//	this.left = elementPosition.x;
 }
 
 FrameWidget.prototype.setDOMElement = function(element) {
@@ -264,29 +291,30 @@ FrameWidget.prototype.setDOMElement = function(element) {
 		element.style.height = this.height;
 	}
 	element.style.position = 'absolute';
+	element.style.padding = '0px';
+	element.style.margin = '0px';
+
+/*	this.innerContainer = document.createElement('div');
+	this.innerContainer.style.position = 'relative';
+	this.innerContainer.style.margin = '0';
+	this.innerContainer.style.padding = '0';
+	this.element.appendChild(this.innerContainer);         */
+
+
 };
 
 FrameWidget.prototype.stretchToOuterWidget = function(outerWidget, directionMap) {
+
+	var currentDirectionMap = this.outerWidgetsToStretchTo[outerWidget.id];
+	if(typeof currentDirectionMap == 'undefined') {
+		currentDirectionMap = new Object();
+		this.outerWidgetsToStretchTo[outerWidget.id] = currentDirectionMap;
+	}
 	if(typeof directionMap['e'] != 'undefined') {
-		//TODO does it fit?
-		var proposedWidth = outerWidget.width - this.left - outerWidget.left - directionMap['e'].offset;
-		if(proposedWidth < FrameWidget.MINIMUM_FRAME_WIDTH) {
-			this.width = FrameWidget.MINIMUM_FRAME_WIDTH;
-			this.offsetOverFlowLeft = proposedWidth - this.width;
-		} else {
-			this.width = proposedWidth;
-		}
-        outerWidget.addResizeListener(this, {'e':{'action':this.resizeEast, factor: 1}});
+		currentDirectionMap['e'] = directionMap['e'];
 	}
 	if(typeof directionMap['s'] != 'undefined') {
-		var proposedHeight = outerWidget.height - this.top - outerWidget.top - directionMap['s'].offset;
-		if(proposedHeight < FrameWidget.MINIMUM_FRAME_HEIGHT) {
-			this.height = FrameWidget.MINIMUM_FRAME_HEIGHT;
-			this.offsetOverFlowTop = proposedHeight - this.height;
-		} else {
-			this.height = proposedHeight;
-		}
-        outerWidget.addResizeListener(this, {'s':{'action':this.resizeSouth, factor: 1}});
+		currentDirectionMap['s'] = directionMap['s'];
 	}
 }
 
@@ -306,9 +334,14 @@ FrameWidget.prototype.alignWithOuterWidget = function(outerWidget, directionMap)
 FrameWidget.prototype.onDeploy = function() {
 
 	this.draw();
+	this.doStretchToOuterWidget();
+	this.setSizeAndPosition();
+
+
 
 	//TODO probably only necessary if position unknown
 	this.setPositionFromPage();
+
 
 	this.element.onmouseover = new Function('event', 'event.stopPropagation();');
 	this.element.onmouseout = new Function('event', 'event.stopPropagation();');
@@ -324,14 +357,19 @@ FrameWidget.prototype.onDeploy = function() {
 
 	}
 
-	if(this.content && this.content.onDeploy != 'undefined') {
+	for(containerId in this.subWidgets) {
+		//alert('CONTAINER ID: ' + containerId);
+		WidgetManager.instance.deployWidgetInContainer(document.getElementById(containerId), this.subWidgets[containerId]);
+	}
 
+	if(this.content && this.content.onDeploy != 'undefined') {
+//	    alert('DEPLOYING ' + this.content.content);
 		WidgetManager.instance.deployWidgetInContainer(this.element, this.content);
 	}
 
 
 	//load state
-	this.refresh();
+//	this.refresh();
 };
 
 /*FrameWidget.prototype.onWindowResizeEvent = function(event) {
@@ -342,15 +380,49 @@ FrameWidget.prototype.onDeploy = function() {
 } */
 
 
+FrameWidget.prototype.doStretchToOuterWidget = function() {
+
+	for(var outerWidgetId in this.outerWidgetsToStretchTo) {
+
+		var directionMap = this.outerWidgetsToStretchTo[outerWidgetId];
+		var outerWidget = WidgetManager.instance.getWidget(outerWidgetId);
+
+		var outerWidgetPosition = getElementPositionInPage(outerWidget.element);
+		var widgetPosition = getElementPositionInPage(this.element);
+
+		if(typeof directionMap['e'] != 'undefined') {
+
+			var proposedWidth = outerWidgetPosition.x + outerWidget.width - widgetPosition.x - directionMap['e'].offset;
+			if(proposedWidth < FrameWidget.MINIMUM_FRAME_WIDTH) {
+				this.width = FrameWidget.MINIMUM_FRAME_WIDTH;
+				this.offsetOverFlowLeft = proposedWidth - this.width;
+			} else {
+				this.width = proposedWidth;
+			}
+			outerWidget.addResizeListener(this, {'e':{'action':this.resizeEast, factor: 1}});
+		}
+		if(typeof directionMap['s'] != 'undefined') {
+			var proposedHeight = outerWidgetPosition.y + outerWidget.height - widgetPosition.y - directionMap['s'].offset;
+			if(proposedHeight < FrameWidget.MINIMUM_FRAME_HEIGHT) {
+				this.height = FrameWidget.MINIMUM_FRAME_HEIGHT;
+				this.offsetOverFlowTop = proposedHeight - this.height;
+			} else {
+				this.height = proposedHeight;
+			}
+			outerWidget.addResizeListener(this, {'s':{'action':this.resizeSouth, factor: 1}});
+		}
+	}
+}
 
 FrameWidget.prototype.refresh = function() {
-	//load state
+/*	//load state
 	if(this.source != null) {
 		ajaxRequestManager.doRequest(this.source, this[this.source_load_action], this);
 	} else if(this.content != null) {
 		this.writeHTML();
-	}
+	} */
 };
+
 
 
 
