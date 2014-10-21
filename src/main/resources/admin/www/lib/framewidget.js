@@ -93,7 +93,7 @@ FrameWidget.prototype.notifyResizeListeners = function(direction, offSet) {
 		var listenerData = this.sizeAndPositionListeners[widgetId];
 		var actionData = listenerData.actionsByDirection[direction];
 		if(typeof actionData != 'undefined') {
-			log('' + this.id + ' triggers resize of ' + widgetId + ' ' + direction + ':' + offSet);
+		//	log('' + this.id + ' triggers resize of ' + widgetId + ' ' + direction + ':' + offSet);
 			actionData.action.call(listenerData.widget, actionData.factor * offSet);
 		}
 	}
@@ -322,6 +322,10 @@ FrameWidget.prototype.alignWithOuterWidget = function(outerWidget, directionMap)
 	}
 }
 
+FrameWidget.prototype.centerInOuterWidget = function(outerWidget) {
+	this.left = outerWidget.left + parseInt((outerWidget.width - this.width) / 2);
+	this.top = outerWidget.top + parseInt((outerWidget.height - this.height) / 2);
+}
 
 FrameWidget.prototype.onDeploy = function() {
 

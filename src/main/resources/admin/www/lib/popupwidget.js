@@ -1,35 +1,43 @@
-function PopupSettings(id, width, height, stickToWindowHeightMinus, source, hasHeader, title) {
-
-	this.id = id;
-	this.width = width;
-	this.height = height;
-	this.stickToWindowHeightMinus;
-	this.source = source;
-	this.source_load_action = 'display';
-	this.hasHeader = hasHeader;
-	this.title = title;
-}
 
 
 function PopupWidget(settings, content, triggerElement) {
 	this.cssClassName = 'popup';
 	this.height = 100;
 	this.width = 200;
-	this.top = 100;
-	this.left = 100;
+//	this.top = 100;
+//	this.left = 100;
 
-	this.triggerElement = triggerElement;
+	//TODO position inside master frame
 
-	settings.id = triggerElement.id + '_popup';
 
-	this.constructPopupWidget(settings, content);
+	//settings.id = triggerElement.id + '_popup';
+
+	this.constructPopupWidget(settings, content, triggerElement);
 }
+
+PopupWidget.count = 0;
 
 subclass(PopupWidget, FrameWidget);
 
-PopupWidget.prototype.constructPopupWidget = function(settings, content) {
+PopupWidget.prototype.constructPopupWidget = function(settings, content, triggerElement) {
+
+	var elementId = '' + triggerElement.id;
+	if(elementId == 'undefined') {
+		elementId = 'popup_' + (PopupWidget.count++);
+		triggerElement.id = elementId;
+	}
 
 	//invoke super
+	var coords = getElementPositionInWindow(triggerElement);
+	settings.top = coords.y + 10;
+    settings.left = coords.x + 20;
+
+
+	this.triggerElement = triggerElement;
+
+	settings.id = elementId + '_popup';
+	content.id = elementId + "_popup_contents";
+
 	this.constructFrameWidget(settings, content);
 
 	if(typeof settings.stickToWindowHeightMinus != 'undefined') {
@@ -52,15 +60,15 @@ PopupWidget.prototype.constructPopupWidget = function(settings, content) {
 
 
 
-PopupWidget.prototype.onDestroy = function() {
+/*PopupWidget.prototype.onDestroy = function() {
 	WidgetManager.instance.destroyWidget(this.content.id);
-};
+};*/
 
 
-PopupWidget.prototype.setSizeAndPosition = function() {
+/*PopupWidget.prototype.setSizeAndPosition = function() {
 	this.element.style.top = this.top + 'px';
 	this.element.style.left = this.left + 'px';
-}
+} */
 
 PopupWidget.prototype.onDeploy = function() {
 
@@ -117,26 +125,10 @@ PopupWidget.prototype.writeHTML = function() {
 	}
   */
 
-	if((typeof this.content.draw != 'undefined')) {
-		WidgetManager.instance.deployWidgetInContainer(this.element, this.content);
-
-	} else {
-		WidgetManager.instance.deployWidgetInContainer(this.element, this.content);
-	}
-
+	WidgetManager.instance.deployWidgetInContainer(this.element, this.content);
 
 
 	//load state
 //	this.refresh();
 };
-
-
-//todo rename to activate / deactivate
-
-PopupWidget.prototype.onFocus = function() {
-};
-
-PopupWidget.prototype.onBlur = function() {
-};
-
 

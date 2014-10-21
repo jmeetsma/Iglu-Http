@@ -49,7 +49,9 @@ WindowWidget.prototype.constructWindowWidget = function(settings, content) {
 
 	if(typeof settings.title != 'undefined') {
 		this.title = settings.title;
-	} else {
+	} else if(content && typeof content.title != 'undefined') {
+    	this.title = content.title;
+    } else {
 		this.title = this.id;
 	}
 	if(typeof settings.initFunction != 'undefined') {
@@ -110,7 +112,7 @@ WindowWidget.prototype.writeHTML = function() {
 
 //	if(this.element) {
 	var result = '<div class="title_bar_inactive" id="' + this.id + '_header">' +
-					'<div class="title">' + this.title + '</div>' +
+					'<span class="window_title" id="' + this.id + '_title">' + this.title + '</span>' +
 					'<div class="close_icon" onclick="widgetmanager.destroyWidget(\'' + this.getId() + '\')"></div>' +
 					'</div>';
 				 //'<div id="' + this.id + '_contents">';

@@ -19,6 +19,10 @@ public class JsonObject implements JsonDecorator {
 	public JsonObject() {
 	}
 
+	public boolean isEmpty() {
+		return attributes.isEmpty();
+	}
+
 	public JsonObject addStringAttribute(String name, String value) {
 		attributes.put(name, "\"" + value + "\"");
 		return this;

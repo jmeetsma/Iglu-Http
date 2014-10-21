@@ -21,7 +21,7 @@ Widget.prototype.constructWidget = function(settings) {
       	this.set(name, settings[name], this[name]);
     }
 	if(this.id == null) {
-        throw 'widget' + this.constructor.name + ' must have an id';
+        throw 'widget ' + this.constructor.name + ' must have an id';
 	}
 	this.source_load_action = 'display';
 }
