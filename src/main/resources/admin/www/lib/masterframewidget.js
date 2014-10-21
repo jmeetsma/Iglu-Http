@@ -135,27 +135,35 @@ WidgetManager.prototype.registerPopupWidget = function(widget) {
 	widget.mouseOverTrigger = true;
 	widget.mouseOverPopup = false;
 
-	widget.triggerElement.onmouseout = function(event) {
-		var widget = WidgetManager.instance.getWidget(this.id + '_popup');
-		setTimeout('WidgetManager.instance.destroyPopup("' + this.id + '_popup")', 1000);
-		widget.mouseOverTrigger = false;
-	}
-	widget.element.onmouseout = function(event) {
-		setTimeout('WidgetManager.instance.destroyPopup("' + this.id + '")', 1000);
+	if(widget.triggerElement != null) {
+		widget.triggerElement.onmouseout = function(event) {
+			var widget = WidgetManager.instance.getWidget(this.id + '_popup');
+			setTimeout('WidgetManager.instance.destroyPopup("' + this.id + '_popup")', widget.timeout);
+			widget.mouseOverTrigger = false;
+		}
+		widget.element.onmouseout = function(event) {
+			var widget = WidgetManager.instance.getWidget(this.id);
+			setTimeout('WidgetManager.instance.destroyPopup("' + this.id + '")', widget.timeout);
+			widget.mouseOverPopup = false;
+		}
+		widget.element.onmouseover = function(event) {
+			WidgetManager.instance.getWidget(this.id).mouseOverPopup = true;
+			log('mouse over popup');
+		}
+	} else {
 		widget.mouseOverPopup = false;
-	}
-	widget.element.onmouseover = function(event) {
-		WidgetManager.instance.getWidget(this.id).mouseOverPopup = true;
-		log('mouse over popup');
+		setTimeout('WidgetManager.instance.destroyPopup("' + widget.id + '")', widget.timeout);
 	}
 	this.activateCurrentWidget(widget);
 }
 
 WidgetManager.prototype.destroyPopup = function(widgetId) {
-	log('id ' + widgetId);
+	log('destroying popup ' + widgetId);
 	var widget = WidgetManager.instance.getWidget(widgetId);
 	if(widget != null && !widget.mouseOverPopup) {
-		widget.triggerElement.onmouseout = null;
+		if(widget.triggerElement != null) {
+			widget.triggerElement.onmouseout = null;
+		}
 		WidgetManager.instance.destroyWidget(widgetId);
 	}
 }

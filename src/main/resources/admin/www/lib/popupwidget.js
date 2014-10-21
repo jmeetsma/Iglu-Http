@@ -21,28 +21,27 @@ subclass(PopupWidget, FrameWidget);
 
 PopupWidget.prototype.constructPopupWidget = function(settings, content, triggerElement) {
 
-	var elementId = '' + triggerElement.id;
-	if(elementId == 'undefined') {
+	this.triggerElement = null;
+	this.timeout = 1000;
+
+	if(typeof triggerElement != 'undefined') {
+		var elementId = '' + triggerElement.id;
+		if(elementId == 'undefined') {
+			elementId = 'popup_' + (PopupWidget.count++);
+			triggerElement.id = elementId;
+		}
+		var coords = getElementPositionInWindow(triggerElement);
+		settings.top = coords.y + 10;
+		settings.left = coords.x + 20;
+		this.triggerElement = triggerElement;
+	} else {
 		elementId = 'popup_' + (PopupWidget.count++);
-		triggerElement.id = elementId;
 	}
-
-	//invoke super
-	var coords = getElementPositionInWindow(triggerElement);
-	settings.top = coords.y + 10;
-    settings.left = coords.x + 20;
-
-
-	this.triggerElement = triggerElement;
 
 	settings.id = elementId + '_popup';
 	content.id = elementId + "_popup_contents";
 
 	this.constructFrameWidget(settings, content);
-
-	if(typeof settings.stickToWindowHeightMinus != 'undefined') {
-		this.stickToWindowHeightMinus = settings.stickToWindowHeightMinus;
-	}
 
 	this.resizeDirections = '';
 

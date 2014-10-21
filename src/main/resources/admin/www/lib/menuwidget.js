@@ -76,43 +76,47 @@ MenuWidget.prototype.writeHTML = function() {
 
 };
 
-MenuWidget.prototype.createTree = function(tree, container, insub) {
+MenuWidget.prototype.createTree = function(tree, container) {
     for(var i in tree) {
-        var item = tree[i];
-        var itemId = container.id + '.' + item.id;
-        var itemLabel = item.label;
-        if(typeof(item.link) != 'undefined' || typeof(item.onclick) != 'undefined') {
-			itemLabel = createLink(item);
-        }
-        //TODO if item can be toggled
-        var itemDiv = document.createElement('div');
-        if(typeof(item.item_class_name) != 'undefined') {
-			itemDiv.className = item.item_class_name;
-        }
-        container.appendChild(itemDiv);
-        if(typeof(item.submenu) != 'undefined') {
-
-            var branchDiv = document.createElement('div');
-            branchDiv.setAttribute('id', itemId);
-
-            itemDiv.onmouseover = new Function('showSubmenu(\'' + itemId + '\');');
-            itemDiv.onmouseout = new Function('hideSubmenu(\'' + itemId + '\');');
-
-            branchDiv.style.visibility = 'hidden';
-
-			if(typeof(item.submenu_class_name) != 'undefined') {
-				branchDiv.className = item.submenu_class_name;
-			}
-
-
-            itemDiv.innerHTML = itemLabel;
-            itemDiv.appendChild(branchDiv);
-            this.createTree(item.submenu, branchDiv, true);
-        } else {
-            itemDiv.innerHTML = itemLabel;
-        }
+        this.addItem(tree[i], container);
     }
 }
+
+
+MenuWidget.prototype.addItem = function(item, container) {
+	var itemId = container.id + '.' + item.id;
+	var itemLabel = item.label;
+	if(typeof(item.link) != 'undefined' || typeof(item.onclick) != 'undefined') {
+		itemLabel = createLink(item);
+	}
+	//TODO if item can be toggled
+	var itemDiv = document.createElement('div');
+	if(typeof(item.item_class_name) != 'undefined') {
+		itemDiv.className = item.item_class_name;
+	}
+	container.appendChild(itemDiv);
+	if(typeof(item.submenu) != 'undefined') {
+
+		var branchDiv = document.createElement('div');
+		branchDiv.setAttribute('id', itemId);
+
+		itemDiv.onmouseover = new Function('showSubmenu(\'' + itemId + '\');');
+		itemDiv.onmouseout = new Function('hideSubmenu(\'' + itemId + '\');');
+
+		branchDiv.style.visibility = 'hidden';
+
+		if(typeof(item.submenu_class_name) != 'undefined') {
+			branchDiv.className = item.submenu_class_name;
+		}
+
+		itemDiv.innerHTML = itemLabel;
+		itemDiv.appendChild(branchDiv);
+		this.createTree(item.submenu, branchDiv);
+	} else {
+		itemDiv.innerHTML = itemLabel;
+	}
+}
+
 
 
 function showSubmenu(branchId) {
