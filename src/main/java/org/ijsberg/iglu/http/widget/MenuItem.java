@@ -18,10 +18,19 @@ public class MenuItem extends JsonObject {
 		addAttribute("link", links);
 	}
 
-	public MenuItem addLink(String url, String target, String targetTitle) {
+	public MenuItem addLinkToTargetElement(String url, String target, String targetTitle) {
 		JsonObject link = new JsonObject();
 		link.addStringAttribute("url", url);
 		link.addStringAttribute("target", target);
+		link.addStringAttribute("target_label", targetTitle);
+		links.add(link);
+		return this;
+	}
+
+	public MenuItem addLinkViaFunction(String functionName, String url, String targetTitle) {
+		JsonObject link = new JsonObject();
+		link.addStringAttribute("functionName", functionName);
+		link.addStringAttribute("url", url);
 		link.addStringAttribute("target_label", targetTitle);
 		links.add(link);
 		return this;

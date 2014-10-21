@@ -31,10 +31,7 @@ MasterFrameWidget.prototype.onDeploy = function() {
 
 
 MasterFrameWidget.prototype.onWindowResizeEvent = function(event) {
-//	log('BEFORE master frame dimensions: ' + this.width + ' x ' + this.height);
 	var offset = this.resetDimensions();
-//	log('AFTER master frame dimensions: ' + this.width + ' x ' + this.height);
-	//alert('window resize');
 	this.notifyResizeListeners('e', offset.x);
 	this.notifyResizeListeners('s', offset.y);
 }
@@ -50,13 +47,9 @@ function dropWidget(event) {
 
 
 function dragWidget(event) {
-
-	//log('drag widget')
-
 	event = event || window.event;
 	if(widgetmanager.resizingWidget != null && widgetmanager.resizeDirection != null) {
 		var mousePos = getMousePositionInPage(event);
-//		var mousePos = getMousePositionInWindow(event);
 		if(widgetmanager.resizeDirection.indexOf('n') > -1) {
 			widgetmanager.resizingWidget.resizeNorth(-1 * (mousePos.y - widgetmanager.mouseOffset.y - widgetmanager.resizingWidget.top));
 		}
@@ -91,6 +84,7 @@ WidgetManager.prototype.registerDraggableWidget = function(widget)
 	widget.isDraggable = true;
 	widget.getDragSelectElement().onmousedown = function(event)
 	{
+		log('MOUSEDOWN:' + this.id);
 		if(widgetmanager.resizingWidget == null) {
 			var draggableWidget = widgetmanager.draggableWidgets[this.id];
 			WidgetManager.instance.draggedWidget = draggableWidget;
@@ -99,6 +93,7 @@ WidgetManager.prototype.registerDraggableWidget = function(widget)
 			log('activate ' + draggableWidget.id);
 		}
 	}
+
 	widget.getDragSelectElement().onmouseover = function(event) {
 		if(WidgetManager.instance.resizingWidget == null) {
 			document.body.style.cursor = 'move';
@@ -115,6 +110,7 @@ WidgetManager.prototype.registerDraggableWidget = function(widget)
 			document.body.style.cursor = 'auto';
 		}
 	}
+	//TODO if not resizeable
 	widget.getDOMElement().onmousedown = function(event)
 	{
 		WidgetManager.instance.activateCurrentWidget(this.id);
@@ -170,7 +166,6 @@ WidgetManager.prototype.destroyPopup = function(widgetId) {
  *
  *
  */
- //TODO move to MasterFrameWidget
 WidgetManager.prototype.registerResizeableWidget = function(widget, resizeDirections) {
 
 	this.resizeableWidgets[widget.id] = widget;
@@ -181,10 +176,11 @@ WidgetManager.prototype.registerResizeableWidget = function(widget, resizeDirect
 		widget.resizeDirections = 'nesw';//North - East - South - West
 	}
 	widget.getDOMElement().onmousedown = function(event) {
+//		log('--> ' + this.id);
 		if(WidgetManager.instance.resizeDirection != null) {
 			WidgetManager.instance.activateCurrentWidget(this.id);
 			WidgetManager.instance.resizingWidget = WidgetManager.instance.currentWidget;
-			log('current widget ' + this.id)
+			log('current resizing widget ' + this.id)
 		}
 	}
 	widget.getDOMElement().onmouseup = function(event) {
@@ -196,6 +192,7 @@ WidgetManager.prototype.registerResizeableWidget = function(widget, resizeDirect
 	}
 
 	widget.getDOMElement().onmouseover = function(event) {
+//		log('=====> ' + this.id);
 		if(WidgetManager.instance.resizingWidget == null) {
 			WidgetManager.instance.determineResizeAction(widget, event);
 		}
@@ -203,7 +200,6 @@ WidgetManager.prototype.registerResizeableWidget = function(widget, resizeDirect
 
 	widget.getDOMElement().onmousemove = function(event) {
 		if(WidgetManager.instance.resizingWidget == null) {
-			//document.body.style.cursor = 'auto';
 			WidgetManager.instance.determineResizeAction(widget, event);
 		} else {
 			dragWidget(event);
@@ -212,7 +208,6 @@ WidgetManager.prototype.registerResizeableWidget = function(widget, resizeDirect
 
 	widget.getDOMElement().onmouseout = function(event) {
 		if( WidgetManager.instance.resizingWidget == null) {
-			//log('MOUSEOUT current widget ' + this.id)
 			document.body.style.cursor = 'auto';
     	    WidgetManager.instance.resizeDirection = null;
 		}
@@ -221,8 +216,7 @@ WidgetManager.prototype.registerResizeableWidget = function(widget, resizeDirect
 }
 
 
-WidgetManager.prototype.determineResizeAction = function(widget, event)
-{
+WidgetManager.prototype.determineResizeAction = function(widget, event) {
 	if(this.draggedWidget == null) {
 		//TODO mouseOffset may be wrong if screen is scrolled
 		this.mouseOffset = getMouseOffsetFromAbsoluteElementPosition(widget.getDOMElement(), event);

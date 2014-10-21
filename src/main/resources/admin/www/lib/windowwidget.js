@@ -29,6 +29,9 @@ WindowWidget.prototype.constructWindowWidget = function(settings, content) {
 
 	this.constructFrameWidget(settings, content);
 
+	this.resizeDirections = 'se';
+	this.isDraggable = true;
+
 	if(this.height == null) {
 		this.height = 200;
 	}
@@ -75,8 +78,7 @@ FrameWidget.prototype.refreshElementPosition = function()
 	}
 }*/
 
-WindowWidget.prototype.getDragSelectElement = function()
-{
+WindowWidget.prototype.getDragSelectElement = function() {
 	return this.dragActivationElement;
 };
 
@@ -90,15 +92,15 @@ WindowWidget.prototype.setSizeAndPosition = function() {
 	this.element.style.left = this.left + 'px';
 	if(this.height != null) {
 		this.element.style.height = this.height + 'px';
-		if(this.contentElement != null) {
+/*		if(this.contentElement != null) {
 			this.contentElement.style.height = (this.height - (this.content.onDeploy ? 32 : 23)) + 'px';
-		}
+		}  */
 	}
 	if(this.width != null) {
 		this.element.style.width = this.width + 'px';
-		if(this.contentElement != null) {
+/*		if(this.contentElement != null) {
 			this.contentElement.style.width = (this.width - (this.content.onDeploy ? 11 : 2)) + 'px';
-		}
+		} */
 	}
 
 };
@@ -106,29 +108,56 @@ WindowWidget.prototype.setSizeAndPosition = function() {
 
 WindowWidget.prototype.writeHTML = function() {
 
-	if(this.element) {
-		var result = '<div class="title_bar_inactive" id="' + this.id + '_header">' +
-					 	'<div class="title">' + this.title + '</div>' +
-					 	'<div class="close_icon" onclick="widgetmanager.destroyWidget(\'' + this.getId() + '\')"></div>' +
-					 	'</div>' +
-					 '<div class="window_contents" id="' + this.id + '_contents">';
+//	if(this.element) {
+	var result = '<div class="title_bar_inactive" id="' + this.id + '_header">' +
+					'<div class="title">' + this.title + '</div>' +
+					'<div class="close_icon" onclick="widgetmanager.destroyWidget(\'' + this.getId() + '\')"></div>' +
+					'</div>';
+				 //'<div id="' + this.id + '_contents">';
 
-        if(!this.content.writeHTML){
-			result += this.content;
-		}
+	var contentFrame = new FrameWidget({
+        id : this.id + '_frame',
+        cssClassName : 'panelcontentframe',
+        //todo margin
+        top: 30,
+        left: 5,
+        width: (this.width - 10),
+        height: (this.height - 35)
+	}, this.content);
+	contentFrame.stretchToOuterWidget(this, {'e':{'offset':5}});
+	contentFrame.stretchToOuterWidget(this, {'s':{'offset':5}});
 
-		result += '</div>';
+	this.addResizeListener(contentFrame, {'e':{'action':contentFrame.resizeEast, factor: 1}});
+	this.addResizeListener(contentFrame, {'s':{'action':contentFrame.resizeSouth, factor: 1}});
+	this.addResizeListener(contentFrame, {'n':{'action':contentFrame.resizeSouth, factor: 1}});
+	this.addResizeListener(contentFrame, {'w':{'action':contentFrame.resizeEast, factor: 1}});
 
-		this.element.innerHTML = result;
-		this.dragActivationElement = document.getElementById(this.id + '_header');
-		this.contentElement = document.getElementById(this.id + '_contents');
 
-        if(this.content.writeHTML) {
-        	this.content.element = this.contentElement;
-			this.content.writeHTML();
-		}
-		this.setSizeAndPosition();
+
+//	alert('' + this.id + ': ' + this.width + '->' + contentFrame.width + '\n' +
+//			'' + this.id + ': ' + this.height + '->' + contentFrame.height);
+
+	this.subWidgets[this.element.id] = contentFrame;
+
+
+
+/*
+	if(this.content != null && !this.content.writeHTML){
+		result += this.content;
 	}
+*/
+	result += '</div>';
+
+	this.element.innerHTML = result;
+	this.dragActivationElement = document.getElementById(this.id + '_header');
+//	this.contentElement = document.getElementById(this.id + '_contents');
+
+/*	if(this.content != null && this.content.writeHTML) {
+		this.content.element = this.contentElement;
+		this.content.writeHTML();
+	}
+	this.setSizeAndPosition();*/
+//	}
 };
 
 
@@ -141,25 +170,25 @@ WindowWidget.prototype.onDestroy = function() {
 		WidgetManager.instance.lastY = this.top;
 	}
 
-
-	//save state
+	for(containerId in this.subWidgets) {
+		WidgetManager.instance.destroyWidget(this.subWidgets[containerId].id);
+	}
+	if(this.content && this.content.onDestroy != 'undefined') {
+		WidgetManager.instance.destroyWidget(this.content.id);
+	}
 
 /*	if(this.content.onDestroy) {
-		this.content.onDestroy();
-	} */
-
-	if(this.content.onDestroy) {
 	/*	if(!this.content.draw) {
 			WidgetManager.instance.destroyContentWidget(this.content.id);
-		} else {*/
+		} else {* /
 			WidgetManager.instance.destroyWidget(this.content.id);
-//		}
-	}
+		}
+	}             */
 
 };
 
 
-WindowWidget.prototype.onDeploy = function() {
+/*WindowWidget.prototype.onDeploy = function() {
 
 	this.draw();
 
@@ -179,9 +208,10 @@ WindowWidget.prototype.onDeploy = function() {
 
 	//load state
 	this.refresh();
-};
+};*/
 
 
+/*
 WindowWidget.prototype.refresh = function() {
 	//load state
 	if(this.source != null) {
@@ -197,7 +227,7 @@ WindowWidget.prototype.refresh = function() {
     else if (this.content.refresh) {
     	this.content.refresh();
     }
-}
+}  */
 
 //todo rename to activate / deactivate
 
@@ -222,13 +252,10 @@ WindowWidget.prototype.setHeaderClass = function(className) {
 
 WindowWidget.prototype.display = function(content, element)
 {
-	if(element != null)
-	{
+	if(element != null) {
 		element.content = content;
 		document.getElementById(element.id + '_contents').innerHTML = content;
-	}
-	else
-	{
+	} else {
 		this.content = content;
 		document.getElementById(this.id + '_contents').innerHTML = content;
 	}

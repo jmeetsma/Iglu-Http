@@ -338,31 +338,29 @@ function createLink(item, alternativeLabel) {
 		}
 		if(typeof item.toggleProperty_value == 'undefined') {
 			item.toggleProperty_value = item.toggleProperty_off;
-
-			//
 		}
-
 		toggleIndication = '<span id="' + item.toggleProperty_key + '_select">' + (item.toggleProperty_value == item.toggleProperty_off ? '&nbsp;&nbsp;' : '&#x2713;') + '</span>';
-
 		onclick += 'toggleProperty(\'' + item.toggleProperty_key + '\',\'' + item.toggleProperty_on + '\',\'' + item.toggleProperty_off + '\');';
-
 		WidgetManager.instance.settings[item.toggleProperty_key] = item.toggleProperty_value;
 	}
 
-	if(typeof(item.link) != 'undefined' && item.link.length > 0) {
+	if(typeof(item.onclick) != 'undefined') {
+		onclick += item.onclick + ';';
+	}
 
+	if(typeof(item.link) != 'undefined' && item.link.length > 0) {
 		for(var i in item.link) {
 			var link = item.link[i];
-			if(link.url.endsWith('.js')) {
+			if(link.functionName != null) {
+				onclick += link.functionName + '(\'' + link.url + '\', \'' + link.target_label + '\');';
+			} else if(link.url.endsWith('.js')) {
 				onclick += 'linkToJson(\'' + link.url + '\', \'' + link.target + '\', \'' + link.target_label + '\');';
 			} else {
 				onclick += 'linkToHtml(\'' + link.url + '\', \'' + link.target + '\', \'' + link.target_label + '\');';
 			}
 		}
 	}
-	if(typeof(item.onclick) != 'undefined') {
-		onclick += item.onclick;
-	}
+
 	if(onclick.length > 0) {
 		return '<a onclick="' + onclick + '">' + (typeof alternativeLabel !== 'undefined' ? alternativeLabel : item.label) + toggleIndication + '</a>';
 	} else {
