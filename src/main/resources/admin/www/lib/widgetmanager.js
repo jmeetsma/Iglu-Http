@@ -164,6 +164,10 @@ WidgetManager.prototype.deployWidget = function(newWidget, x, y)
 
 WidgetManager.prototype.deployWidgetInContainer = function(container, newWidget, x, y) {
 
+	if(typeof container == 'undefined' || container == null) {
+		throw 'container is ' + container + ' while deploying widget ' + newWidget.getId();
+	}
+
 	if(newWidget.constructor.name == 'MasterFrameWidget') {
 		this.masterFrameWidget = newWidget;
 	}

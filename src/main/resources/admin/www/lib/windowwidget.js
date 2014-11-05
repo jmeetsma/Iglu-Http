@@ -110,17 +110,33 @@ WindowWidget.prototype.setSizeAndPosition = function() {
 
 WindowWidget.prototype.writeHTML = function() {
 
-//	if(this.element) {
 	var result = '<div class="title_bar_inactive" id="' + this.id + '_header">' +
-					'<span class="window_title" id="' + this.id + '_title">' + this.title + '</span>' +
+					'<div class="paneltitleframe" id="' + this.id + '_title_frame"></div>' +
 					'<div class="close_icon" onclick="widgetmanager.destroyWidget(\'' + this.getId() + '\')"></div>' +
-					'</div>';
-				 //'<div id="' + this.id + '_contents">';
+				'</div>';
+	this.element.innerHTML = result;
+	this.dragActivationElement = document.getElementById(this.id + '_header');
+
+	var titleContent = new WidgetContent({
+		id : this.id + '_title',
+		cssClassName : 'window_title'
+	}, this.title);
+
+	var titleFrame = new FrameWidget({
+        id : this.id + '_title_frame',
+        cssClassName : 'paneltitleframe',
+        top: 0,
+        left: 0,
+        height: 20
+	}, titleContent);
+
+	this.subWidgets[this.id + '_title_frame'] = titleFrame;
+
+	titleFrame.stretchToOuterWidget(this, {'e':{'offset':20}});
 
 	var contentFrame = new FrameWidget({
         id : this.id + '_frame',
         cssClassName : 'panelcontentframe',
-        //todo margin
         top: 30,
         left: 5,
         width: (this.width - 10),
@@ -134,32 +150,7 @@ WindowWidget.prototype.writeHTML = function() {
 	this.addResizeListener(contentFrame, {'n':{'action':contentFrame.resizeSouth, factor: 1}});
 	this.addResizeListener(contentFrame, {'w':{'action':contentFrame.resizeEast, factor: 1}});
 
-
-
-//	alert('' + this.id + ': ' + this.width + '->' + contentFrame.width + '\n' +
-//			'' + this.id + ': ' + this.height + '->' + contentFrame.height);
-
 	this.subWidgets[this.element.id] = contentFrame;
-
-
-
-/*
-	if(this.content != null && !this.content.writeHTML){
-		result += this.content;
-	}
-*/
-	result += '</div>';
-
-	this.element.innerHTML = result;
-	this.dragActivationElement = document.getElementById(this.id + '_header');
-//	this.contentElement = document.getElementById(this.id + '_contents');
-
-/*	if(this.content != null && this.content.writeHTML) {
-		this.content.element = this.contentElement;
-		this.content.writeHTML();
-	}
-	this.setSizeAndPosition();*/
-//	}
 };
 
 

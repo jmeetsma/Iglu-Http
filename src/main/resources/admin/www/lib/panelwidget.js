@@ -77,8 +77,6 @@ PanelWidget.prototype.writeHTML = function() {
 	this.addResizeListener(contentFrame, {'n':{'action':contentFrame.resizeSouth, factor: 1}});
     this.addResizeListener(contentFrame, {'w':{'action':contentFrame.resizeEast, factor: 1}});
 
-
-
 //	alert('' + this.id + ': ' + this.width + '->' + contentFrame.width + '\n' +
 //			'' + this.id + ': ' + this.height + '->' + contentFrame.height);
 
