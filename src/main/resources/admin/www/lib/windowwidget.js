@@ -29,7 +29,7 @@ WindowWidget.prototype.constructWindowWidget = function(settings, content) {
 
 	this.constructFrameWidget(settings, content);
 
-	this.resizeDirections = 'se';
+	this.resizeDirections = 'nwse';
 	this.isDraggable = true;
 
 	if(this.height == null) {
