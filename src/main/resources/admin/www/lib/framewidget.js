@@ -230,7 +230,7 @@ FrameWidget.prototype.resizeWest = function(offset) {
 		this.width = newWidth;
 		this.offsetOverFlowLeft = 0;
 	}
-	offset = this.notifyResizeListeners('e', offset);
+	offset = this.notifyResizeListeners('w', offset);
 	this.setSizeAndPosition();
 };
 
@@ -285,14 +285,6 @@ FrameWidget.prototype.setDOMElement = function(element) {
 	element.style.position = 'absolute';
 	element.style.padding = '0px';
 	element.style.margin = '0px';
-
-/*	this.innerContainer = document.createElement('div');
-	this.innerContainer.style.position = 'relative';
-	this.innerContainer.style.margin = '0';
-	this.innerContainer.style.padding = '0';
-	this.element.appendChild(this.innerContainer);         */
-
-
 };
 
 FrameWidget.prototype.stretchToOuterWidget = function(outerWidget, directionMap) {
@@ -307,6 +299,12 @@ FrameWidget.prototype.stretchToOuterWidget = function(outerWidget, directionMap)
 	}
 	if(typeof directionMap['s'] != 'undefined') {
 		currentDirectionMap['s'] = directionMap['s'];
+	}
+	if(typeof directionMap['w'] != 'undefined') {
+		currentDirectionMap['w'] = directionMap['w'];
+	}
+	if(typeof directionMap['n'] != 'undefined') {
+		currentDirectionMap['n'] = directionMap['n'];
 	}
 }
 
@@ -332,8 +330,6 @@ FrameWidget.prototype.onDeploy = function() {
 	this.draw();
 	this.doStretchToOuterWidget();
 	this.setSizeAndPosition();
-
-
 
 	//TODO probably only necessary if position unknown
 	this.setPositionFromPage();
@@ -390,7 +386,6 @@ FrameWidget.prototype.doStretchToOuterWidget = function() {
 		var widgetPosition = getElementPositionInPage(this.element);
 
 		if(typeof directionMap['e'] != 'undefined') {
-
 			var proposedWidth = outerWidgetPosition.x + outerWidget.width - widgetPosition.x - directionMap['e'].offset;
 			if(proposedWidth < FrameWidget.MINIMUM_FRAME_WIDTH) {
 				this.width = FrameWidget.MINIMUM_FRAME_WIDTH;
@@ -409,6 +404,28 @@ FrameWidget.prototype.doStretchToOuterWidget = function() {
 				this.height = proposedHeight;
 			}
 			outerWidget.addResizeListener(this, {'s':{'action':this.resizeSouth, factor: 1}});
+		}
+		if(typeof directionMap['w'] != 'undefined') {
+			var proposedWidth = this.left - outerWidgetPosition.x - directionMap['w'].offset + this.width;
+			if(proposedWidth < FrameWidget.MINIMUM_FRAME_WIDTH) {
+				this.width = FrameWidget.MINIMUM_FRAME_WIDTH;
+				this.offsetOverFlowLeft = proposedWidth - this.width;
+			} else {
+				this.width = proposedWidth;
+			}
+			this.left = outerWidget.left + directionMap['w'].offset;
+			outerWidget.addResizeListener(this, {'w':{'action':this.resizeWest, factor: 1}});
+		}
+		if(typeof directionMap['n'] != 'undefined') {
+			var proposedHeight = this.top - outerWidgetPosition.y - directionMap['n'].offset + this.height;
+			if(proposedHeight < FrameWidget.MINIMUM_FRAME_HEIGHT) {
+				this.height = FrameWidget.MINIMUM_FRAME_HEIGHT;
+				this.offsetOverFlowTop = proposedHeight - this.height;
+			} else {
+				this.height = proposedHeight;
+			}
+			this.top = outerWidget.top + directionMap['n'].offset;
+			outerWidget.addResizeListener(this, {'n':{'action':this.resizeNorth, factor: 1}});
 		}
 	}
 }
