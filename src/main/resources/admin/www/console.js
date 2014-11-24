@@ -9,14 +9,11 @@ function AdminConsole() {
 AdminConsole.prototype.test = function(responseMessage, feedbackMessage) {
 
     alert(responseMessage);
-//    var obj = eval("(" + responseMessage + ")");
-//	alert(obj.clusters[0].id);
 }
 
 
 AdminConsole.prototype.executeJson = function(responseMessage, feedbackMessage) {
 
-//    alert(responseMessage);
     try {
         var message = eval("(" + responseMessage + ")");
     } catch(e) {
@@ -27,17 +24,53 @@ AdminConsole.prototype.executeJson = function(responseMessage, feedbackMessage) 
 
 
 AdminConsole.prototype.openClusterWindow = function(data, dataId) {
-//	var content =
-  //  ajaxRequestManager.doRequest('/cluster.html', adminConsole.createWindowWidget, [parameter.message, parameter.message, 100, 250, content]);
 	var  windowSettings = new Object();
 	windowSettings.id = dataId;
 	windowSettings.title = dataId;
-//	windowSettings.height = 500;
-//	windowSettings.width = 250;
 	windowSettings.data = data[dataId];
 	windowSettings.initFunction = initClusterWindow;
     ajaxRequestManager.doRequest('/cluster.html', adminConsole.createWindowWidget, windowSettings, null);
 }
+
+
+function createSmallWindow(id, source, label) {
+    var settings = {
+    	id : id,
+    	cssClassName : 'window',
+    	top: 100,
+		width: 300,
+		height: 300
+    };
+    var windowWidget = createWindow(source, label, settings);
+    WidgetManager.instance.deployWidget(windowWidget);
+}
+
+function createWindow(source, content, label, settings) {
+	var currentWindow = WidgetManager.instance.getWidget(settings.id);
+	if(currentWindow != null) {
+		WidgetManager.instance.destroyWidget(settings.id);
+	}
+	if(typeof label == 'undefined') {
+		label = settings.id;
+	}
+	var contents = null;
+	if(typeof source != 'undefined' && source != null) {
+		contents = new WidgetContent({
+			id: settings.id + '_contents',
+			title : label,
+			source : '' + source,
+    		cssClassName : 'panelcontents',
+	 	});
+	} else {
+		contents = new WidgetContent({
+				id: settings.id + '_contents',
+				title : label,
+				cssClassName : 'panelcontents'},
+    		content);
+	}
+    return new WindowWidget(settings, contents);
+}
+
 
 AdminConsole.prototype.openComponentWindow = function(data, dataId) {
 	var  windowSettings = new Object();
@@ -64,38 +97,47 @@ AdminConsole.prototype.reportMessage = function(parameter) {
 
 
 AdminConsole.prototype.openLoginWindow = function(parameter) {
-//	alert(parameter.message);
 
-	var  windowSettings = new Object();
-	windowSettings.id = 'login';
-	windowSettings.title = 'log in';
-//	windowSettings.height = 100;
-//	windowSettings.width = 250;
-    ajaxRequestManager.doRequest('/login.html', adminConsole.createWindowWidget, windowSettings, null);
+	 var loginwidget = new WidgetContent({
+		id: 'loginwidget',
+		source: '/login.html'
+    	//cssClassName : 'logstream'
+	 });
+
+    var windowWidget = new WindowWidget({
+    	id : 'loginwindow',
+    	cssClassName : 'window',
+		width: 400,
+		height: 300
+    }, loginwidget);
+   	widgetmanager.deployWidget(windowWidget);
+
 }
 
 
 AdminConsole.prototype.writeReturnValue = function(data, dataId) {
-//	var content =
-  //  ajaxRequestManager.doRequest('/cluster.html', adminConsole.createWindowWidget, [parameter.message, parameter.message, 100, 250, content]);
-	//alert(dataId);
 	document.getElementById("return_" + dataId).innerHTML = data.returnValue;
 }
 
 
 AdminConsole.prototype.createWindowWidget = function(responseMessage, windowSettings) {
+
     var element = document.createElement('html');
     element.innerHTML = '' + responseMessage;
 
-    var nodeNames = '';
+    /*var nodeNames = '';
     for(var i = 0; i < element.childNodes.length; i++) {
         nodeNames += element.childNodes[i].nodeName + '\n';
-    }
+    } */
 
 	if(!widgetmanager.widgetExists(windowSettings.id)) {
 
-	    var windowWidget = new WindowWidget(windowSettings, element.getElementsByTagName('body')[0].innerHTML);
-    	widgetmanager.deployWidget(windowWidget);
+	    //var windowWidget = new WindowWidget(windowSettings, element.getElementsByTagName('body')[0].innerHTML);
+	    windowSettings.cssClassName = 'window';
+
+    	var windowWidget = createWindow(null, element.getElementsByTagName('body')[0].innerHTML, windowSettings.title, windowSettings);
+        WidgetManager.instance.deployWidget(windowWidget);
+
 
 		if(typeof windowWidget.init != 'undefined') {
 			windowWidget.init(windowSettings.data);
@@ -109,7 +151,7 @@ AdminConsole.prototype.createWindowWidget = function(responseMessage, windowSett
 
 function login(username, password) {
     ajaxRequestManager.doRequest('/process/admin/login', adminConsole.executeJson, null, "username=" + username + "&password=" + password);
-    widgetmanager.destroyWidget('login');
+    widgetmanager.destroyWidget('loginwindow');
 }
 
 
@@ -122,47 +164,36 @@ function initClusterWindow(data) {
 	for(var component in data.components) {
 		componentReferences += '<a onclick="ajaxRequestManager.doRequest(\'/process/admin/get_component?clusterId=' + this.id + '&componentId=' + data.components[component].id + '\', adminConsole.executeJson);" >' + data.components[component].id + '<a><br>\n';
 	}
-	//alert(componentReferences);
-	this.contentElement.innerHTML = componentReferences;
+	this.content.element.innerHTML = componentReferences;
 }
 
 
 function initComponentWindow(data) {
-	var contents = this.contentElement.innerHTML;
+	var contents = this.content.element.innerHTML;
 	for(var attribute in data) {
 		contents = contents.replace('$(' + attribute + ')', data[attribute]);
 	}
-
 	var methodRefs = '';
-//	alert(contents);
 	for(var method in data.methods) {
 		methodRefs += '<a onclick="ajaxRequestManager.doRequest(\'/process/admin/get_method?clusterId=' + data.clusterId + '&componentId=' + data.id + '&signature=' + data.methods[method].signature + '\', adminConsole.executeJson);" >' + data.methods[method].name + '<a><br>\n';
 	}
 	contents = contents.replace('$(methodRefs)', methodRefs);
-//	alert(contents);
 
-	this.contentElement.innerHTML = contents;
+	this.content.element.innerHTML = contents;
 }
 
 
 function initMethodWindow(data) {
-	var contents = this.contentElement.innerHTML;
+	var contents = this.content.element.innerHTML;
 	for(var attribute in data) {
 		contents = contents.replace('$(' + attribute + ')', data[attribute]);
 	}
-
-//      alert(data.nr_parameters);
 	var inputParams = '';
 	for(var i = 0; i < parseInt(data.nr_parameters); i++) {
 		inputParams += '<input type="text" name="param_' + i + '"><br>'
 	}
 	contents = contents.replace('$(input_parameters)', inputParams);
-
-
-//	alert(contents);
-
-
-	this.contentElement.innerHTML = contents;
+	this.content.element.innerHTML = contents;
 }
 
 
@@ -179,52 +210,45 @@ function invokeMethod(form) {
 		}
 	}
     ajaxRequestManager.doRequest('/process/admin/invoke_method', adminConsole.executeJson, null, elementString);
-
-//	alert(elementString);
 }
 
 
 
 function openJavaScriptLog() {
-	if(!WidgetManager.instance.containsWidget('logstream')){
-		var settings = new Object();
-		settings.id = 'logstream';
-		var logStream = new LogStreamWidget(settings);
+	 var logwidget = new LogStreamWidget({
+		id: 'logstream',
+    	cssClassName : 'logstream',
+	 });
 
-		settings.id = 'logWindow';
-		var logWindow = new WindowWidget(settings, logStream);
-		logWindow.set('title', 'log output');
-		logWindow.set('width', 600);
-		logWindow.set('height', 300);
-		logWindow.set('top', 100);
-		logWindow.set('left', 700);
-		WidgetManager.instance.deployWidget(logWindow);
-	} else {
-		WidgetManager.instance.activateCurrentWidget('logWindow');
-	}
+    var windowWidget = new WindowWidget({
+    	id : 'logwindow',
+    	cssClassName : 'window',
+    	title : 'javascript log output',
+		width: 400,
+		height: 300
+    }, logwidget);
+   	widgetmanager.deployWidget(windowWidget);
 }
 
+
 function openServerLog() {
-	if(!WidgetManager.instance.containsWidget('serverlogstream')){
-		var settings = new Object();
-		settings.id = 'serverlogstream';
-		var logStream = new LogStreamWidget(settings);
-		logStream.set('source', '/process/admin/get_log_entries');
-		logStream.set('source_load_action', 'loadEntries');
+	 var logwidget = new LogStreamWidget({
+		id: 'serverlogstream',
+    	cssClassName : 'logstream',
+	 });
+	logwidget.set('source', '/process/admin/get_log_entries');
+	logwidget.set('source_load_action', 'loadEntries');
 
 
-		settings.id = 'serverLogWindow';
-		var logWindow = new WindowWidget(settings, logStream);
-		logWindow.set('title', 'server log output');
-		logWindow.set('width', 600);
-		logWindow.set('height', 300);
-		logWindow.set('top', 200);
-		logWindow.set('left', 900);
-		WidgetManager.instance.deployWidget(logWindow);
-		WidgetManager.instance.registerTimerListener(logStream, 1);
-	} else {
-		WidgetManager.instance.activateCurrentWidget('serverLogWindow');
-	}
+    var windowWidget = new WindowWidget({
+    	id : 'serverlogwindow',
+    	cssClassName : 'window',
+    	title : 'server log output',
+		width: 400,
+		height: 300
+    }, logwidget);
+   	widgetmanager.deployWidget(windowWidget);
+	WidgetManager.instance.registerTimerListener(logwidget, 1);
 }
 
 

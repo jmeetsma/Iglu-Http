@@ -1,6 +1,5 @@
 package org.ijsberg.iglu.server.http.servlet;
 
-import org.ijsberg.iglu.logging.Level;
 import org.ijsberg.iglu.logging.LogEntry;
 import org.ijsberg.iglu.util.io.FileSupport;
 import org.ijsberg.iglu.util.mail.MimeTypeSupport;
@@ -46,7 +45,7 @@ public abstract class BinaryResourceServlet extends HttpServlet {
 				response.setContentType("text/plain");
 			} */
 
-			System.out.println(new LogEntry(Level.DEBUG, "obtaining resource: " + resourcePath));
+			//System.out.println(new LogEntry(Level.DEBUG, "obtaining resource: " + resourcePath));
 
 			out.write(getResource(resourcePath));
 		} catch (Exception e) {

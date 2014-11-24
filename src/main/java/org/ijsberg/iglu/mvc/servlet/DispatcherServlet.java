@@ -347,11 +347,18 @@ java.lang.reflect.InvocationTargetException
 	private Object[] determineCustomArguments(CommandLine command, Properties requestProperties)
 	{
 		Object[] input = new Object[command.getArguments().length];
+
+//		System.out.println(ArraySupport.format(command.getArguments(), "-:-"));
+
 		for (int i = 0; i < command.getArguments().length; i++)
 		{
 			String argument = command.getArguments()[i].toString();
 			//TODO document
-			if (argument.startsWith("[") &&
+			if (argument.startsWith("[\"") &&
+					argument.endsWith("\"]")) {
+				//arguments between brackets are used 'as is'
+				input[i] = argument.substring(2, argument.length() - 2);
+			} else if (argument.startsWith("[") &&
 					argument.endsWith("]")) {
 				//arguments between brackets are used 'as is'
 				input[i] = argument.substring(1, argument.length() - 1);

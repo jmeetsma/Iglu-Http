@@ -87,8 +87,6 @@ Widget.prototype.onBlur = function()
 
 Widget.prototype.processJavaScript = function(input)
 {
-
-//	alert('processJavaScript:' + input);
 	try
 	{
 		eval('' + input);
@@ -181,11 +179,12 @@ WidgetContent.prototype.constructWidgetContent = function(settings, content) {
 		 }
 	}
 	log('source load action of ' + this.id  + ' is ' + this.source_load_action);
-	if(typeof content != 'undefined') {
+	if(typeof content != 'undefined' && content != null) {
 		this.content = content;
 	} else {
 		this.content = 'loading...';
 	}
+
 
 }
 
@@ -203,7 +202,6 @@ WidgetContent.prototype.onDeploy = function() {
 
 
 WidgetContent.prototype.refresh = function() {
-	//load state
     if(this.content != null) {
       	this.writeHTML();
     }

@@ -28,25 +28,59 @@
     <script type="text/javascript" language="JavaScript" src="lib/util.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/ajaxRequestManager.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/widgetmanager.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/widget.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/framewidget.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/masterframewidget.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/windowwidget.js"></script>
-    <script type="text/javascript" language="JavaScript" src="lib/uploadwindowwidget.js"></script>
-    <script type="text/javascript" language="JavaScript" src="lib/menuwidget.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/panelwidget.js"></script>
-    <script type="text/javascript" language="JavaScript" src="lib/splitpanelwidget.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/menuwidget.js"></script>
     <script type="text/javascript" language="JavaScript" src="lib/logstreamwidget.js"></script>
+    <script type="text/javascript" language="JavaScript" src="lib/popupwidget.js"></script>
     <script type="text/javascript" language="JavaScript">
 
         contextroot = '';
 
 
+        var masterFrame;
 
         function init() {
 			WidgetManager.instance.init();
-			//get overview page
+
+            masterFrame = new MasterFrameWidget({
+            id: 'master_container',
+            cssClassName: 'master_container'
+            });
+            WidgetManager.instance.deployWidget(masterFrame);
+
+
+
+
+        var menuContents = '<div class="logo"></div>' +
+        '<div id="top_menu" class="top_menu"></div>';
+        var menuPanel = new WidgetContent({
+        id: 'menu',
+        cssClassName: 'menupanelcontents'
+        }, menuContents);
+
+        var menuFrame = new FrameWidget({
+        id: 'menu_frame',
+        cssClassName: 'menu_frame',
+        top: 0, left: 0, height: 40, width: 0
+        }, menuPanel);
+        menuFrame.stretchToOuterWidget(masterFrame, {'e':{'offset':0}});
+        WidgetManager.instance.deployWidget(menuFrame);
+
+        createMenu();
+
+
+
+
+
+
+        //get overview page
             ajaxRequestManager.doRequest('/process/admin/get_clusters', adminConsole.executeJson);
 
-            createPanels();
+//            createPanels();
         }
 
 

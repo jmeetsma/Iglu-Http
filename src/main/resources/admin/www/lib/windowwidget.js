@@ -19,6 +19,10 @@
 
 function WindowWidget(settings, content) {
 	this.cssClassName = 'window';
+	this.title = null;
+	//TODO workaround for console.js
+	this.data = null;
+	this.initFunction = null;
 	this.constructWindowWidget(settings, content);
 }
 

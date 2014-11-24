@@ -18,7 +18,7 @@
  */
 
 
-subclass(LogStreamWidget, FrameWidget);
+subclass(LogStreamWidget, WidgetContent);
 
 function LogStreamWidget(settings, content) {
 	this.bufferSize = 100;
@@ -30,7 +30,7 @@ function LogStreamWidget(settings, content) {
 
 
 LogStreamWidget.prototype.constructLogStreamWidget = function(settings, content) {
-	this.constructFrameWidget(settings, content);
+	this.constructWidgetContent(settings, content);
 };
 
 
@@ -42,7 +42,7 @@ LogStreamWidget.prototype.writeHTML = function() {
 		this.content += (this.lines[i] + '<br>\n');
 	}
 	this.element.innerHTML = this.content;
-	this.element.scrollTop = 5000;
+	this.outerWidget.element.scrollTop = 5000;
 };
 
 

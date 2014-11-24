@@ -53,8 +53,11 @@ FrameWidget.prototype.constructFrameWidget = function(settings, enclosedWidget) 
 
 	this.positionListener = null;
 
-	if(typeof enclosedWidget != 'undefined' && !enclosedWidget.onDeploy) {
-		throw 'content must be of type widget';
+	if(typeof enclosedWidget != 'undefined') {
+	 	if(!enclosedWidget.onDeploy) {
+			throw 'content must be of type widget';
+		}
+		enclosedWidget.outerWidget = this;
 	}
 
 	this.set('content', enclosedWidget);

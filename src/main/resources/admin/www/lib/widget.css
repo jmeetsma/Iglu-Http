@@ -24,24 +24,43 @@ object, embed {
 	margin:0px 0px 0px 0px;
 }
 
-html {
-	height:100%;
+body {
+
+	margin: 0px;
+	padding: 0px;
+	height: 100%;
+/*	border-collapse: collapse;*/
+	font-family: Arial; background-color: white; color: #222;
+	font-size: 11pt;
 }
 
-body {
-	height:100%;
-	border-collapse: collapse;
+.master_container {
+	position: absolute;
+
+    width: 100%; height: 100%;
+
+/*    border: 1px solid red;  */
+    overflow: scroll;
+}
+
+.frame_container {
+    position: absolute;
+    overflow: auto;
 }
 
 
 .title_bar_active, .title_bar_inactive {
 	background: blue; color: white; font: bold 1em Arial;
 	padding: 2px; padding-left: 5px;
+	height: 20px;
 	display: block;
 }
 
 .title_bar_inactive {
-	background: gray;
+	background: gray; color: white; font: bold 1em Arial;
+	padding: 2px; padding-left: 5px;
+	height: 20px;
+	display: block;
 }
 
 .title {
@@ -58,36 +77,22 @@ body {
 }
 
 .window_contents {
-	margin: 0px;
-	padding: 0px;
-	top: 0px;
-	left: 0px;
-	background: white;
-	color: black; font: normal 1em Arial; border: 1px solid orange;
-	overflow: auto;
 	position: relative;
+	overflow: hidden;
 }
-
-.logstream {
-	top: 0px;
-	left: 0px;
-	margin: 0px;
-	padding: 5px;
-	width: inherit;
-	height: inherit;
-	position: absolute;
-	overflow: auto;
-}
-
 
 .window {
+	position : absolute;
 	margin : 0px;
 	padding : 0px;
 	background : white;
-	border : 1px solid #444;
+	border : 1px solid #999;
+    border-radius: 5px;
+    box-shadow: 2px 2px 3px #aaa;
 	vertical-align : top;
-	position : absolute;
 }
+
+
 
 
 .panel, .second_split_panel, .first_horizontal_splitpanel, .first_vertical_splitpanel {
@@ -101,31 +106,61 @@ body {
 }
 
 .panel {
+	/*width: auto;*/
+	position: absolute;
+	margin: 0px;
+	padding: 0px;
+	border-color: black;
+	border-width: 0px;
+	padding: 0px;
 	border: 1px solid gray;
+	overflow: hidden;
+	background-color: white;
 }
-
-.second_split_panel {
-	border: 1px solid red;
-}
-
-
-
-.splitpanel {
-	height: 100%;
-
-}
-
 
 .panelcontents {
-	position: relative;
-	overflow: auto;
-	float: left;
-	width: 100%;
-	height: 100%;
-	top: 0px;
+    position: relative;
+    left: 0px;
+    top: 0px;
+    margin: 0px;
+    padding: 5px;
+	overflow: visible;
+	background-color: white;
 }
 
 
+.panelheader {
+	position: relative;
+    margin: 5px;
+	height: 20px;
+	overflow: hidden;
+	text-align: center;
+	background-color: #ddf;
+	font-size: 12pt;
+	color: #ddd;
+	border: 1px solid #555;
+	margin-bottom: 10px;
+}
+
+.panelcontentframe {
+	position: absolute;
+    left: 5px;
+    /*top: 25px;*/
+    margin: 0px;
+	overflow: auto;
+}
+
+.logstream {
+	top: 0px;
+	left: 0px;
+	margin: 0px;
+	padding: 5px;
+	width: inherit;
+	height: inherit;
+	position: absolute;
+	overflow: visible;
+	background: white;
+}
 
 .horizontal_container {
     display: table-row;
@@ -239,3 +274,16 @@ body {
 	vertical-align : top;
 	position : absolute;
 }
+
+.logstream {
+	/*position: absolute; */
+	top: 0px;
+	left: 0px;
+	margin: 0px;
+	padding: 5px;
+	width: inherit;
+	height: inherit;
+	overflow: visible;
+	background : white;
+}
+
