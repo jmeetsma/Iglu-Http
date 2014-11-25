@@ -272,11 +272,10 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 
 	public Object handleInvocation(CommandLine commandLine, Properties requestProperties)  throws Throwable {
 
-		System.out.println(new LogEntry("about to invoke " + commandLine));
 
 		Object[] parameters = convertToParameters(commandLine, requestProperties);
 
-		System.out.println(ArraySupport.format(parameters, "\n"));
+		System.out.println(new LogEntry("about to invoke " + commandLine) + " with parameters " + ArraySupport.format(parameters, ","));
 
         String[] idSeq = commandLine.getUnitIdentifierSequence();
         if(idSeq.length < 2) {
@@ -310,13 +309,6 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 			throw new RuntimeException("can't invoke method " + commandLine + " " + requestProperties,
 					ite.getCause());
 		}
-		
-
-	/*
-		DBG 20121129 16:06:25.318 exception occurred in mvc invocation
-java.lang.reflect.InvocationTargetException
-	*/
-//		throw new ConfigurationException("no unit found for invocation of " + commandLine + " " + requestProperties);
 	}
 
     @Override
