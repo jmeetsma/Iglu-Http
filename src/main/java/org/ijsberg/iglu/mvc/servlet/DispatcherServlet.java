@@ -88,7 +88,7 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 	}
   */
 	//meant for injection
-	public void register(RequestRegistry requestRegistry) {
+	public void setAccessManager(RequestRegistry requestRegistry) {
 		this.requestRegistry = requestRegistry;
 	}
 
