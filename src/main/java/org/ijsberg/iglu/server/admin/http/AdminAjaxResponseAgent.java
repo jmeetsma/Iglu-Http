@@ -1,18 +1,20 @@
 package org.ijsberg.iglu.server.admin.http;
 
-import org.ijsberg.iglu.http.json.*;
-import org.ijsberg.iglu.server.admin.AdminResponseAgent;
-import org.ijsberg.iglu.server.admin.InvocationSupport;
 import org.ijsberg.iglu.access.AgentFactory;
 import org.ijsberg.iglu.access.BasicAgentFactory;
 import org.ijsberg.iglu.access.Session;
 import org.ijsberg.iglu.access.component.RequestRegistry;
 import org.ijsberg.iglu.configuration.Cluster;
 import org.ijsberg.iglu.configuration.Component;
+import org.ijsberg.iglu.http.json.*;
+import org.ijsberg.iglu.server.admin.AdminResponseAgent;
+import org.ijsberg.iglu.server.admin.InvocationSupport;
 import org.ijsberg.iglu.util.misc.StringSupport;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Properties;
 
 
 /**
@@ -47,6 +49,10 @@ public class AdminAjaxResponseAgent implements AdminResponseAgent {
 
     }
 
+	public void setAdminCluster(Cluster core) {
+		this.core = core;
+
+	}
 
     @Override
     public String getClusterList(String function) {

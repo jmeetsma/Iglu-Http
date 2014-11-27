@@ -13,6 +13,6 @@ public class JsonNameValue implements JsonDecorator {
 	}
 
 	public String toString() {
-		return "{ \"" + name + "\" : \"" + value + "\" }";
+		return "{ \"" + name + "\" : \"" + JsonObject.formatHtmlEncodedWithLineContinuation(value) + "\" }";
 	}
 }

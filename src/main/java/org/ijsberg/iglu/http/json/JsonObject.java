@@ -1,6 +1,8 @@
 package org.ijsberg.iglu.http.json;
 
 import org.ijsberg.iglu.util.collection.CollectionSupport;
+import org.ijsberg.iglu.util.http.HttpEncodingSupport;
+import org.ijsberg.iglu.util.misc.StringSupport;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -24,9 +26,19 @@ public class JsonObject implements JsonDecorator {
 	}
 
 	public JsonObject addStringAttribute(String name, String value) {
-		attributes.put(name, "\"" + value + "\"");
+		attributes.put(name, "\"" + formatHtmlEncodedWithLineContinuation(value) + "\"");
 		return this;
 	}
+
+	public static String formatHtmlEncodedWithLineContinuation(String text) {
+
+
+		text = StringSupport.replaceAll(text, "\n", "\\\n");//line continuation
+		text = HttpEncodingSupport.htmlEncode(text);
+
+		return text;
+	}
+
 
 	public JsonObject addAttribute(String name, Object value) {
 		attributes.put(name, value);
