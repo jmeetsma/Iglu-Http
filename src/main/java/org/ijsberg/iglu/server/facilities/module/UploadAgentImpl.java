@@ -110,11 +110,13 @@ public class UploadAgentImpl implements UploadAgent {
 			try {
 				System.out.println(new LogEntry(Level.VERBOSE, "about to read upload in " + directoryName + '/' + getUserDir()));
 				reader = new MultiPartReader(req, directoryName + '/' + getUserDir());
+				//TODO exception if file missing
 				reader.readMultipartUpload();
 				System.out.println(new LogEntry(Level.VERBOSE, "reading upload " + (reader != null ? reader.getUploadFile() : "[ERROR:reader:null]" ) + " done"));
 			} catch (Exception e) {
 				isUploadCancelled = true;
 				System.out.println(new LogEntry(Level.CRITICAL, "reading upload " + (reader != null ? reader.getUploadFile() : "[ERROR:reader:null]" ) + " failed or was interrupted", e));
+				//TODO exception if file missing
 
 			}
 

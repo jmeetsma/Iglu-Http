@@ -91,8 +91,6 @@ public class AdminAjaxResponseAgent implements AdminResponseAgent {
 
 		Cluster cluster = getCluster(clusterId);
 		Component component = cluster.getInternalComponents().get(componentId);
-//		System.out.println(Arrays.asList(component.getInterfaces()));
-//		System.out.println(Arrays.asList(component.getInterfaces()).contains(Cluster.class));
 		return Arrays.asList(component.getInterfaces()).contains(Cluster.class);
 	}
 

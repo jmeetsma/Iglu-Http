@@ -106,6 +106,8 @@ public class MultiPartReader {
 		{
 
 			readPropertiesUntilEmptyLine();
+			//TODO fullFileName may be empty in which case storage output stream cannot be opened
+
 
 			bytesRead += bytesReadAsLine;
 			bytesReadAsLine = input.readLine(line, 0, BUFFER_SIZE);
