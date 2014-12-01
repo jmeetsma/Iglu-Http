@@ -19,7 +19,7 @@
 
 package org.ijsberg.iglu.http.json;
 
-import org.ijsberg.iglu.invocation.Parameters;
+import org.ijsberg.iglu.invocation.ExposeInConsole;
 import org.ijsberg.iglu.util.collection.ArraySupport;
 
 import java.lang.reflect.Method;
@@ -43,7 +43,7 @@ public class JsonMethodDecorator implements JsonDecorator {
 
 	public String toString() {
 
-		Parameters parametersDescription = method.getAnnotation(Parameters.class);
+		ExposeInConsole parametersDescription = method.getAnnotation(ExposeInConsole.class);
 
 		return "{"  +
 					JsonSupport.toAttr("name", method.getName()) + "," +
@@ -51,7 +51,7 @@ public class JsonMethodDecorator implements JsonDecorator {
 					JsonSupport.toAttr("componentId", componentId) + "," +
 					JsonSupport.toAttr("signature", method.toString()) + "," +
 				    JsonSupport.toAttr("nr_parameters", "" + method.getParameterTypes().length) + "," +
-					JsonSupport.toAttr("description", (parametersDescription != null ? ArraySupport.format(parametersDescription.decriptions(), ", ") : "")) +
+					JsonSupport.toAttr("description", (parametersDescription != null ? ArraySupport.format(parametersDescription.paramDesc(), ", ") : "")) +
 				"}";
 	}
 
