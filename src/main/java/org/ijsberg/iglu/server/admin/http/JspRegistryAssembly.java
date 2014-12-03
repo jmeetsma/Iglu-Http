@@ -26,20 +26,11 @@ import org.ijsberg.iglu.configuration.module.StandardComponent;
 import javax.servlet.jsp.HttpJspPage;
 
 /**
- * Created with IntelliJ IDEA.
- * User: jeroen
- * Date: 11/30/14
- * Time: 5:29 PM
- * To change this template use File | Settings | File Templates.
  */
-public abstract class JapRegistryAssembly extends BasicAssembly {
-
+public abstract class JspRegistryAssembly extends BasicAssembly {
 
 	public static void registerPage(HttpJspPage page) {
-
-		//System.out.println("registering " + page.getServletName());
 		Component pageComponent = new StandardComponent(page);
-		//pageComponent.setProperties(PropertiesSupport.loadProperties("lustrum_config/page.properties"));
 		core.getFacade().connect(pageComponent);
 	}
 
