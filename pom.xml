@@ -59,6 +59,12 @@
             <version>2.5</version>
         </dependency>
         <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.1</version>
+            <!--scope>provided</scope-->
+        </dependency>
+        <dependency>
             <groupId>org.ijsberg</groupId>
             <artifactId>iglu</artifactId>
             <version>1.0.5-SNAPSHOT</version>
