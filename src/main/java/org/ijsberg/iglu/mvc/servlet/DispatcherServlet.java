@@ -286,7 +286,7 @@ public class DispatcherServlet extends HttpServlet implements RequestDispatcher 
 
 		Object[] parameters = convertToParameters(commandLine, requestProperties);
 
-		System.out.println(new LogEntry("about to invoke " + commandLine) + " with parameters " + ArraySupport.format(parameters, ","));
+		System.out.println(new LogEntry("about to invoke " + commandLine + " with parameters " + ArraySupport.format(parameters, ",")));
 
         String[] idSeq = commandLine.getUnitIdentifierSequence();
         if(idSeq.length < 2) {
