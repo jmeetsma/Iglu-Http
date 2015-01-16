@@ -255,7 +255,12 @@ function loadPageHtml(contents, callbackInput) {
 	//TODO lot of assumptions here
 
 	var panelContents = document.getElementById(callbackInput.target + '_contents');
-	panelContents.innerHTML = contents;
+	if(panelContents == null) {
+		panelContents = document.getElementById(callbackInput.target);
+	}
+	if(panelContents != null) {
+		panelContents.innerHTML = contents;
+	}
 
 	var panelHeader = document.getElementById(callbackInput.target + '_header');
 	if(panelHeader != null) {
@@ -265,6 +270,7 @@ function loadPageHtml(contents, callbackInput) {
 	}
 }
 
+//TODO rename and add prefix
 function linkToHtml(source, target, title) {
 
 	var callbackInput = new Object();

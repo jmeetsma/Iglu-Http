@@ -50,11 +50,8 @@ public class JsonObject implements JsonDecorator {
 	}
 
 	public static String formatHtmlEncodedWithLineContinuation(String text) {
-
-
 		text = StringSupport.replaceAll(text, "\n", "\\\n");//line continuation
 		text = HttpEncodingSupport.htmlEncode(text);
-
 		return text;
 	}
 
