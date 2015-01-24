@@ -288,20 +288,34 @@ function loadPageJson(contents, callbackInput) {
 	var panelHeader = document.getElementById(callbackInput.target + '_header');
 	panelHeader.innerHTML = callbackInput.title;
 
-    //TODO this is JavaScript rather than JSON
-	eval(contents);
+	JSON.parse(nodesJson);//TODO and now?
+}
 
+function loadPageJavaScript(contents, callbackInput) {
+	var panelContents = document.getElementById(callbackInput.target + '_contents');
+	panelContents.innerHTML = '';
+
+	var panelHeader = document.getElementById(callbackInput.target + '_header');
+	panelHeader.innerHTML = callbackInput.title;
+
+	eval(contents);
+}
+
+function linkToJavaScript(source, target, title) {
+	var callbackInput = new Object();
+	callbackInput.target = target;
+	callbackInput.title = title;
+	ajaxRequestManager.doRequest('./' + source, loadPageJavaScript, callbackInput);
+	return false;
 }
 
 function linkToJson(source, target, title) {
 	var callbackInput = new Object();
 	callbackInput.target = target;
 	callbackInput.title = title;
-
 	ajaxRequestManager.doRequest('./' + source, loadPageJson, callbackInput);
 	return false;
 }
-
 
 function toggleProperty(key, on, off) {
 
@@ -360,7 +374,7 @@ function createLink(item, alternativeLabel) {
 			if(link.functionName != null) {
 				onclick += link.functionName + '(\'' + link.url + '\', \'' + link.target_label + '\');';
 			} else if(link.url.endsWith('.js')) {
-				onclick += 'linkToJson(\'' + link.url + '\', \'' + link.target + '\', \'' + link.target_label + '\');';
+				onclick += 'linkToJavaScript(\'' + link.url + '\', \'' + link.target + '\', \'' + link.target_label + '\');';
 			} else {
 				onclick += 'linkToHtml(\'' + link.url + '\', \'' + link.target + '\', \'' + link.target_label + '\');';
 			}
