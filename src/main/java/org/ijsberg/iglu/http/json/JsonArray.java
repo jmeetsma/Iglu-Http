@@ -52,6 +52,10 @@ public class JsonArray implements JsonDecorator {
 
 
 	public String toString() {
-		return "[\n" + CollectionSupport.format(contents, " , ") + "\n]";
+		return "[" + CollectionSupport.format(contents, " , ") + "]\n";
+	}
+
+	public int length() {
+		return contents.size();
 	}
 }
