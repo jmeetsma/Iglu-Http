@@ -485,11 +485,11 @@ public class WebAppEntryPoint implements Filter, EntryPoint
 		{
 			if(!response.isCommitted())
 			{
+				System.out.println(new LogEntry(Level.CRITICAL, "exception handled in http-filter " + filterName, cause));
 				ServletSupport.printException(response, "An exception occurred for which no exception page is defined.\n" +
 						"Make sure you do so if your application is in a production environment.\n" +
 						"(in section [" + exceptionPagesSectionId + "])" +
 						"\n\n" + CollectionSupport.format(messageStack, "\n"), cause);
-				System.out.println(new LogEntry(Level.CRITICAL, "exception handled in http-filter " + filterName, cause));
 			}
 			else
 			{
