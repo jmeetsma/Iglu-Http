@@ -61,6 +61,7 @@ public class JsonObject implements JsonDecorator {
 		return this;
 	}
 
+
 	public JsonObject addAttribute(String name, JsonDecorator value) {
 		attributes.put(name, value);
 		return this;

@@ -25,6 +25,15 @@ public class JsonData implements JsonDecorator {
 		return this;
 	}
 
+	public JsonData insertStringAttribute(String name, String value) {
+
+		LinkedHashMap<String, Object> copy = new LinkedHashMap<String, Object>(attributes);
+		attributes.clear();
+		attributes.put(name, "\"" + formatHtmlEncodedWithLineContinuation(value) + "\"");
+		attributes.putAll(copy);
+		return this;
+	}
+
 	public static String formatHtmlEncodedWithLineContinuation(String text) {
 		text = StringSupport.replaceAll(text, "\n", "\\\n");//line continuation
 		text = HttpEncodingSupport.htmlEncode(text);
